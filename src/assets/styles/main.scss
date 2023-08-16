@@ -1,0 +1,161 @@
+@import './normalize.css';
+@import './vars.scss';
+
+@font-face {
+    font-family: jetbrains;
+    src: url(../fonts/JetBrainsMono[wght].ttf);
+    font-weight: 1 1000;
+}
+
+@font-face {
+    font-family: jetbrains-italic;
+    src: url(../fonts/JetBrainsMono-Italic[wght].ttf);
+    font-weight: 1 1000;
+}
+
+* {
+    box-sizing: border-box;
+
+    &:active,
+    &:hover,
+    &:focus {
+        outline: 0;
+        outline-offset: 0;
+    }
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 300px;
+    background: #181c23;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0);
+}
+
+html,
+body,
+#app {
+    width: 100%;
+    height: 100%;
+}
+
+#app {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+body {
+    background-color: $black;
+    color: rgb(235, 235, 235);
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    color: $white;
+    font-family: 'jetbrains';
+    font-size: 12px;
+    overflow-y: scroll;
+}
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+input[type='number'],
+input[type='number']:hover,
+input[type='number']:focus {
+    appearance: none;
+    -moz-appearance: textfield;
+}
+
+select {
+    appearance: none;
+}
+
+.page-transition-enter-active,
+.page-transition-leave-active {
+    transition: all 0.5s;
+}
+.page-transition-enter,
+.page-transition-leave-to {
+    opacity: 0;
+}
+
+.opacity-enter-active {
+    animation: slideIn 0.5s;
+}
+.opacity-leave-active {
+    animation: slideOut 0.5s;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@keyframes slideOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.result {
+    word-wrap: break-word;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+}
+
+.button {
+    border: 1px solid $white;
+    border-radius: 9px;
+    padding: 10px 15px;
+    cursor: pointer;
+    background-color: $black;
+    font-weight: 800;
+    text-transform: uppercase;
+    border-bottom: 5px solid $white;
+    border-left: 2px solid $white;
+    border-right: 2px solid $white;
+    transition: all 70ms ease-in;
+    filter: none;
+    height: 40px;
+
+    &:hover {
+        background: #090c0f;
+        transform: translateY(1px);
+        border-bottom: 2px solid $white;
+    }
+}
+
+.active {
+    filter: none;
+}
+
+.button.deactive,
+.deactive .button {
+    cursor: no-drop;
+
+    &:hover {
+        background-color: $black;
+        transform: none;
+        border-bottom: 5px solid $white;
+    }
+}
+
+.button.active,
+.active .button {
+    background: #090c0f;
+    transform: translateY(1px);
+    border-bottom: 2px solid $white;
+}
