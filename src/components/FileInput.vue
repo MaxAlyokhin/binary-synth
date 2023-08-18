@@ -82,6 +82,19 @@ onMounted(() => {
                 <p>LOADING</p>
             </div>
         </Transition>
+
+        <Transition name="opacity" mode="out-in" appear>
+            <div v-show="!file.loaded && !isDropping && !isLoading" class="modal hero">
+                <div class="file">
+                    <label class="file__upload" @change="(event) => (event.target.files.length ? readFile(event.target.files[0]) : false)">
+                        <input type="file" />
+                        <div class="title">BINARY SYNTH</div>
+                        <div class="description">Binary file interpreter for audio generation</div>
+                        <div class="cta">CLICK FOR UPLOAD FILE<br />OR DROP FILE HERE</div>
+                    </label>
+                </div>
+            </div>
+        </Transition>
     </Teleport>
 </template>
 
@@ -91,8 +104,10 @@ onMounted(() => {
         cursor: pointer;
         display: block;
         height: 40px;
-        width: 200px;
+        width: 100%;
         text-align: center;
+        margin: 0 auto;
+        margin-bottom: 20px;
     }
 
     input[type='file'] {
@@ -109,12 +124,46 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(15px);
 
     p {
         font-weight: 900;
         font-size: 7vw;
         pointer-events: none;
+    }
+}
+
+.hero {
+    background-color: rgb(13, 17, 23);
+
+    .file {
+        width: 100%;
+        height: 100%;
+
+        label {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 900;
+            flex-direction: column;
+        }
+    }
+
+    .title {
+        font-size: 6vw;
+    }
+
+    .description {
+        text-transform: uppercase;
+        font-size: 2vw;
+        font-style: italic;
+    }
+
+    .cta {
+        font-size: 2vw;
+        margin-top: 50px;
     }
 }
 </style>

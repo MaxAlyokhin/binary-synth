@@ -10,6 +10,7 @@ const status = useStatusStore()
 const playing = computed(() => status.playing)
 const readingSpeed = computed(() => settings.readingSpeed)
 const time = ref(0)
+const durationTime = computed(() => secondsToFormatTime(toFixedNumber(file.binary8?.length * settings.readingSpeed * 1000)))
 
 let timerInterval = null
 
@@ -29,6 +30,45 @@ function commandIterator() {
     }, readingSpeed.value * 1000)
 }
 
+function secondsToFormatTime(ms) {
+    const years = Math.floor(ms / (365 * 24 * 60 * 60 * 1000))
+    const yearsms = ms % (365 * 24 * 60 * 60 * 1000)
+
+    const days = Math.floor(yearsms / (24 * 60 * 60 * 1000))
+    const daysms = ms % (24 * 60 * 60 * 1000)
+
+    const hours = Math.floor(daysms / (60 * 60 * 1000))
+    const hoursms = ms % (60 * 60 * 1000)
+
+    const minutes = Math.floor(hoursms / (60 * 1000))
+    const minutesms = ms % (60 * 1000)
+
+    const seconds = Math.floor(minutesms / 1000)
+
+    const milliseconds = toFixedNumber(ms % 1000, 2)
+
+    const yDisplay = years > 0 ? years + (years === 1 ? ' year ' : ' years ') : ''
+    const dDisplay = days > 0 ? days + (days === 1 ? ' day ' : ' days ') : ''
+    const hDisplay = hours > 0 ? hours + (hours === 1 ? ' hour ' : ' hours ') : ''
+    const mDisplay = minutes > 0 ? minutes + (minutes === 1 ? ' minute ' : ' minutes ') : ''
+    const sDisplay = seconds > 0 ? seconds + (seconds === 1 ? ' second ' : ' seconds ') : ''
+    const msDisplay = milliseconds > 0 ? milliseconds + (milliseconds === 1 ? ' millisecond ' : ' milliseconds ') : ''
+
+    return yDisplay + dDisplay + hDisplay + mDisplay + sDisplay + msDisplay
+}
+
+function format(number) {
+    let string = String(number)
+    const s = string.length
+    const chars = string.split('')
+    const strWithSpaces = chars.reduceRight((acc, char, i) => {
+        const spaceOrNothing = (s - i) % 3 === 0 ? ' ' : ''
+        return spaceOrNothing + char + acc
+    }, '')
+
+    return strWithSpaces[0] === ' ' ? strWithSpaces.slice(1) : strWithSpaces
+}
+
 watch(playing, (newValue) => {
     if (newValue) {
         timerInterval = timer()
@@ -41,7 +81,7 @@ watch(playing, (newValue) => {
     }
 })
 
-// При  изменении в настройках скорости чтения заново определяем интервалы
+// При изменении в настройках скорости чтения заново определяем интервалы
 watch(readingSpeed, () => {
     if (playing.value) {
         clearInterval(timerInterval)
@@ -69,10 +109,10 @@ watch(readingSpeed, () => {
                 File name: <span>{{ file.name }}</span>
             </div>
             <div class="status__size">
-                File size (bytes): <span>{{ file.size }}</span>
+                File size (bytes): <span>{{ format(file.size) }}</span>
             </div>
             <div class="status__composition-duration">
-                Composition duration (s): <span>{{ toFixedNumber((file.binary8?.length - 1) * settings.readingSpeed) }}</span>
+                Composition duration (s): <span>{{ durationTime }}</span>
             </div>
         </div>
         <div class="status__title">Commands from {{ status.currentCommandsBlock[0] }} to {{ status.currentCommandsBlock[1] }}</div>
@@ -94,9 +134,9 @@ watch(readingSpeed, () => {
 
 .status {
     transition: all 70ms ease-in;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    // display: flex;
+    // flex-direction: column;
+    // align-items: center;
 
     .active {
         color: $orange;
@@ -121,31 +161,52 @@ watch(readingSpeed, () => {
     }
 
     &__title {
-        margin-top: 40px;
+        margin-top: 20px;
         font-weight: 800;
+    }
+
+    &__name {
+        max-width: 1000px;
     }
 
     &__commands {
         display: grid;
         grid-template-columns: repeat(25, 1fr);
-        margin-top: 40px;
-        margin-bottom: 40px;
+        margin-top: 20px;
+        // padding-bottom: 40px;
 
-        @media (max-width: 1550px) {
+        @media (max-width: 1800px) {
             grid-template-columns: repeat(20, 1fr);
         }
 
-        @media (max-width: 1250px) {
+        @media (max-width: 1510px) {
             grid-template-columns: repeat(10, 1fr);
         }
 
-        @media (max-width: 650px) {
+        @media (max-width: 960px) {
             grid-template-columns: repeat(5, 1fr);
+            margin-left: auto;
+            margin-right: auto;
         }
     }
 
     &__command {
-        display: inline;
+        display: flex;
+        justify-content: center;
+    }
+
+    &__common {
+        max-width: 1435px;
+        overflow: auto;
+        overflow-y: hidden;
+
+        @media (max-width: 1550px) {
+            max-width: 1155px;
+        }
+
+        @media (max-width: 1250px) {
+            max-width: 450px;
+        }
     }
 }
 

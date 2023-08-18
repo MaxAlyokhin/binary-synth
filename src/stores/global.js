@@ -27,8 +27,38 @@ export const useSettingsStore = defineStore('settings', () => {
     const waveType = ref('sine')
     const gain = ref(1)
     const transitionType = ref('immediately')
+    const frequencyMode = ref('continuous')
+    const frequenciesRange = ref({
+        from: 0,
+        to: 255,
+    })
+    const notesRange = ref({
+        from: 48,
+        to: 60,
+    })
+    const biquadFilterFrequency = ref(10000.0)
+    const biquadFilterQ = ref(1)
+    const LFO = ref({
+        enabled: false,
+        type: 'sine',
+        rate: 1,
+        depth: 1,
+    })
+    const midiMode = ref(false)
 
-    return { readingSpeed, waveType, gain, transitionType }
+    return {
+        readingSpeed,
+        waveType,
+        gain,
+        transitionType,
+        frequencyMode,
+        frequenciesRange,
+        notesRange,
+        midiMode,
+        biquadFilterFrequency,
+        biquadFilterQ,
+        LFO,
+    }
 })
 
 export const useStatusStore = defineStore('status', () => {

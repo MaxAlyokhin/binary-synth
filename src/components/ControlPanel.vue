@@ -2,34 +2,31 @@
 import { onMounted, watch, computed } from 'vue'
 import { useFileStore, useSettingsStore, useStatusStore } from '@/stores/global.js'
 import { toFixedNumber } from '../assets/js/helpers'
+import Frequency from './ControlPanel/Frequency.vue'
+import Filter from './ControlPanel/Filter.vue'
+import LFO from './ControlPanel/LFO.vue'
+import Oscillator from './ControlPanel/Oscillator.vue'
+import Global from './ControlPanel/Global.vue'
 
 const file = useFileStore()
 const settings = useSettingsStore()
 const status = useStatusStore()
 
+const fileReadingLimit = 500 // Планирование композиции делим на итерации по fileReadingLimit шагов
+const iterationTime = computed(() => fileReadingLimit * settings.readingSpeed * 1000)
+
 let audioContext = null
 let oscillator = null
 let gain = null
-
-const wave = computed(() => settings.waveType)
-const playing = computed(() => status.playing)
-const gainValue = computed(() => settings.gain)
-const iterationTime = computed(() => fileReadingLimit * settings.readingSpeed * 1000)
-
-const fileReadingLimit = 500 // Планирование композиции делим на итерации по fileReadingLimit шагов
+let filter = null
+let lfoDepth = null
+let lfoOsc = null
+let masterGain = null
 
 function audioInit() {
-    // Создание
     oscillator = audioContext.createOscillator()
-    gain = audioContext.createGain()
-
-    // Настройка
-    gain.gain.value = gainValue.value
-    oscillator.type = wave.value
-
-    // Соединение
-    oscillator.connect(gain)
-    gain.connect(audioContext.destination)
+    oscillator.type = settings.waveType
+    oscillator.connect(filter)
 }
 
 // Чтобы снизить нагрузку на процессор, мы делим планирование композиции на итерации
@@ -89,6 +86,31 @@ function nextIteration(iterationNumber, scheduledCommands) {
 
 onMounted(() => {
     audioContext = new AudioContext()
+
+    // Создание
+    filter = audioContext.createBiquadFilter()
+    lfoOsc = audioContext.createOscillator()
+    lfoDepth = audioContext.createGain()
+    gain = audioContext.createGain()
+    masterGain = audioContext.createGain()
+
+    // Настройка
+    filter.type = 'lowpass'
+    filter.frequency.value = settings.biquadFilterFrequency
+    filter.Q.value = settings.biquadFilterQ
+    lfoOsc.type = settings.LFO.type
+    lfoOsc.frequency.value = settings.LFO.rate
+    lfoOsc.start()
+    lfoDepth.gain.value = settings.LFO.depth
+    gain.gain.value = settings.gain
+    masterGain.gain.value = 1
+
+    // Соединение
+    filter.connect(gain)
+    lfoDepth.connect(masterGain.gain)
+    gain.connect(masterGain)
+    masterGain.connect(audioContext.destination)
+
     audioInit()
 })
 
@@ -109,16 +131,41 @@ function stop() {
     }
 }
 
+const filterFrequency = computed(() => settings.biquadFilterFrequency)
+watch(filterFrequency, (newValue) => {
+    filter.frequency.value = newValue
+})
+const filterQ = computed(() => settings.biquadFilterQ)
+watch(filterQ, (newValue) => {
+    filter.Q.value = newValue
+})
+const lfoEnabled = computed(() => settings.LFO.enabled)
+watch(lfoEnabled, (newValue) => {
+    newValue ? lfoOsc.connect(lfoDepth) : lfoOsc.disconnect(lfoDepth)
+})
+const lfoType = computed(() => settings.LFO.type)
+watch(lfoType, (newValue) => {
+    lfoOsc.type = newValue
+})
+const lfoRate = computed(() => settings.LFO.rate)
+watch(lfoRate, (newValue) => {
+    lfoOsc.frequency.value = newValue
+})
+const lfoDepthValue = computed(() => settings.LFO.depth)
+watch(lfoDepthValue, (newValue) => {
+    lfoDepth.gain.value = newValue
+})
+const gainValue = computed(() => settings.gain)
 watch(gainValue, (newValue) => {
     gain.gain.value = newValue
 })
-
 // При изменении типа волны в UI сразу передаём его в осциллятор
+const wave = computed(() => settings.waveType)
 watch(wave, (newValue) => {
     oscillator.type = newValue
 })
-
 // По окончании композиции заново создаём связку
+const playing = computed(() => status.playing)
 watch(playing, (newValue) => {
     if (newValue === false) {
         oscillator.stop(audioContext.currentTime)
@@ -147,34 +194,11 @@ watch(playing, (newValue) => {
             </div>
 
             <div class="control__inputs">
-                <div class="control__gain input">
-                    <span>Gain</span>
-                    <input v-model="settings.gain" step="0.01" type="number" min="0" name="gain" />
-                </div>
-
-                <div class="control__reading input">
-                    <span>Reading speed</span>
-                    <input v-model="settings.readingSpeed" step="0.01" type="number" min="0" name="gain" />
-                </div>
-
-                <div class="control__wave input">
-                    <span>Wave type</span>
-                    <select name="wave" class="wave" v-model="settings.waveType">
-                        <option value="sine">sine</option>
-                        <option value="square">square</option>
-                        <option value="sawtooth">sawtooth</option>
-                        <option value="triangle">triangle</option>
-                    </select>
-                </div>
-
-                <div class="control__wave input">
-                    <span>Transition type</span>
-                    <select name="transition" class="transition" v-model="settings.transitionType">
-                        <option value="immediately">immediately</option>
-                        <option value="linear">linear</option>
-                        <option value="exponential">exponential</option>
-                    </select>
-                </div>
+                <Global />
+                <Frequency />
+                <Oscillator />
+                <Filter />
+                <LFO />
             </div>
         </div>
     </Transition>
@@ -192,10 +216,7 @@ watch(playing, (newValue) => {
 
     &__inputs {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(2, 1fr);
-        grid-column-gap: 20px;
-        grid-row-gap: 20px;
+        grid-row-gap: 10px;
     }
 
     .input {
@@ -203,22 +224,6 @@ watch(playing, (newValue) => {
         flex-direction: column;
         align-items: center;
         gap: 5px;
-
-        select,
-        input {
-            background: $black;
-            color: $white;
-            border: 1px solid $white;
-            border-radius: 5px;
-            padding: 0px 5px;
-            width: 150px;
-            max-width: 400px;
-            height: 20px;
-
-            &:hover {
-                background: #090c0f;
-            }
-        }
     }
 
     &__playing {
