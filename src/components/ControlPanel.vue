@@ -1,7 +1,8 @@
 <script setup>
 import { onMounted, watch, computed } from 'vue'
 import { useFileStore, useSettingsStore, useStatusStore } from '@/stores/global.js'
-import { toFixedNumber } from '../assets/js/helpers'
+import { toFixedNumber } from '../assets/js/helpers.js'
+import fourierCoefficients from '../assets/js/fourierCoefficients.js'
 import Frequency from './ControlPanel/Frequency.vue'
 import Filter from './ControlPanel/Filter.vue'
 import LFO from './ControlPanel/LFO.vue'
@@ -15,14 +16,45 @@ const status = useStatusStore()
 const fileReadingLimit = 500 // Планирование композиции делим на итерации по fileReadingLimit шагов
 const iterationTime = computed(() => fileReadingLimit * settings.readingSpeed * 1000)
 
-let audioContext = null
+// Создание
+let audioContext = new AudioContext()
 let oscillator = null
-let gain = null
-let filter = null
-let lfoDepth = null
-let lfoOsc = null
-let masterGain = null
+let gain = audioContext.createGain()
+let filter = audioContext.createBiquadFilter()
+let lfoDepth = audioContext.createGain()
+let lfoOsc = audioContext.createOscillator()
+let masterGain = audioContext.createGain()
 
+// Настройка
+filter.type = 'lowpass'
+filter.frequency.value = settings.biquadFilterFrequency
+filter.Q.value = settings.biquadFilterQ
+lfoOsc.type = settings.LFO.type
+lfoOsc.frequency.value = settings.LFO.rate
+lfoOsc.start()
+lfoDepth.gain.value = settings.LFO.depth
+gain.gain.value = settings.gain
+masterGain.gain.value = 1
+
+// Соединение
+filter.connect(gain)
+lfoDepth.connect(masterGain.gain)
+gain.connect(masterGain)
+masterGain.connect(audioContext.destination)
+
+audioInit()
+
+const squareWave = audioContext.createPeriodicWave(
+    Float32Array.from(fourierCoefficients.square.real),
+    Float32Array.from(fourierCoefficients.square.imag)
+)
+const sawtoothWave = audioContext.createPeriodicWave(
+    Float32Array.from(fourierCoefficients.sawtooth.real),
+    Float32Array.from(fourierCoefficients.sawtooth.imag)
+)
+
+// При каждом play создаём новый осциллятор и подключаем его
+// Изменение его частоты будет планироваться в nextIteration()
 function audioInit() {
     oscillator = audioContext.createOscillator()
     oscillator.type = settings.waveType
@@ -84,36 +116,6 @@ function nextIteration(iterationNumber, scheduledCommands) {
     }
 }
 
-onMounted(() => {
-    audioContext = new AudioContext()
-
-    // Создание
-    filter = audioContext.createBiquadFilter()
-    lfoOsc = audioContext.createOscillator()
-    lfoDepth = audioContext.createGain()
-    gain = audioContext.createGain()
-    masterGain = audioContext.createGain()
-
-    // Настройка
-    filter.type = 'lowpass'
-    filter.frequency.value = settings.biquadFilterFrequency
-    filter.Q.value = settings.biquadFilterQ
-    lfoOsc.type = settings.LFO.type
-    lfoOsc.frequency.value = settings.LFO.rate
-    lfoOsc.start()
-    lfoDepth.gain.value = settings.LFO.depth
-    gain.gain.value = settings.gain
-    masterGain.gain.value = 1
-
-    // Соединение
-    filter.connect(gain)
-    lfoDepth.connect(masterGain.gain)
-    gain.connect(masterGain)
-    masterGain.connect(audioContext.destination)
-
-    audioInit()
-})
-
 function play() {
     if (file.loaded && !status.playing) {
         oscillator.start()
@@ -145,7 +147,13 @@ watch(lfoEnabled, (newValue) => {
 })
 const lfoType = computed(() => settings.LFO.type)
 watch(lfoType, (newValue) => {
-    lfoOsc.type = newValue
+    if (newValue === 'square2') {
+        lfoOsc.setPeriodicWave(squareWave)
+    } else if (newValue === 'sawtooth2') {
+        lfoOsc.setPeriodicWave(sawtoothWave)
+    } else {
+        lfoOsc.type = newValue
+    }
 })
 const lfoRate = computed(() => settings.LFO.rate)
 watch(lfoRate, (newValue) => {
@@ -162,7 +170,13 @@ watch(gainValue, (newValue) => {
 // При изменении типа волны в UI сразу передаём его в осциллятор
 const wave = computed(() => settings.waveType)
 watch(wave, (newValue) => {
-    oscillator.type = newValue
+    if (newValue === 'square2') {
+        oscillator.setPeriodicWave(squareWave)
+    } else if (newValue === 'sawtooth2') {
+        oscillator.setPeriodicWave(sawtoothWave)
+    } else {
+        oscillator.type = newValue
+    }
 })
 // По окончании композиции заново создаём связку
 const playing = computed(() => status.playing)

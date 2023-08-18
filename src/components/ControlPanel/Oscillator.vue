@@ -34,7 +34,9 @@ watch(gain, (newValue) => {
                 <select name="wave" class="wave" v-model="settings.waveType">
                     <option value="sine">sine</option>
                     <option value="square">square</option>
+                    <option value="square2">square2</option>
                     <option value="sawtooth">sawtooth</option>
+                    <option value="sawtooth2">sawtooth2</option>
                     <option value="triangle">triangle</option>
                 </select>
             </div>

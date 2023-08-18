@@ -67,7 +67,9 @@ watch(rate, (newValue) => {
                 <select name="lfo-wave" class="lfo-wave" v-model="settings.LFO.type">
                     <option value="sine">sine</option>
                     <option value="square">square</option>
+                    <option value="square2">square2</option>
                     <option value="sawtooth">sawtooth</option>
+                    <option value="sawtooth2">sawtooth2</option>
                     <option value="triangle">triangle</option>
                 </select>
             </div>
