@@ -45,11 +45,11 @@ watch(rate, (newValue) => {
 </script>
 
 <template>
-    <div class="lfo module">
+    <div class="module">
         <span>LFO</span>
-        <div class="lfo__container connect">
-            <span class="lfo-power key">Connect</span>
-            <div class="lfo__container lfo__container--radio radio">
+        <div class="module__container module__container--block">
+            <span>Connect</span>
+            <div class="module__container module__container--radio">
                 <div class="radio-element">
                     <input type="radio" name="lfo" id="lfo-on" value="true" checked v-model="mode" />
                     <label class="lfo-on" for="lfo-on">On</label>
@@ -61,9 +61,9 @@ watch(rate, (newValue) => {
             </div>
         </div>
 
-        <div class="lfo__wrapper">
-            <div class="lfo__container">
-                <span class="lfo-type key">Type of wave</span>
+        <div class="module__wrapper module__wrapper--three">
+            <div class="module__container">
+                <span>Type of wave</span>
                 <select name="lfo-wave" class="lfo-wave" v-model="settings.LFO.type">
                     <option value="sine">sine</option>
                     <option value="square">square</option>
@@ -73,66 +73,14 @@ watch(rate, (newValue) => {
                     <option value="triangle">triangle</option>
                 </select>
             </div>
-            <div class="lfo__container">
-                <span class="lfo-rate key">Rate</span>
+            <div class="module__container">
+                <span>Rate</span>
                 <input type="number" step="0.1" name="rate" class="rate" v-model="rate" />
             </div>
-            <div class="lfo__container">
-                <span class="lfo-depth key">Depth</span>
+            <div class="module__container">
+                <span>Depth</span>
                 <input type="number" step="0.01" name="depth" class="depth" v-model="depth" />
             </div>
         </div>
     </div>
 </template>
-
-<style lang="scss" scoped>
-.lfo {
-    grid-column: 1/-1;
-
-    &-span {
-        text-align: center;
-        display: block;
-        margin-bottom: 5px;
-    }
-
-    span {
-        display: block;
-        text-align: center;
-        margin-bottom: 5px;
-    }
-
-    &__wrapper {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-
-        input,
-        select {
-            width: 90px;
-        }
-    }
-
-    &__container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-        &--radio {
-            flex-direction: row;
-            justify-content: space-around;
-
-            input {
-                margin-right: 5px;
-            }
-        }
-    }
-
-    &__container.connect {
-        border: 1px solid rgb(201, 209, 204);
-        border-radius: 5px;
-        padding: 5px;
-        margin-bottom: 10px;
-        align-items: unset;
-    }
-}
-</style>

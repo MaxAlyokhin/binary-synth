@@ -39,47 +39,17 @@ watch(biquadFilterQ, (newValue) => {
 </script>
 
 <template>
-    <div class="filter module">
-        <span class="filter-span">Filter</span>
-        <div class="filter__wrapper">
-            <div class="filter__container">
-                <span class="filter-freq key">Frequency</span>
+    <div class="module">
+        <span class="module-span">Filter</span>
+        <div class="module__wrapper">
+            <div class="module__container">
+                <span>Frequency</span>
                 <input type="number" step="0.1" name="filter" class="filter" v-model="biquadFilterFrequency" />
             </div>
-            <div class="filter__container">
-                <span class="filter-q key">Q-factor</span>
+            <div class="module__container">
+                <span>Q-factor</span>
                 <input type="number" step="0.1" name="factor" class="factor" v-model="biquadFilterQ" />
             </div>
         </div>
     </div>
 </template>
-
-<style lang="scss" scoped>
-.filter {
-    grid-column: 1/-1;
-
-    &-span {
-        text-align: center;
-        display: block;
-        margin-bottom: 10px;
-    }
-
-    span {
-        display: block;
-        text-align: center;
-        margin-bottom: 5px;
-    }
-
-    &__wrapper {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    &__container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-}
-</style>

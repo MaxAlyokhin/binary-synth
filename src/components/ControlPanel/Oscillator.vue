@@ -20,16 +20,16 @@ watch(gain, (newValue) => {
 </script>
 
 <template>
-    <div class="oscillator module">
-        <span class="oscillator-span">Oscillator</span>
+    <div class="module">
+        <span class="module-span">Oscillator</span>
 
-        <div class="oscillator__wrapper">
-            <div class="oscillator__container">
-                <span class="filter-freq key">Gain</span>
+        <div class="module__wrapper">
+            <div class="module__container">
+                <span>Gain</span>
                 <input v-model="gain" step="0.01" type="number" min="0" name="gain" />
             </div>
 
-            <div class="oscillator__container">
+            <div class="module__container">
                 <span>Wave type</span>
                 <select name="wave" class="wave" v-model="settings.waveType">
                     <option value="sine">sine</option>
@@ -43,33 +43,3 @@ watch(gain, (newValue) => {
         </div>
     </div>
 </template>
-
-<style lang="scss" scoped>
-.oscillator {
-    grid-column: 1/-1;
-
-    &-span {
-        text-align: center;
-        display: block;
-        margin-bottom: 5px;
-    }
-
-    span {
-        display: block;
-        text-align: center;
-        margin-bottom: 5px;
-    }
-
-    &__wrapper {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    &__container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-}
-</style>

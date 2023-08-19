@@ -76,13 +76,13 @@ watch(notesTo, (newValue) => {
 </script>
 
 <template>
-    <div class="frequencies module">
-        <span class="frequencies-span">Frequency</span>
+    <div class="module">
+        <span class="module-span">Frequency</span>
 
-        <div class="frequency-regime">
+        <div class="module__container module__container--block">
             <span class="key">Frequency generation mode</span>
 
-            <div class="frequency-regime__container">
+            <div class="module__container module__container--radio">
                 <div class="radio-element">
                     <input v-model="settings.frequencyMode" type="radio" name="frequency" id="continuous" value="continuous" checked />
                     <label class="continuous" for="continuous">Continuous</label>
@@ -95,26 +95,26 @@ watch(notesTo, (newValue) => {
             </div>
         </div>
 
-        <div v-show="settings.frequencyMode === 'continuous'" class="frequencies-range">
-            <div class="frequencies-range__container slide">
-                <span class="freq-from key">From</span>
+        <div v-show="settings.frequencyMode === 'continuous'" class="module__wrapper">
+            <div class="module__container">
+                <span>From</span>
                 <input type="number" step="1" name="frequencies-range-from" class="frequencies-range-from" v-model="frequencyFrom" />
             </div>
-            <div class="frequencies-range__container slide">
+            <div class="module__container">
                 <span class="freq-to key">To</span>
                 <input type="number" step="1" name="frequencies-range-to" class="frequencies-range-to" v-model="frequencyTo" />
             </div>
         </div>
 
-        <div v-show="settings.frequencyMode === 'tempered'" class="notes-range">
-            <div class="notes-range__container slide">
-                <span class="notes-range-from-span key">From</span>
+        <div v-show="settings.frequencyMode === 'tempered'" class="module__wrapper">
+            <div class="module__container">
+                <span>From</span>
                 <div class="notes-range__inputs">
                     <input type="number" step="1" name="notes-range-from" class="notes-range-from" v-model="notesFrom" />
                     <span class="notes-range__from-span"></span>
                 </div>
             </div>
-            <div class="notes-range__container slide">
+            <div class="module__container">
                 <span class="notes-range-to-span key">To</span>
                 <div class="notes-range__inputs">
                     <input type="number" step="1" name="notes-range-to" class="notes-range-to" v-model="notesTo" />
@@ -124,54 +124,3 @@ watch(notesTo, (newValue) => {
         </div>
     </div>
 </template>
-
-<style lang="scss" scoped>
-.frequencies {
-    grid-column: 1/-1;
-
-    &-span {
-        text-align: center;
-        display: block;
-        margin-bottom: 5px;
-    }
-
-    .frequency-regime {
-        border: 1px solid rgb(201, 209, 204);
-        border-radius: 5px;
-        padding: 5px;
-        margin-bottom: 10px;
-
-        span {
-            display: block;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-
-        &__container {
-            display: flex;
-            justify-content: space-around;
-
-            input[type='radio'] {
-                margin-right: 5px;
-            }
-        }
-    }
-
-    .frequencies-range,
-    .notes-range {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-
-        &__container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-
-            span {
-                margin-bottom: 5px;
-            }
-        }
-    }
-}
-</style>
