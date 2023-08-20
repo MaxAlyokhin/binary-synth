@@ -22,11 +22,16 @@ function timer() {
 
 let commandIteratorInterval = null
 let currentCommand = ref(0)
+let currentIteration = 0
 
 function commandIterator() {
     return setInterval(() => {
-        if (currentCommand.value === 499) currentCommand.value = 0
-        else currentCommand.value++
+        if (currentIteration !== status.iterationNumber) {
+            currentIteration = status.iterationNumber
+            currentCommand.value = 0
+        } else {
+            currentCommand.value++
+        }
     }, readingSpeed.value * 1000)
 }
 

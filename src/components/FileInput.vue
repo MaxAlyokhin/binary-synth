@@ -10,15 +10,18 @@ const status = useStatusStore()
 const isDropping = ref(false)
 const isLoading = ref(false)
 
-function readFile(rawFile) {
-    status.playing = false // Останавливаем композицию перед загрузкой следующего файла
-    status.currentCommandsBlock.value = [0, 499]
+reader.addEventListener('progress', (event) => {
+    isLoading.value = true
+})
 
-    reader.readAsArrayBuffer(rawFile) // Прочитали файл, здесь двоичный код
+reader.addEventListener('loadend', async (event) => {
+    isLoading.value = false
 
-    reader.addEventListener('progress', (event) => {
-        isLoading.value = true
-    })
+    if (event.target.result.byteLength <= 499) {
+        status.currentCommandsBlock[1] = event.target.result.byteLength - 1
+    } else {
+        status.currentCommandsBlock = [0, 499]
+    }
 
     // Для файлов с нечётным количеством байт нельзя создать Uint16Array
     // Поэтому мы можем заполнить недостающее нулями

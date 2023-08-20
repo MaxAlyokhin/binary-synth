@@ -14,7 +14,9 @@ const settings = useSettingsStore()
 const status = useStatusStore()
 
 const fileReadingLimit = 500 // Планирование композиции делим на итерации по fileReadingLimit шагов
-const iterationTime = computed(() => fileReadingLimit * settings.readingSpeed * 1000)
+const iterationTime = computed(() =>
+    toFixedNumber((status.currentCommandsBlock[1] - status.currentCommandsBlock[0] + 1) * settings.readingSpeed * 1000)
+)
 
 // Создание
 let audioContext = new AudioContext()
@@ -65,9 +67,11 @@ function audioInit() {
 // Но тогда как на каждой команде менять настройки воспроизведения?
 // То есть мы запланировали звук на 500 команд вперёд и он readonly
 // И только на следующей итерации мы можем его поменять
+
+let nextIterationTimeoutID = null
 function nextIteration(iterationNumber, scheduledCommands) {
     // Если дошли до конца команд или нажали stop, то выходим из рекурсии
-    if (scheduledCommands >= file.binary8.length - 1 || !status.playing) {
+    if (!status.playing) {
         status.playing = false
         return
     }
@@ -88,6 +92,8 @@ function nextIteration(iterationNumber, scheduledCommands) {
         : file.binary8.length - 1
 
     status.currentCommandsBlock = [scheduledCommands, end]
+
+    status.iterationNumber = iterationNumber
 
     let command = null
 
@@ -115,6 +121,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
     }
 
     // Если в файле байтов меньше, чем fileReadingLimit, то рекурсия отменяется
+    if (fileReadingLimit >= file.binary8.length) {
         if (!settings.loop) {
             nextIterationTimeoutID = setTimeout(() => {
                 status.playing = false
@@ -135,8 +142,6 @@ function play() {
     if (file.loaded && !status.playing) {
         oscillator.start()
         status.playing = true
-        // TODO: из-за этого на ходу менять скорость нельзя
-        setTimeout(stop, toFixedNumber((file.binary8.length - 1) * settings.readingSpeed * 1000))
         nextIteration(0, 0)
     }
 }
@@ -144,6 +149,7 @@ function play() {
 function stop() {
     if (status.playing) {
         oscillator.stop(audioContext.currentTime)
+        clearTimeout(nextIterationTimeoutID) // Отменяем запланированную рекурсию
         status.playing = false
     }
 }

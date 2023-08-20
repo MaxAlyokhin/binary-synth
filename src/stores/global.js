@@ -1,15 +1,5 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
-
-export const useCounterStore = defineStore('counter', () => {
-    const count = ref(10)
-    const doubleCount = computed(() => count.value * 2)
-    function increment() {
-        count.value++
-    }
-
-    return { count, doubleCount, increment }
-})
 
 export const useFileStore = defineStore('file', () => {
     const binary8 = ref(null)
@@ -69,6 +59,7 @@ export const useStatusStore = defineStore('status', () => {
     const playing = ref(false)
     const timer = ref(0)
     const currentCommandsBlock = ref([0, 499])
+    const iterationNumber = ref(0)
 
-    return { playing, timer, currentCommandsBlock }
+    return { playing, timer, currentCommandsBlock, iterationNumber }
 })
