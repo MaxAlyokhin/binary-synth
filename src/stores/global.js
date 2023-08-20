@@ -45,6 +45,7 @@ export const useSettingsStore = defineStore('settings', () => {
         depth: 1,
     })
     const bitness = ref('8')
+    const loop = ref(true)
     const midiMode = ref(false)
 
     return {
@@ -60,6 +61,7 @@ export const useSettingsStore = defineStore('settings', () => {
         biquadFilterQ,
         LFO,
         bitness,
+        loop,
     }
 })
 

@@ -1,20 +1,30 @@
 <script setup>
+import { ref, watch } from 'vue'
 import { useSettingsStore } from '@/stores/global.js'
 
 const settings = useSettingsStore()
+
+const loop = ref(settings.loop)
+
+watch(loop, (newValue) => {
+    // prettier-ignore
+    newValue === 'true'
+        ? settings.loop = true
+        : settings.loop = false
+})
 </script>
 
 <template>
-    <div class="global module">
-        <span class="global-span">Global</span>
+    <div class="module">
+        <span class="module-span">Global</span>
 
-        <div class="global__wrapper">
-            <div class="global__container">
+        <div class="module__wrapper">
+            <div class="module__container">
                 <span class="filter-freq key">Reading speed (s)</span>
                 <input v-model="settings.readingSpeed" step="0.01" type="number" min="0" name="gain" />
             </div>
 
-            <div class="global__container">
+            <div class="module__container">
                 <span>Transition type</span>
                 <select name="transition" class="transition" v-model="settings.transitionType">
                     <option value="immediately">immediately</option>
@@ -37,35 +47,19 @@ const settings = useSettingsStore()
                 </div>
             </div>
         </div>
+
+        <div class="module__container module__container--block">
+            <span>Loop</span>
+            <div class="module__container module__container--radio">
+                <div class="radio-element">
+                    <input type="radio" name="loop" id="loop-yes" value="true" checked v-model="loop" />
+                    <label for="loop-yes">Yes</label>
+                </div>
+                <div class="radio-element">
+                    <input type="radio" name="loop" id="loop-no" value="false" v-model="loop" />
+                    <label for="loop-no">No</label>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
-
-<style lang="scss" scoped>
-.global {
-    grid-column: 1/-1;
-
-    &-span {
-        text-align: center;
-        display: block;
-        margin-bottom: 5px;
-    }
-
-    span {
-        display: block;
-        text-align: center;
-        margin-bottom: 5px;
-    }
-
-    &__wrapper {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    &__container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-}
-</style>

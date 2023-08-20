@@ -72,6 +72,16 @@ function nextIteration(iterationNumber, scheduledCommands) {
         return
     }
 
+    if (scheduledCommands >= file.binary8.length - 1) {
+        if (settings.loop) {
+            nextIteration(0, 0)
+            return
+        } else {
+            status.playing = false
+            return
+        }
+    }
+
     // prettier-ignore
     const end = scheduledCommands + fileReadingLimit < file.binary8.length - 1
         ? scheduledCommands + fileReadingLimit - 1
@@ -105,12 +115,17 @@ function nextIteration(iterationNumber, scheduledCommands) {
     }
 
     // Если в файле байтов меньше, чем fileReadingLimit, то рекурсия отменяется
-    if (fileReadingLimit >= file.binary8.length - 1) {
-        setTimeout(() => {
-            status.playing = false
-        }, (file.binary8.length - 1) * settings.readingSpeed * 1000)
+        if (!settings.loop) {
+            nextIterationTimeoutID = setTimeout(() => {
+                status.playing = false
+            }, file.binary8.length * settings.readingSpeed * 1000)
+        } else {
+            nextIterationTimeoutID = setTimeout(() => {
+                nextIteration(0, 0)
+            }, file.binary8.length * settings.readingSpeed * 1000)
+        }
     } else {
-        setTimeout(() => {
+        nextIterationTimeoutID = setTimeout(() => {
             nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit))
         }, iterationTime.value)
     }
