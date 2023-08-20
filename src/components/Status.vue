@@ -20,17 +20,30 @@ function timer() {
     }, 1000)
 }
 
+// Подсветка текущей команды в UI
 let commandIteratorInterval = null
-let currentCommand = ref(0)
 let currentIteration = 0
 
+// По каждому play создаём новый итератор
 function commandIterator() {
     return setInterval(() => {
-        if (currentIteration !== status.iterationNumber) {
-            currentIteration = status.iterationNumber
-            currentCommand.value = 0
-        } else {
-            currentCommand.value++
+        // Если у нас один лист
+        if (file.size <= 499) {
+            if (status.currentCommand === file.size - 1) {
+                status.currentCommand = 0
+            } else {
+                status.currentCommand++
+            }
+        }
+        // Если несколько листов
+        // Мы можем определить переход на следующую порцию команд при изменении status.iterationNumber
+        else {
+            if (currentIteration !== status.iterationNumber) {
+                currentIteration = status.iterationNumber
+                status.currentCommand = 0
+            } else {
+                status.currentCommand++
+            }
         }
     }, readingSpeed.value * 1000)
 }
@@ -82,7 +95,7 @@ watch(playing, (newValue) => {
         clearInterval(timerInterval)
         clearInterval(commandIteratorInterval)
         time.value = 0
-        currentCommand.value = 0
+        status.currentCommand = 0
     }
 })
 
@@ -126,7 +139,7 @@ watch(readingSpeed, () => {
                 class="status__command"
                 v-for="(command, index) in file.binary8.slice(status.currentCommandsBlock[0], status.currentCommandsBlock[1] + 1)"
                 :id="index"
-                :class="{ active: index === currentCommand }"
+                :class="{ active: index === status.currentCommand }"
             >
                 {{ '00000000'.slice(String(command.toString(2)).length) + command.toString(2) }}
             </div>

@@ -59,7 +59,8 @@ export const useStatusStore = defineStore('status', () => {
     const playing = ref(false)
     const timer = ref(0)
     const currentCommandsBlock = ref([0, 499])
+    const currentCommand = ref(0)
     const iterationNumber = ref(0)
 
-    return { playing, timer, currentCommandsBlock, iterationNumber }
+    return { playing, timer, currentCommandsBlock, currentCommand, iterationNumber }
 })

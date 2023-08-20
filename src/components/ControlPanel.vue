@@ -92,11 +92,12 @@ function nextIteration(iterationNumber, scheduledCommands) {
         : file.binary8.length - 1
 
     status.currentCommandsBlock = [scheduledCommands, end]
-
     status.iterationNumber = iterationNumber
 
     let command = null
 
+    // noteIndex - порядковый номер элемента во всём массиве команд
+    // index - порядковый номер элемента в контексте итерации
     switch (settings.transitionType) {
         case 'immediately':
             for (let noteIndex = scheduledCommands, index = 0; noteIndex <= end; noteIndex++, index++) {
@@ -209,15 +210,72 @@ watch(playing, (newValue) => {
 })
 
 // TODO: менять скорость на ходу исполнения
-// watch(readingSpeed, () => {
-//     if (playing.value) {
-//         clearInterval(timerInterval)
-//         clearInterval(commandIteratorInterval)
+const readingSpeed = computed(() => settings.readingSpeed)
+const transitionType = computed(() => settings.transitionType)
+watch([readingSpeed, transitionType], () => {
+    // Отменяем уже запланированное для осциллятора
+    oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
+    clearTimeout(nextIterationTimeoutID) // Отменяем рекурсию
 
-//         timerInterval = timer()
-//         commandIteratorInterval = commandIterator()
-//     }
-// })
+    let command = null
+
+    // Перепланируем изменения в осцилляторе, начиная с последней команды на которой остановились
+    switch (settings.transitionType) {
+        case 'immediately':
+            for (
+                let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                noteIndex <= status.currentCommandsBlock[1];
+                noteIndex++, index++
+            ) {
+                command = file.binary8[noteIndex] === 0 ? 0.1 : file.binary8[noteIndex]
+                oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+            }
+            break
+
+        case 'linear':
+            for (
+                let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                noteIndex <= status.currentCommandsBlock[1];
+                noteIndex++, index++
+            ) {
+                command = file.binary8[noteIndex] === 0 ? 0.1 : file.binary8[noteIndex]
+                oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+            }
+            break
+
+        case 'exponential':
+            for (
+                let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                noteIndex <= status.currentCommandsBlock[1];
+                noteIndex++, index++
+            ) {
+                command = file.binary8[noteIndex] === 0 ? 0.1 : file.binary8[noteIndex]
+                oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+            }
+            break
+    }
+
+    // Заново планируем рекурсию
+    // Время следующей рекурсии это количество оставшихся в итерации команд * settings.readingSpeed
+    if (fileReadingLimit >= file.binary8.length) {
+        if (!settings.loop) {
+            nextIterationTimeoutID = setTimeout(() => {
+                status.playing = false
+            }, (file.binary8.length - status.currentCommand) * settings.readingSpeed * 1000)
+        } else {
+            nextIterationTimeoutID = setTimeout(() => {
+                nextIteration(0, 0)
+            }, (file.binary8.length - status.currentCommand) * settings.readingSpeed * 1000)
+        }
+    } else {
+        let iterationNumber = status.iterationNumber
+        let scheduledCommands = status.currentCommandsBlock[0]
+
+        nextIterationTimeoutID = setTimeout(() => {
+            nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit))
+        }, (status.currentCommandsBlock[1] - status.currentCommand) * settings.readingSpeed * 1000)
+    }
+})
 </script>
 
 <template>
