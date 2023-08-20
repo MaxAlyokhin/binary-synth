@@ -23,6 +23,20 @@ const settings = useSettingsStore()
                 </select>
             </div>
         </div>
+
+        <div class="module__container module__container--block">
+            <span>Bitness</span>
+            <div class="module__container module__container--radio">
+                <div class="radio-element">
+                    <input type="radio" name="bitness" id="bitness8" value="8" checked v-model="settings.bitness" />
+                    <label for="bitness8">8-bit</label>
+                </div>
+                <div class="radio-element">
+                    <input type="radio" name="bitness" id="bitness16" value="16" v-model="settings.bitness" />
+                    <label for="bitness16">16-bit</label>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 

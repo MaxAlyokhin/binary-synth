@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeMount } from 'vue'
 import { useFileStore, useStatusStore } from '@/stores/global.js'
 
 // Принимает файл
@@ -20,22 +20,54 @@ function readFile(rawFile) {
         isLoading.value = true
     })
 
-    reader.addEventListener('load', async (event) => {
-        isLoading.value = false
-        file.$patch({
-            name: rawFile.name,
-            size: rawFile.size,
-            type: rawFile.type,
-            binary8: new Uint8Array(event.target.result),
-            // binary16: new Uint16Array(event.target.result),
-            loaded: true,
-        })
+    // Для файлов с нечётным количеством байт нельзя создать Uint16Array
+    // Поэтому мы можем заполнить недостающее нулями
+    let binary8 = new Uint8Array(event.target.result)
+    let binary16 = null
+
+    if (event.target.result.byteLength % 2) {
+        let transferedBuffer = ArrayBuffer.transfer(event.target.result, event.target.result.byteLength + 1)
+        binary16 = new Uint16Array(transferedBuffer)
+    } else {
+        binary16 = new Uint16Array(event.target.result)
+    }
+
+    file.$patch({
+        binary8: binary8,
+        binary16: binary16,
+        loaded: true,
+    })
+})
+
+reader.addEventListener('error', (event) => {
+    throw new Error(event.target.error)
+})
+
+function readFile(rawFile) {
+    status.playing = false // Останавливаем композицию перед загрузкой следующего файла
+
+    file.$patch({
+        name: rawFile.name,
+        size: rawFile.size,
+        type: rawFile.type,
     })
 
-    reader.addEventListener('error', (event) => {
-        throw new Error(event.target.error)
-    })
+    reader.readAsArrayBuffer(rawFile) // Прочитали файл, здесь двоичный код
 }
+
+onBeforeMount(() => {
+    // Polyfill for ArrayBuffer.transfer
+    if (!ArrayBuffer.transfer) {
+        ArrayBuffer.transfer = function (source, length) {
+            if (!(source instanceof ArrayBuffer)) throw new TypeError('Source must be an instance of ArrayBuffer')
+            if (length <= source.byteLength) return source.slice(0, length)
+            let sourceView = new Uint8Array(source)
+            let destView = new Uint8Array(new ArrayBuffer(length))
+            destView.set(sourceView)
+            return destView.buffer
+        }
+    }
+})
 
 onMounted(() => {
     const bodyElement = document.querySelector('body')
