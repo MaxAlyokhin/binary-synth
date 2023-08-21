@@ -31,7 +31,6 @@ const file = useFileStore()
         flex-direction: column;
         justify-content: unset;
         width: auto;
-        padding: 20px 0;
     }
 
     &--stub {

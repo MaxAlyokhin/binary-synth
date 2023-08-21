@@ -2,6 +2,7 @@
 import { onMounted, watch, computed } from 'vue'
 import { useFileStore, useSettingsStore, useStatusStore } from '@/stores/global.js'
 import { toFixedNumber } from '../assets/js/helpers.js'
+import { getFrequency } from '../assets/js/getFrequency.js'
 import fourierCoefficients from '../assets/js/fourierCoefficients.js'
 import Frequency from './ControlPanel/Frequency.vue'
 import Filter from './ControlPanel/Filter.vue'
@@ -17,6 +18,7 @@ const fileReadingLimit = 500 // Планирование композиции д
 const iterationTime = computed(() =>
     toFixedNumber((status.currentCommandsBlock[1] - status.currentCommandsBlock[0] + 1) * settings.readingSpeed * 1000)
 )
+const bynaryInSelectedBitness = computed(() => (settings.bitness === '8' ? file.binary8 : file.binary16))
 
 // Создание
 let audioContext = new AudioContext()
@@ -76,7 +78,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
         return
     }
 
-    if (scheduledCommands >= file.binary8.length - 1) {
+    if (scheduledCommands >= bynaryInSelectedBitness.value.length - 1) {
         if (settings.loop) {
             nextIteration(0, 0)
             return
@@ -87,9 +89,9 @@ function nextIteration(iterationNumber, scheduledCommands) {
     }
 
     // prettier-ignore
-    const end = scheduledCommands + fileReadingLimit < file.binary8.length - 1
+    const end = scheduledCommands + fileReadingLimit < bynaryInSelectedBitness.value.length - 1
         ? scheduledCommands + fileReadingLimit - 1
-        : file.binary8.length - 1
+        : bynaryInSelectedBitness.value.length - 1
 
     status.currentCommandsBlock = [scheduledCommands, end]
     status.iterationNumber = iterationNumber
@@ -101,36 +103,57 @@ function nextIteration(iterationNumber, scheduledCommands) {
     switch (settings.transitionType) {
         case 'immediately':
             for (let noteIndex = scheduledCommands, index = 0; noteIndex <= end; noteIndex++, index++) {
-                command = file.binary8[noteIndex] === 0 ? 0.1 : file.binary8[noteIndex]
+                command = getFrequency(
+                    bynaryInSelectedBitness.value[noteIndex],
+                    settings.bitness,
+                    settings.frequencyMode,
+                    frequencyCoefficients.value,
+                    settings.frequenciesRange.from,
+                    settings.notesRange.from
+                )
                 oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
 
         case 'linear':
             for (let noteIndex = scheduledCommands, index = 0; noteIndex <= end; noteIndex++, index++) {
-                command = file.binary8[noteIndex] === 0 ? 0.1 : file.binary8[noteIndex]
+                command = getFrequency(
+                    bynaryInSelectedBitness.value[noteIndex],
+                    settings.bitness,
+                    settings.frequencyMode,
+                    frequencyCoefficients.value,
+                    settings.frequenciesRange.from,
+                    settings.notesRange.from
+                )
                 oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
 
         case 'exponential':
             for (let noteIndex = scheduledCommands, index = 0; noteIndex <= end; noteIndex++, index++) {
-                command = file.binary8[noteIndex] === 0 ? 0.1 : file.binary8[noteIndex]
+                command = getFrequency(
+                    bynaryInSelectedBitness.value[noteIndex],
+                    settings.bitness,
+                    settings.frequencyMode,
+                    frequencyCoefficients.value,
+                    settings.frequenciesRange.from,
+                    settings.notesRange.from
+                )
                 oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
     }
 
     // Если в файле байтов меньше, чем fileReadingLimit, то рекурсия отменяется
-    if (fileReadingLimit >= file.binary8.length) {
+    if (fileReadingLimit >= bynaryInSelectedBitness.value.length) {
         if (!settings.loop) {
             nextIterationTimeoutID = setTimeout(() => {
                 status.playing = false
-            }, file.binary8.length * settings.readingSpeed * 1000)
+            }, bynaryInSelectedBitness.value.length * settings.readingSpeed * 1000)
         } else {
             nextIterationTimeoutID = setTimeout(() => {
                 nextIteration(0, 0)
-            }, file.binary8.length * settings.readingSpeed * 1000)
+            }, bynaryInSelectedBitness.value.length * settings.readingSpeed * 1000)
         }
     } else {
         nextIterationTimeoutID = setTimeout(() => {
@@ -209,7 +232,15 @@ watch(playing, (newValue) => {
     }
 })
 
-// TODO: менять скорость на ходу исполнения
+const frequencyCoefficients = computed(() => {
+    return {
+        continouos8: (settings.frequenciesRange.to - settings.frequenciesRange.from) / 256,
+        continouos16: (settings.frequenciesRange.to - settings.frequenciesRange.from) / 65536,
+        tempered8: (settings.notesRange.to - settings.notesRange.from) / 256,
+        tempered16: (settings.notesRange.to - settings.notesRange.from) / 65536,
+    }
+})
+
 const readingSpeed = computed(() => settings.readingSpeed)
 const transitionType = computed(() => settings.transitionType)
 watch([readingSpeed, transitionType], () => {
@@ -227,7 +258,14 @@ watch([readingSpeed, transitionType], () => {
                 noteIndex <= status.currentCommandsBlock[1];
                 noteIndex++, index++
             ) {
-                command = file.binary8[noteIndex] === 0 ? 0.1 : file.binary8[noteIndex]
+                command = getFrequency(
+                    bynaryInSelectedBitness.value[noteIndex],
+                    settings.bitness,
+                    settings.frequencyMode,
+                    frequencyCoefficients.value,
+                    settings.frequenciesRange.from,
+                    settings.notesRange.from
+                )
                 oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
@@ -238,7 +276,14 @@ watch([readingSpeed, transitionType], () => {
                 noteIndex <= status.currentCommandsBlock[1];
                 noteIndex++, index++
             ) {
-                command = file.binary8[noteIndex] === 0 ? 0.1 : file.binary8[noteIndex]
+                command = getFrequency(
+                    bynaryInSelectedBitness.value[noteIndex],
+                    settings.bitness,
+                    settings.frequencyMode,
+                    frequencyCoefficients.value,
+                    settings.frequenciesRange.from,
+                    settings.notesRange.from
+                )
                 oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
@@ -249,7 +294,14 @@ watch([readingSpeed, transitionType], () => {
                 noteIndex <= status.currentCommandsBlock[1];
                 noteIndex++, index++
             ) {
-                command = file.binary8[noteIndex] === 0 ? 0.1 : file.binary8[noteIndex]
+                command = getFrequency(
+                    bynaryInSelectedBitness.value[noteIndex],
+                    settings.bitness,
+                    settings.frequencyMode,
+                    frequencyCoefficients.value,
+                    settings.frequenciesRange.from,
+                    settings.notesRange.from
+                )
                 oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
@@ -257,15 +309,15 @@ watch([readingSpeed, transitionType], () => {
 
     // Заново планируем рекурсию
     // Время следующей рекурсии это количество оставшихся в итерации команд * settings.readingSpeed
-    if (fileReadingLimit >= file.binary8.length) {
+    if (fileReadingLimit >= bynaryInSelectedBitness.value.length) {
         if (!settings.loop) {
             nextIterationTimeoutID = setTimeout(() => {
                 status.playing = false
-            }, (file.binary8.length - status.currentCommand) * settings.readingSpeed * 1000)
+            }, (bynaryInSelectedBitness.value.length - status.currentCommand) * settings.readingSpeed * 1000)
         } else {
             nextIterationTimeoutID = setTimeout(() => {
                 nextIteration(0, 0)
-            }, (file.binary8.length - status.currentCommand) * settings.readingSpeed * 1000)
+            }, (bynaryInSelectedBitness.value.length - status.currentCommand) * settings.readingSpeed * 1000)
         }
     } else {
         let iterationNumber = status.iterationNumber
@@ -275,6 +327,77 @@ watch([readingSpeed, transitionType], () => {
             nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit))
         }, (status.currentCommandsBlock[1] - status.currentCommand) * settings.readingSpeed * 1000)
     }
+})
+
+const frequenciesRange = computed(() => settings.frequenciesRange)
+const notesRange = computed(() => settings.notesRange)
+const frequencyMode = computed(() => settings.frequencyMode)
+watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
+    // Отменяем уже запланированное для осциллятора
+    oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
+
+    let command = null
+    // Перепланируем изменения в осцилляторе, начиная с последней команды на которой остановились
+    switch (settings.transitionType) {
+        case 'immediately':
+            for (
+                let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                noteIndex <= status.currentCommandsBlock[1];
+                noteIndex++, index++
+            ) {
+                command = getFrequency(
+                    bynaryInSelectedBitness.value[noteIndex],
+                    settings.bitness,
+                    settings.frequencyMode,
+                    frequencyCoefficients.value,
+                    settings.frequenciesRange.from,
+                    settings.notesRange.from
+                )
+                oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+            }
+            break
+
+        case 'linear':
+            for (
+                let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                noteIndex <= status.currentCommandsBlock[1];
+                noteIndex++, index++
+            ) {
+                command = getFrequency(
+                    bynaryInSelectedBitness.value[noteIndex],
+                    settings.bitness,
+                    settings.frequencyMode,
+                    frequencyCoefficients.value,
+                    settings.frequenciesRange.from,
+                    settings.notesRange.from
+                )
+                oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+            }
+            break
+
+        case 'exponential':
+            for (
+                let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                noteIndex <= status.currentCommandsBlock[1];
+                noteIndex++, index++
+            ) {
+                command = getFrequency(
+                    bynaryInSelectedBitness.value[noteIndex],
+                    settings.bitness,
+                    settings.frequencyMode,
+                    frequencyCoefficients.value,
+                    settings.frequenciesRange.from,
+                    settings.notesRange.from
+                )
+                oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+            }
+            break
+    }
+})
+
+watch(bynaryInSelectedBitness, () => {
+    stop()
+    setTimeout(play)
 })
 </script>
 

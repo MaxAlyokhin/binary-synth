@@ -10,7 +10,10 @@ const status = useStatusStore()
 const playing = computed(() => status.playing)
 const readingSpeed = computed(() => settings.readingSpeed)
 const time = ref(0)
-const durationTime = computed(() => secondsToFormatTime(toFixedNumber(file.binary8?.length * settings.readingSpeed * 1000)))
+const bynaryInSelectedBitness = computed(() => (settings.bitness === '8' ? file.binary8 : file.binary16))
+const durationTime = computed(() =>
+    secondsToFormatTime(toFixedNumber(bynaryInSelectedBitness.value?.length * settings.readingSpeed * 1000))
+)
 
 let timerInterval = null
 
@@ -28,8 +31,8 @@ let currentIteration = 0
 function commandIterator() {
     return setInterval(() => {
         // Если у нас один лист
-        if (file.size <= 499) {
-            if (status.currentCommand === file.size - 1) {
+        if (bynaryInSelectedBitness.value.length <= 499) {
+            if (status.currentCommand === bynaryInSelectedBitness.value.length - 1) {
                 status.currentCommand = 0
             } else {
                 status.currentCommand++
@@ -109,6 +112,14 @@ watch(readingSpeed, () => {
         commandIteratorInterval = commandIterator()
     }
 })
+
+watch(bynaryInSelectedBitness, (newValue) => {
+    if (newValue.length <= 499) {
+        status.currentCommandsBlock[1] = newValue.length
+    } else {
+        status.currentCommandsBlock = [0, 499]
+    }
+})
 </script>
 
 <template>
@@ -134,14 +145,21 @@ watch(readingSpeed, () => {
             </div>
         </div>
         <div class="status__title">Commands from {{ status.currentCommandsBlock[0] }} to {{ status.currentCommandsBlock[1] }}</div>
-        <div class="status__commands" v-if="file.binary8">
+        <div class="status__commands" v-if="file.loaded" :class="{ 'status__commands--16': settings.bitness === '16' }">
             <div
                 class="status__command"
-                v-for="(command, index) in file.binary8.slice(status.currentCommandsBlock[0], status.currentCommandsBlock[1] + 1)"
+                v-for="(command, index) in bynaryInSelectedBitness.slice(
+                    status.currentCommandsBlock[0],
+                    status.currentCommandsBlock[1] + 1
+                )"
                 :id="index"
                 :class="{ active: index === status.currentCommand }"
             >
-                {{ '00000000'.slice(String(command.toString(2)).length) + command.toString(2) }}
+                {{
+                    settings.bitness === '8'
+                        ? '00000000'.slice(String(command.toString(2)).length) + command.toString(2)
+                        : '0000000000000000'.slice(String(command.toString(2)).length) + command.toString(2)
+                }}
             </div>
         </div>
     </div>
@@ -152,9 +170,6 @@ watch(readingSpeed, () => {
 
 .status {
     transition: all 70ms ease-in;
-    // display: flex;
-    // flex-direction: column;
-    // align-items: center;
 
     .active {
         color: $orange;
@@ -191,7 +206,7 @@ watch(readingSpeed, () => {
         display: grid;
         grid-template-columns: repeat(25, 1fr);
         margin-top: 20px;
-        // padding-bottom: 40px;
+        max-width: fit-content;
 
         @media (max-width: 1800px) {
             grid-template-columns: repeat(20, 1fr);
@@ -205,6 +220,22 @@ watch(readingSpeed, () => {
             grid-template-columns: repeat(5, 1fr);
             margin-left: auto;
             margin-right: auto;
+        }
+
+        &--16 {
+            grid-template-columns: repeat(12, 1fr);
+
+            @media (max-width: 1800px) {
+                grid-template-columns: repeat(9, 1fr);
+            }
+
+            @media (max-width: 1510px) {
+                grid-template-columns: repeat(5, 1fr);
+            }
+
+            @media (max-width: 960px) {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     }
 
