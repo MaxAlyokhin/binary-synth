@@ -29,26 +29,50 @@ let currentIteration = 0
 
 // По каждому play создаём новый итератор
 function commandIterator() {
-    return setInterval(() => {
-        // Если у нас один лист
-        if (bynaryInSelectedBitness.value.length <= 499) {
-            if (status.currentCommand === bynaryInSelectedBitness.value.length - 1) {
-                status.currentCommand = 0
-            } else {
-                status.currentCommand++
+    // Максимальная скорость setInterval 5мс
+    if (readingSpeed.value >= 0.005) {
+        return setInterval(() => {
+            // Если у нас один лист
+            if (bynaryInSelectedBitness.value.length <= 499) {
+                if (status.currentCommand === bynaryInSelectedBitness.value.length - 1) {
+                    status.currentCommand = 0
+                } else {
+                    status.currentCommand++
+                }
             }
-        }
-        // Если несколько листов
-        // Мы можем определить переход на следующую порцию команд при изменении status.iterationNumber
-        else {
-            if (currentIteration !== status.iterationNumber) {
-                currentIteration = status.iterationNumber
-                status.currentCommand = 0
-            } else {
-                status.currentCommand++
+            // Если несколько листов
+            // Мы можем определить переход на следующую порцию команд при изменении status.iterationNumber
+            else {
+                if (currentIteration !== status.iterationNumber) {
+                    currentIteration = status.iterationNumber
+                    status.currentCommand = 0
+                } else {
+                    status.currentCommand++
+                }
             }
-        }
-    }, readingSpeed.value * 1000)
+        }, readingSpeed.value * 1000)
+    } else {
+        return setInterval(() => {
+            // Если у нас один лист
+            if (bynaryInSelectedBitness.value.length <= 499) {
+                if (status.currentCommand >= bynaryInSelectedBitness.value.length - 1) {
+                    status.currentCommand = 0
+                } else {
+                    status.currentCommand += 5 * (readingSpeed.value * 1000)
+                }
+            }
+            // Если несколько листов
+            // Мы можем определить переход на следующую порцию команд при изменении status.iterationNumber
+            else {
+                if (currentIteration !== status.iterationNumber) {
+                    currentIteration = status.iterationNumber
+                    status.currentCommand = 0
+                } else {
+                    status.currentCommand += 5 * (readingSpeed.value * 1000)
+                }
+            }
+        }, 5)
+    }
 }
 
 function secondsToFormatTime(ms) {

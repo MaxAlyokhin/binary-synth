@@ -11,11 +11,8 @@ const notes = [
 ]
 
 export function getFrequency(byte, bitness, mode, coefficients, minimumFrequency, minimumNote) {
-    console.log(Math.floor(coefficients.tempered8 * byte) + minimumNote)
-
-    if (byte === 0) return 0.01 + minimumFrequency
-
     if (mode === 'continuous') {
+        if (byte === 0) return 0.01 + minimumFrequency
         if (bitness === '8') return coefficients.continouos8 * byte + minimumFrequency
         if (bitness === '16') return coefficients.continouos16 * byte + minimumFrequency
     }

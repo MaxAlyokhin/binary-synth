@@ -111,6 +111,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
                     settings.frequenciesRange.from,
                     settings.notesRange.from
                 )
+                if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
                 oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
@@ -125,6 +126,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
                     settings.frequenciesRange.from,
                     settings.notesRange.from
                 )
+                if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
                 oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
@@ -139,6 +141,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
                     settings.frequenciesRange.from,
                     settings.notesRange.from
                 )
+                if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
                 oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
@@ -266,6 +269,8 @@ watch([readingSpeed, transitionType], () => {
                     settings.frequenciesRange.from,
                     settings.notesRange.from
                 )
+
+                if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
                 oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
@@ -284,6 +289,8 @@ watch([readingSpeed, transitionType], () => {
                     settings.frequenciesRange.from,
                     settings.notesRange.from
                 )
+
+                if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
                 oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
@@ -302,6 +309,8 @@ watch([readingSpeed, transitionType], () => {
                     settings.frequenciesRange.from,
                     settings.notesRange.from
                 )
+
+                if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
                 oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
@@ -325,7 +334,7 @@ watch([readingSpeed, transitionType], () => {
 
         nextIterationTimeoutID = setTimeout(() => {
             nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit))
-        }, (status.currentCommandsBlock[1] - status.currentCommand) * settings.readingSpeed * 1000)
+        }, (status.currentCommandsBlock[1] - (status.currentCommandsBlock[0] + status.currentCommand)) * settings.readingSpeed * 1000)
     }
 })
 
@@ -353,6 +362,7 @@ watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
                     settings.frequenciesRange.from,
                     settings.notesRange.from
                 )
+                if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
                 oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
@@ -371,6 +381,7 @@ watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
                     settings.frequenciesRange.from,
                     settings.notesRange.from
                 )
+                if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
                 oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
@@ -389,6 +400,7 @@ watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
                     settings.frequenciesRange.from,
                     settings.notesRange.from
                 )
+                if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
                 oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
             break
@@ -398,6 +410,14 @@ watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
 watch(bynaryInSelectedBitness, () => {
     stop()
     setTimeout(play)
+})
+
+const loaded = computed(() => file.loaded)
+watch(loaded, () => {
+    stop()
+    // Отменяем уже запланированное для осциллятора
+    oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
+    clearTimeout(nextIterationTimeoutID) // Отменяем рекурсию
 })
 </script>
 

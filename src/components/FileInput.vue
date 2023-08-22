@@ -14,6 +14,11 @@ reader.addEventListener('progress', (event) => {
     isLoading.value = true
 })
 
+reader.addEventListener('loadstart', async (event) => {
+    isLoading.value = true
+    file.loaded = false
+})
+
 reader.addEventListener('loadend', async (event) => {
     isLoading.value = false
 
