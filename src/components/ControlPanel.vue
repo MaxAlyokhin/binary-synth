@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, watch, computed } from 'vue'
+import { watch, computed } from 'vue'
 import { useFileStore, useSettingsStore, useStatusStore } from '@/stores/global.js'
 import { toFixedNumber } from '../assets/js/helpers.js'
 import { getFrequency } from '../assets/js/getFrequency.js'
@@ -9,6 +9,9 @@ import Filter from './ControlPanel/Filter.vue'
 import LFO from './ControlPanel/LFO.vue'
 import Oscillator from './ControlPanel/Oscillator.vue'
 import Global from './ControlPanel/Global.vue'
+import Midi from './ControlPanel/Midi.vue'
+import sendMIDIMessage from '../assets/js/midi.js'
+import { getMIDINote } from '../assets/js/getMIDINote.js'
 
 const file = useFileStore()
 const settings = useSettingsStore()
@@ -66,11 +69,9 @@ function audioInit() {
 }
 
 // Чтобы снизить нагрузку на процессор, мы делим планирование композиции на итерации
-// Но тогда как на каждой команде менять настройки воспроизведения?
-// То есть мы запланировали звук на 500 команд вперёд и он readonly
-// И только на следующей итерации мы можем его поменять
-
 let nextIterationTimeoutID = null
+let midiTimeoutIDs = []
+let commands = []
 function nextIteration(iterationNumber, scheduledCommands) {
     // Если дошли до конца команд или нажали stop, то выходим из рекурсии
     if (!status.playing) {
@@ -88,6 +89,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
         }
     }
 
+    // Определяем блок команд (500 штук)
     // prettier-ignore
     const end = scheduledCommands + fileReadingLimit < bynaryInSelectedBitness.value.length - 1
         ? scheduledCommands + fileReadingLimit - 1
@@ -96,55 +98,94 @@ function nextIteration(iterationNumber, scheduledCommands) {
     status.currentCommandsBlock = [scheduledCommands, end]
     status.iterationNumber = iterationNumber
 
+    // Планируем композицию
     let command = null
 
     // noteIndex - порядковый номер элемента во всём массиве команд
     // index - порядковый номер элемента в контексте итерации
-    switch (settings.transitionType) {
-        case 'immediately':
-            for (let noteIndex = scheduledCommands, index = 0; noteIndex <= end; noteIndex++, index++) {
-                command = getFrequency(
-                    bynaryInSelectedBitness.value[noteIndex],
-                    settings.bitness,
-                    settings.frequencyMode,
-                    frequencyCoefficients.value,
-                    settings.frequenciesRange.from,
-                    settings.notesRange.from
-                )
-                if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
-                oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
-            }
-            break
 
-        case 'linear':
-            for (let noteIndex = scheduledCommands, index = 0; noteIndex <= end; noteIndex++, index++) {
-                command = getFrequency(
-                    bynaryInSelectedBitness.value[noteIndex],
-                    settings.bitness,
-                    settings.frequencyMode,
-                    frequencyCoefficients.value,
-                    settings.frequenciesRange.from,
-                    settings.notesRange.from
-                )
-                if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
-                oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
-            }
-            break
+    // Для обычного режима
 
-        case 'exponential':
-            for (let noteIndex = scheduledCommands, index = 0; noteIndex <= end; noteIndex++, index++) {
-                command = getFrequency(
-                    bynaryInSelectedBitness.value[noteIndex],
-                    settings.bitness,
-                    settings.frequencyMode,
-                    frequencyCoefficients.value,
-                    settings.frequenciesRange.from,
-                    settings.notesRange.from
-                )
-                if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
-                oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
-            }
-            break
+    if (!settings.midiMode) {
+        switch (settings.transitionType) {
+            case 'immediately':
+                for (let noteIndex = scheduledCommands, index = 0; noteIndex <= end; noteIndex++, index++) {
+                    command = getFrequency(
+                        bynaryInSelectedBitness.value[noteIndex],
+                        settings.bitness,
+                        settings.frequencyMode,
+                        frequencyCoefficients.value,
+                        settings.frequenciesRange.from,
+                        settings.notesRange.from
+                    )
+                    if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                    oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                }
+                break
+
+            case 'linear':
+                for (let noteIndex = scheduledCommands, index = 0; noteIndex <= end; noteIndex++, index++) {
+                    command = getFrequency(
+                        bynaryInSelectedBitness.value[noteIndex],
+                        settings.bitness,
+                        settings.frequencyMode,
+                        frequencyCoefficients.value,
+                        settings.frequenciesRange.from,
+                        settings.notesRange.from
+                    )
+                    if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                    oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                }
+                break
+
+            case 'exponential':
+                for (let noteIndex = scheduledCommands, index = 0; noteIndex <= end; noteIndex++, index++) {
+                    command = getFrequency(
+                        bynaryInSelectedBitness.value[noteIndex],
+                        settings.bitness,
+                        settings.frequencyMode,
+                        frequencyCoefficients.value,
+                        settings.frequenciesRange.from,
+                        settings.notesRange.from
+                    )
+                    if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
+                    oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                }
+                break
+        }
+    }
+    // Для MIDI-режима
+    else {
+        midiTimeoutIDs.forEach((id) => {
+            clearTimeout(id)
+        })
+
+        for (let noteIndex = scheduledCommands, index = 0; noteIndex <= end; noteIndex++, index++) {
+            commands[index] = getMIDINote(
+                bynaryInSelectedBitness.value[noteIndex],
+                settings.bitness,
+                settings.frequencyMode,
+                frequencyCoefficients.value,
+                settings.frequenciesRange.from,
+                settings.notesRange.from
+            )
+
+            midiTimeoutIDs[index] = setTimeout(
+                (index) => {
+                    if (commands[index - 1]) {
+                        sendMIDIMessage.noteOff(commands[index - 1][0], settings.midi.velocity, settings.midi.port, settings.midi.channel)
+                    }
+
+                    sendMIDIMessage.noteOn(commands[index][0], settings.midi.velocity, settings.midi.port, settings.midi.channel)
+
+                    if (settings.frequencyMode === 'continuous') {
+                        sendMIDIMessage.pitch(commands[index][1], settings.midi.port, settings.midi.channel)
+                    }
+                },
+                index * settings.readingSpeed * 1000,
+                index
+            )
+        }
     }
 
     // Если в файле байтов меньше, чем fileReadingLimit, то рекурсия отменяется
@@ -167,7 +208,8 @@ function nextIteration(iterationNumber, scheduledCommands) {
 
 function play() {
     if (file.loaded && !status.playing) {
-        oscillator.start()
+        if (!settings.midiMode) oscillator.start()
+
         status.playing = true
         nextIteration(0, 0)
     }
@@ -175,8 +217,17 @@ function play() {
 
 function stop() {
     if (status.playing) {
-        oscillator.stop(audioContext.currentTime)
-        clearTimeout(nextIterationTimeoutID) // Отменяем запланированную рекурсию
+        if (!settings.midiMode) {
+            oscillator.stop(audioContext.currentTime)
+            oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
+            clearTimeout(nextIterationTimeoutID) // Отменяем запланированную рекурсию
+        } else {
+            midiTimeoutIDs.forEach((id) => {
+                clearTimeout(id)
+            })
+            sendMIDIMessage.allSoundOff(settings.midi.port, settings.midi.channel)
+        }
+
         status.playing = false
     }
 }
@@ -230,8 +281,12 @@ watch(wave, (newValue) => {
 const playing = computed(() => status.playing)
 watch(playing, (newValue) => {
     if (newValue === false) {
-        oscillator.stop(audioContext.currentTime)
-        audioInit()
+        if (!settings.midiMode) {
+            oscillator.stop(audioContext.currentTime)
+            audioInit()
+        } else {
+            sendMIDIMessage.allSoundOff(settings.midi.port, settings.midi.channel)
+        }
     }
 })
 
@@ -247,94 +302,140 @@ const frequencyCoefficients = computed(() => {
 const readingSpeed = computed(() => settings.readingSpeed)
 const transitionType = computed(() => settings.transitionType)
 watch([readingSpeed, transitionType], () => {
-    // Отменяем уже запланированное для осциллятора
-    oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
-    clearTimeout(nextIterationTimeoutID) // Отменяем рекурсию
+    if (status.playing) {
+        let command = null
 
-    let command = null
+        clearTimeout(nextIterationTimeoutID) // Отменяем рекурсию
 
-    // Перепланируем изменения в осцилляторе, начиная с последней команды на которой остановились
-    switch (settings.transitionType) {
-        case 'immediately':
-            for (
-                let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
-                noteIndex <= status.currentCommandsBlock[1];
-                noteIndex++, index++
-            ) {
-                command = getFrequency(
-                    bynaryInSelectedBitness.value[noteIndex],
-                    settings.bitness,
-                    settings.frequencyMode,
-                    frequencyCoefficients.value,
-                    settings.frequenciesRange.from,
-                    settings.notesRange.from
-                )
+        if (!settings.midiMode) {
+            // Отменяем уже запланированное для осциллятора
+            oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
 
-                if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
-                oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+            // Перепланируем изменения в осцилляторе, начиная с последней команды на которой остановились
+            switch (settings.transitionType) {
+                case 'immediately':
+                    for (
+                        let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                        noteIndex <= status.currentCommandsBlock[1];
+                        noteIndex++, index++
+                    ) {
+                        command = getFrequency(
+                            bynaryInSelectedBitness.value[noteIndex],
+                            settings.bitness,
+                            settings.frequencyMode,
+                            frequencyCoefficients.value,
+                            settings.frequenciesRange.from,
+                            settings.notesRange.from
+                        )
+
+                        if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                        oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                    }
+                    break
+
+                case 'linear':
+                    for (
+                        let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                        noteIndex <= status.currentCommandsBlock[1];
+                        noteIndex++, index++
+                    ) {
+                        command = getFrequency(
+                            bynaryInSelectedBitness.value[noteIndex],
+                            settings.bitness,
+                            settings.frequencyMode,
+                            frequencyCoefficients.value,
+                            settings.frequenciesRange.from,
+                            settings.notesRange.from
+                        )
+
+                        if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                        oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                    }
+                    break
+
+                case 'exponential':
+                    for (
+                        let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                        noteIndex <= status.currentCommandsBlock[1];
+                        noteIndex++, index++
+                    ) {
+                        command = getFrequency(
+                            bynaryInSelectedBitness.value[noteIndex],
+                            settings.bitness,
+                            settings.frequencyMode,
+                            frequencyCoefficients.value,
+                            settings.frequenciesRange.from,
+                            settings.notesRange.from
+                        )
+
+                        if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
+                        oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                    }
+                    break
             }
-            break
-
-        case 'linear':
-            for (
-                let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
-                noteIndex <= status.currentCommandsBlock[1];
-                noteIndex++, index++
-            ) {
-                command = getFrequency(
-                    bynaryInSelectedBitness.value[noteIndex],
-                    settings.bitness,
-                    settings.frequencyMode,
-                    frequencyCoefficients.value,
-                    settings.frequenciesRange.from,
-                    settings.notesRange.from
-                )
-
-                if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
-                oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
-            }
-            break
-
-        case 'exponential':
-            for (
-                let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
-                noteIndex <= status.currentCommandsBlock[1];
-                noteIndex++, index++
-            ) {
-                command = getFrequency(
-                    bynaryInSelectedBitness.value[noteIndex],
-                    settings.bitness,
-                    settings.frequencyMode,
-                    frequencyCoefficients.value,
-                    settings.frequenciesRange.from,
-                    settings.notesRange.from
-                )
-
-                if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
-                oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
-            }
-            break
-    }
-
-    // Заново планируем рекурсию
-    // Время следующей рекурсии это количество оставшихся в итерации команд * settings.readingSpeed
-    if (fileReadingLimit >= bynaryInSelectedBitness.value.length) {
-        if (!settings.loop) {
-            nextIterationTimeoutID = setTimeout(() => {
-                status.playing = false
-            }, (bynaryInSelectedBitness.value.length - status.currentCommand) * settings.readingSpeed * 1000)
         } else {
-            nextIterationTimeoutID = setTimeout(() => {
-                nextIteration(0, 0)
-            }, (bynaryInSelectedBitness.value.length - status.currentCommand) * settings.readingSpeed * 1000)
-        }
-    } else {
-        let iterationNumber = status.iterationNumber
-        let scheduledCommands = status.currentCommandsBlock[0]
+            midiTimeoutIDs.forEach((id) => {
+                clearTimeout(id)
+            })
+            sendMIDIMessage.allSoundOff(settings.midi.port, settings.midi.channel)
 
-        nextIterationTimeoutID = setTimeout(() => {
-            nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit))
-        }, (status.currentCommandsBlock[1] - (status.currentCommandsBlock[0] + status.currentCommand)) * settings.readingSpeed * 1000)
+            for (
+                let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                noteIndex <= status.currentCommandsBlock[1];
+                noteIndex++, index++
+            ) {
+                commands[index] = getMIDINote(
+                    bynaryInSelectedBitness.value[noteIndex],
+                    settings.bitness,
+                    settings.frequencyMode,
+                    frequencyCoefficients.value,
+                    settings.frequenciesRange.from,
+                    settings.notesRange.from
+                )
+
+                midiTimeoutIDs[index] = setTimeout(
+                    (index) => {
+                        if (commands[index - 1]) {
+                            sendMIDIMessage.noteOff(
+                                commands[index - 1][0],
+                                settings.midi.velocity,
+                                settings.midi.port,
+                                settings.midi.channel
+                            )
+                        }
+
+                        sendMIDIMessage.noteOn(commands[index][0], settings.midi.velocity, settings.midi.port, settings.midi.channel)
+
+                        if (settings.frequencyMode === 'continuous') {
+                            sendMIDIMessage.pitch(commands[index][1], settings.midi.port, settings.midi.channel)
+                        }
+                    },
+                    index * settings.readingSpeed * 1000,
+                    index
+                )
+            }
+        }
+
+        // Заново планируем рекурсию
+        // Время следующей рекурсии это количество оставшихся в итерации команд * settings.readingSpeed
+        if (fileReadingLimit >= bynaryInSelectedBitness.value.length) {
+            if (!settings.loop) {
+                nextIterationTimeoutID = setTimeout(() => {
+                    status.playing = false
+                }, (bynaryInSelectedBitness.value.length - status.currentCommand) * settings.readingSpeed * 1000)
+            } else {
+                nextIterationTimeoutID = setTimeout(() => {
+                    nextIteration(0, 0)
+                }, (bynaryInSelectedBitness.value.length - status.currentCommand) * settings.readingSpeed * 1000)
+            }
+        } else {
+            let iterationNumber = status.iterationNumber
+            let scheduledCommands = status.currentCommandsBlock[0]
+
+            nextIterationTimeoutID = setTimeout(() => {
+                nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit))
+            }, (status.currentCommandsBlock[1] - (status.currentCommandsBlock[0] + status.currentCommand)) * settings.readingSpeed * 1000)
+        }
     }
 })
 
@@ -342,19 +443,84 @@ const frequenciesRange = computed(() => settings.frequenciesRange)
 const notesRange = computed(() => settings.notesRange)
 const frequencyMode = computed(() => settings.frequencyMode)
 watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
-    // Отменяем уже запланированное для осциллятора
-    oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
+    if (status.playing) {
+        let command = null
 
-    let command = null
-    // Перепланируем изменения в осцилляторе, начиная с последней команды на которой остановились
-    switch (settings.transitionType) {
-        case 'immediately':
+        if (!settings.midiMode) {
+            // Отменяем уже запланированное для осциллятора
+            oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
+
+            // Перепланируем изменения в осцилляторе, начиная с последней команды на которой остановились
+            switch (settings.transitionType) {
+                case 'immediately':
+                    for (
+                        let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                        noteIndex <= status.currentCommandsBlock[1];
+                        noteIndex++, index++
+                    ) {
+                        command = getFrequency(
+                            bynaryInSelectedBitness.value[noteIndex],
+                            settings.bitness,
+                            settings.frequencyMode,
+                            frequencyCoefficients.value,
+                            settings.frequenciesRange.from,
+                            settings.notesRange.from
+                        )
+                        if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                        oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                    }
+                    break
+
+                case 'linear':
+                    for (
+                        let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                        noteIndex <= status.currentCommandsBlock[1];
+                        noteIndex++, index++
+                    ) {
+                        command = getFrequency(
+                            bynaryInSelectedBitness.value[noteIndex],
+                            settings.bitness,
+                            settings.frequencyMode,
+                            frequencyCoefficients.value,
+                            settings.frequenciesRange.from,
+                            settings.notesRange.from
+                        )
+                        if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                        oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                    }
+                    break
+
+                case 'exponential':
+                    for (
+                        let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                        noteIndex <= status.currentCommandsBlock[1];
+                        noteIndex++, index++
+                    ) {
+                        command = getFrequency(
+                            bynaryInSelectedBitness.value[noteIndex],
+                            settings.bitness,
+                            settings.frequencyMode,
+                            frequencyCoefficients.value,
+                            settings.frequenciesRange.from,
+                            settings.notesRange.from
+                        )
+                        if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
+                        oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                    }
+                    break
+            }
+        } else {
+            midiTimeoutIDs.forEach((id) => {
+                clearTimeout(id)
+            })
+            sendMIDIMessage.allSoundOff(settings.midi.port, settings.midi.channel)
+
             for (
                 let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
                 noteIndex <= status.currentCommandsBlock[1];
                 noteIndex++, index++
             ) {
-                command = getFrequency(
+                commands[index] = getMIDINote(
                     bynaryInSelectedBitness.value[noteIndex],
                     settings.bitness,
                     settings.frequencyMode,
@@ -362,48 +528,29 @@ watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
                     settings.frequenciesRange.from,
                     settings.notesRange.from
                 )
-                if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
-                oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
-            }
-            break
 
-        case 'linear':
-            for (
-                let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
-                noteIndex <= status.currentCommandsBlock[1];
-                noteIndex++, index++
-            ) {
-                command = getFrequency(
-                    bynaryInSelectedBitness.value[noteIndex],
-                    settings.bitness,
-                    settings.frequencyMode,
-                    frequencyCoefficients.value,
-                    settings.frequenciesRange.from,
-                    settings.notesRange.from
-                )
-                if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
-                oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
-            }
-            break
+                midiTimeoutIDs[index] = setTimeout(
+                    (index) => {
+                        if (commands[index - 1]) {
+                            sendMIDIMessage.noteOff(
+                                commands[index - 1][0],
+                                settings.midi.velocity,
+                                settings.midi.port,
+                                settings.midi.channel
+                            )
+                        }
 
-        case 'exponential':
-            for (
-                let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
-                noteIndex <= status.currentCommandsBlock[1];
-                noteIndex++, index++
-            ) {
-                command = getFrequency(
-                    bynaryInSelectedBitness.value[noteIndex],
-                    settings.bitness,
-                    settings.frequencyMode,
-                    frequencyCoefficients.value,
-                    settings.frequenciesRange.from,
-                    settings.notesRange.from
+                        sendMIDIMessage.noteOn(commands[index][0], settings.midi.velocity, settings.midi.port, settings.midi.channel)
+
+                        if (settings.frequencyMode === 'continuous') {
+                            sendMIDIMessage.pitch(commands[index][1], settings.midi.port, settings.midi.channel)
+                        }
+                    },
+                    index * settings.readingSpeed * 1000,
+                    index
                 )
-                if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
-                oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
             }
-            break
+        }
     }
 })
 
@@ -415,9 +562,150 @@ watch(bynaryInSelectedBitness, () => {
 const loaded = computed(() => file.loaded)
 watch(loaded, () => {
     stop()
-    // Отменяем уже запланированное для осциллятора
-    oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
-    clearTimeout(nextIterationTimeoutID) // Отменяем рекурсию
+})
+
+const midiMode = computed(() => settings.midiMode)
+watch(midiMode, (newValue) => {
+    // Если перешли на MIDI-режим, то гасим осциллятор
+    if (playing.value) {
+        let command = null
+
+        if (newValue === true) {
+            oscillator.stop(audioContext.currentTime)
+            oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
+            clearTimeout(nextIterationTimeoutID) // Отменяем запланированную рекурсию
+
+            for (
+                let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                noteIndex <= status.currentCommandsBlock[1];
+                noteIndex++, index++
+            ) {
+                commands[index] = getMIDINote(
+                    bynaryInSelectedBitness.value[noteIndex],
+                    settings.bitness,
+                    settings.frequencyMode,
+                    frequencyCoefficients.value,
+                    settings.frequenciesRange.from,
+                    settings.notesRange.from
+                )
+
+                midiTimeoutIDs[index] = setTimeout(
+                    (index) => {
+                        if (commands[index - 1]) {
+                            sendMIDIMessage.noteOff(
+                                commands[index - 1][0],
+                                settings.midi.velocity,
+                                settings.midi.port,
+                                settings.midi.channel
+                            )
+                        }
+
+                        sendMIDIMessage.noteOn(commands[index][0], settings.midi.velocity, settings.midi.port, settings.midi.channel)
+
+                        if (settings.frequencyMode === 'continuous') {
+                            sendMIDIMessage.pitch(commands[index][1], settings.midi.port, settings.midi.channel)
+                        }
+                    },
+                    index * settings.readingSpeed * 1000,
+                    index
+                )
+            }
+        } else {
+            midiTimeoutIDs.forEach((id) => {
+                clearTimeout(id)
+            })
+            sendMIDIMessage.allSoundOff(settings.midi.port, settings.midi.channel)
+
+            clearTimeout(nextIterationTimeoutID) // Отменяем запланированную рекурсию
+
+            audioInit()
+            oscillator.start()
+
+            // Перепланируем изменения в осцилляторе, начиная с последней команды на которой остановились
+            switch (settings.transitionType) {
+                case 'immediately':
+                    for (
+                        let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                        noteIndex <= status.currentCommandsBlock[1];
+                        noteIndex++, index++
+                    ) {
+                        command = getFrequency(
+                            bynaryInSelectedBitness.value[noteIndex],
+                            settings.bitness,
+                            settings.frequencyMode,
+                            frequencyCoefficients.value,
+                            settings.frequenciesRange.from,
+                            settings.notesRange.from
+                        )
+
+                        if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                        oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                    }
+                    break
+
+                case 'linear':
+                    for (
+                        let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                        noteIndex <= status.currentCommandsBlock[1];
+                        noteIndex++, index++
+                    ) {
+                        command = getFrequency(
+                            bynaryInSelectedBitness.value[noteIndex],
+                            settings.bitness,
+                            settings.frequencyMode,
+                            frequencyCoefficients.value,
+                            settings.frequenciesRange.from,
+                            settings.notesRange.from
+                        )
+
+                        if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                        oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                    }
+                    break
+
+                case 'exponential':
+                    for (
+                        let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
+                        noteIndex <= status.currentCommandsBlock[1];
+                        noteIndex++, index++
+                    ) {
+                        command = getFrequency(
+                            bynaryInSelectedBitness.value[noteIndex],
+                            settings.bitness,
+                            settings.frequencyMode,
+                            frequencyCoefficients.value,
+                            settings.frequenciesRange.from,
+                            settings.notesRange.from
+                        )
+
+                        if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
+                        oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                    }
+                    break
+            }
+        }
+
+        // Заново планируем рекурсию
+        // Время следующей рекурсии это количество оставшихся в итерации команд * settings.readingSpeed
+        if (fileReadingLimit >= bynaryInSelectedBitness.value.length) {
+            if (!settings.loop) {
+                nextIterationTimeoutID = setTimeout(() => {
+                    status.playing = false
+                }, (bynaryInSelectedBitness.value.length - status.currentCommand) * settings.readingSpeed * 1000)
+            } else {
+                nextIterationTimeoutID = setTimeout(() => {
+                    nextIteration(0, 0)
+                }, (bynaryInSelectedBitness.value.length - status.currentCommand) * settings.readingSpeed * 1000)
+            }
+        } else {
+            let iterationNumber = status.iterationNumber
+            let scheduledCommands = status.currentCommandsBlock[0]
+
+            nextIterationTimeoutID = setTimeout(() => {
+                nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit))
+            }, (status.currentCommandsBlock[1] - (status.currentCommandsBlock[0] + status.currentCommand)) * settings.readingSpeed * 1000)
+        }
+    }
 })
 </script>
 
@@ -432,9 +720,10 @@ watch(loaded, () => {
             <div class="control__inputs">
                 <Global />
                 <Frequency />
-                <Oscillator />
-                <Filter />
-                <LFO />
+                <Oscillator v-if="!settings.midiMode" />
+                <Filter v-if="!settings.midiMode" />
+                <LFO v-if="!settings.midiMode" />
+                <Midi v-if="settings.midiMode" />
             </div>
         </div>
     </Transition>

@@ -1,14 +1,10 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useSettingsStore } from '@/stores/global.js'
 
 const settings = useSettingsStore()
 
 const frequencyFrom = ref(settings.frequenciesRange.from)
-const frequencyTo = ref(settings.frequenciesRange.to)
-const notesFrom = ref(settings.notesRange.from)
-const notesTo = ref(settings.notesRange.to)
-
 watch(frequencyFrom, (newValue) => {
     if (isNaN(newValue)) {
         return
@@ -23,24 +19,29 @@ watch(frequencyFrom, (newValue) => {
     }
 })
 
+const frequencyTo = ref(settings.frequenciesRange.to)
 watch(frequencyTo, (newValue) => {
-    if (isNaN(newValue)) {
-        return
-    } else if (newValue <= 0) {
-        frequencyTo.value = 0
-        settings.frequenciesRange.to = frequencyTo
-    } else if (newValue > (settings.midiMode ? 12543 : 24000)) {
-        frequencyTo.value = settings.midiMode ? 12543 : 24000
-        settings.frequenciesRange.to = frequencyTo
-    } else if (newValue <= settings.frequenciesRange.from) {
-        frequencyTo.value = settings.frequenciesRange.from + 1
-        settings.frequenciesRange.to = frequencyTo.value
-    } else {
-        frequencyTo.value = newValue
-        settings.frequenciesRange.to = frequencyTo.value
-    }
+    // setTimeout чтобы эта проверка сработала после frequencyFrom
+    setTimeout(() => {
+        if (isNaN(newValue)) {
+            return
+        } else if (newValue <= 0) {
+            frequencyTo.value = 0
+            settings.frequenciesRange.to = frequencyTo
+        } else if (newValue > (settings.midiMode ? 12543 : 24000)) {
+            frequencyTo.value = settings.midiMode ? 12543 : 24000
+            settings.frequenciesRange.to = frequencyTo
+        } else if (newValue <= settings.frequenciesRange.from) {
+            frequencyTo.value = settings.frequenciesRange.from + 1
+            settings.frequenciesRange.to = frequencyTo.value
+        } else {
+            frequencyTo.value = newValue
+            settings.frequenciesRange.to = frequencyTo.value
+        }
+    }, 0)
 })
 
+const notesFrom = ref(settings.notesRange.from)
 watch(notesFrom, (newValue) => {
     if (isNaN(newValue)) {
         return
@@ -56,6 +57,7 @@ watch(notesFrom, (newValue) => {
     }
 })
 
+const notesTo = ref(settings.notesRange.to)
 watch(notesTo, (newValue) => {
     if (isNaN(newValue)) {
         return
@@ -72,6 +74,14 @@ watch(notesTo, (newValue) => {
         notesTo.value = newValue
         settings.notesRange.to = notesTo.value
     }
+})
+
+const midi = computed(() => settings.midiMode)
+watch(midi, () => {
+    if (frequencyFrom.value >= 12542) frequencyFrom.value = 12542
+    if (frequencyTo.value >= 12543) frequencyTo.value = 12543
+    if (notesFrom.value >= 126) notesFrom.value = 126
+    if (notesTo.value >= 127) notesTo.value = 127
 })
 </script>
 

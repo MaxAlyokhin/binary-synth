@@ -161,6 +161,10 @@ input {
             margin-bottom: 5px;
         }
 
+        &--deactive {
+            opacity: 0.5;
+        }
+
         &--radio {
             flex-direction: row;
             justify-content: space-evenly;

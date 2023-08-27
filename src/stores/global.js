@@ -37,6 +37,14 @@ export const useSettingsStore = defineStore('settings', () => {
     const bitness = ref('8')
     const loop = ref(true)
     const midiMode = ref(false)
+    const midi = ref({
+        port: null,
+        channel: 0,
+        pitch: 8192,
+        modulation: 50,
+        noMIDIPortsFound: true,
+        velocity: 120,
+    })
 
     return {
         readingSpeed,
@@ -52,6 +60,7 @@ export const useSettingsStore = defineStore('settings', () => {
         LFO,
         bitness,
         loop,
+        midi,
     }
 })
 
