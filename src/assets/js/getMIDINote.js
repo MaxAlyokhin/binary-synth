@@ -58,6 +58,6 @@ export function getMIDINote(byte, bitness, mode, coefficients, minimumFrequency,
     // Возвращается номер ноты
     if (mode === 'tempered') {
         if (bitness === '8') return [Math.floor(coefficients.tempered8 * byte) + minimumNote]
-        if (bitness === '16') return [Math.floor(coefficients.tempered8 * byte) + minimumNote]
+        if (bitness === '16') return [Math.floor(coefficients.tempered16 * byte) + minimumNote]
     }
 }

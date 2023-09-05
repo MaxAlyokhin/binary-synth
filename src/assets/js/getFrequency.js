@@ -9,6 +9,6 @@ export function getFrequency(byte, bitness, mode, coefficients, minimumFrequency
 
     if (mode === 'tempered') {
         if (bitness === '8') return notes[Math.floor(coefficients.tempered8 * byte) + minimumNote]
-        if (bitness === '16') return notes[Math.floor(coefficients.tempered8 * byte) + minimumNote]
+        if (bitness === '16') return notes[Math.floor(coefficients.tempered16 * byte) + minimumNote]
     }
 }

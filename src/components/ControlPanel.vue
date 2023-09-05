@@ -75,16 +75,25 @@ let commands = []
 function nextIteration(iterationNumber, scheduledCommands) {
     // Если дошли до конца команд или нажали stop, то выходим из рекурсии
     if (!status.playing) {
-        status.playing = false
+        stop()
         return
     }
 
     if (scheduledCommands >= bynaryInSelectedBitness.value.length - 1) {
+        if (settings.midiMode) {
+            sendMIDIMessage.noteOff(
+                commands[bynaryInSelectedBitness.value.length - 1 - commands.length][0],
+                settings.midi.velocity,
+                settings.midi.port,
+                settings.midi.channel
+            )
+        }
+
         if (settings.loop) {
             nextIteration(0, 0)
             return
         } else {
-            status.playing = false
+            stop()
             return
         }
     }
@@ -192,15 +201,37 @@ function nextIteration(iterationNumber, scheduledCommands) {
     if (fileReadingLimit >= bynaryInSelectedBitness.value.length) {
         if (!settings.loop) {
             nextIterationTimeoutID = setTimeout(() => {
+                // Чтобы последняя нота не затягивалась
+                if (settings.midiMode) {
+                    sendMIDIMessage.noteOff(
+                        commands[bynaryInSelectedBitness.value.length - 1][0],
+                        settings.midi.velocity,
+                        settings.midi.port,
+                        settings.midi.channel
+                    )
+                }
                 status.playing = false
             }, bynaryInSelectedBitness.value.length * settings.readingSpeed * 1000)
         } else {
             nextIterationTimeoutID = setTimeout(() => {
+                // Чтобы последняя нота не затягивалась
+                if (settings.midiMode) {
+                    sendMIDIMessage.noteOff(
+                        commands[bynaryInSelectedBitness.value.length - 1][0],
+                        settings.midi.velocity,
+                        settings.midi.port,
+                        settings.midi.channel
+                    )
+                }
                 nextIteration(0, 0)
             }, bynaryInSelectedBitness.value.length * settings.readingSpeed * 1000)
         }
     } else {
         nextIterationTimeoutID = setTimeout(() => {
+            // Чтобы последняя нота не затягивалась
+            if (settings.midiMode) {
+                sendMIDIMessage.noteOff(commands[commands.length - 1][0], settings.midi.velocity, settings.midi.port, settings.midi.channel)
+            }
             nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit))
         }, iterationTime.value)
     }
@@ -208,6 +239,8 @@ function nextIteration(iterationNumber, scheduledCommands) {
 
 function play() {
     if (file.loaded && !status.playing) {
+        gain.gain.value = settings.gain
+
         if (!settings.midiMode) oscillator.start()
 
         status.playing = true
@@ -218,9 +251,11 @@ function play() {
 function stop() {
     if (status.playing) {
         if (!settings.midiMode) {
-            oscillator.stop(audioContext.currentTime)
-            oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
+            gain.gain.setTargetAtTime(0.0001, audioContext.currentTime, 0.005)
+            oscillator.stop(audioContext.currentTime + 0.1)
+            oscillator.frequency.cancelScheduledValues(audioContext.currentTime + 0.1)
             clearTimeout(nextIterationTimeoutID) // Отменяем запланированную рекурсию
+            audioInit()
         } else {
             midiTimeoutIDs.forEach((id) => {
                 clearTimeout(id)
@@ -281,12 +316,7 @@ watch(wave, (newValue) => {
 const playing = computed(() => status.playing)
 watch(playing, (newValue) => {
     if (newValue === false) {
-        if (!settings.midiMode) {
-            oscillator.stop(audioContext.currentTime)
-            audioInit()
-        } else {
-            sendMIDIMessage.allSoundOff(settings.midi.port, settings.midi.channel)
-        }
+        stop()
     }
 })
 
@@ -421,10 +451,28 @@ watch([readingSpeed, transitionType], () => {
         if (fileReadingLimit >= bynaryInSelectedBitness.value.length) {
             if (!settings.loop) {
                 nextIterationTimeoutID = setTimeout(() => {
+                    // Чтобы последняя нота не затягивалась
+                    if (settings.midiMode) {
+                        sendMIDIMessage.noteOff(
+                            commands[bynaryInSelectedBitness.value.length - 1][0],
+                            settings.midi.velocity,
+                            settings.midi.port,
+                            settings.midi.channel
+                        )
+                    }
                     status.playing = false
                 }, (bynaryInSelectedBitness.value.length - status.currentCommand) * settings.readingSpeed * 1000)
             } else {
                 nextIterationTimeoutID = setTimeout(() => {
+                    // Чтобы последняя нота не затягивалась
+                    if (settings.midiMode) {
+                        sendMIDIMessage.noteOff(
+                            commands[bynaryInSelectedBitness.value.length - 1][0],
+                            settings.midi.velocity,
+                            settings.midi.port,
+                            settings.midi.channel
+                        )
+                    }
                     nextIteration(0, 0)
                 }, (bynaryInSelectedBitness.value.length - status.currentCommand) * settings.readingSpeed * 1000)
             }
@@ -433,6 +481,15 @@ watch([readingSpeed, transitionType], () => {
             let scheduledCommands = status.currentCommandsBlock[0]
 
             nextIterationTimeoutID = setTimeout(() => {
+                if (settings.midiMode) {
+                    sendMIDIMessage.noteOff(
+                        commands[commands.length - 1][0],
+                        settings.midi.velocity,
+                        settings.midi.port,
+                        settings.midi.channel
+                    )
+                }
+
                 nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit))
             }, (status.currentCommandsBlock[1] - (status.currentCommandsBlock[0] + status.currentCommand)) * settings.readingSpeed * 1000)
         }
@@ -554,9 +611,12 @@ watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
     }
 })
 
-watch(bynaryInSelectedBitness, () => {
-    stop()
-    setTimeout(play)
+const bitness = computed(() => settings.bitness)
+watch(bitness, () => {
+    if (playing.value) {
+        stop()
+        setTimeout(play)
+    }
 })
 
 const loaded = computed(() => file.loaded)

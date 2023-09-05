@@ -52,8 +52,6 @@ reader.addEventListener('error', (event) => {
 })
 
 function readFile(rawFile) {
-    status.playing = false // Останавливаем композицию перед загрузкой следующего файла
-
     file.$patch({
         name: rawFile.name,
         size: rawFile.size,

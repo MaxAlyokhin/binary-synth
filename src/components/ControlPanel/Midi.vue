@@ -20,6 +20,7 @@ function onMIDISuccess(midiAccess) {
     if (outputs.value[0]) {
         settings.midi.noMIDIPortsFound = false
         settings.midi.port = midi.outputs.get(outputs.value[0].id)
+        port.value = outputs.value[0].id
         sendMIDIMessage.modulation(settings.midi.modulation, settings.midi.port, settings.midi.channel)
     } else {
         settings.midi.noMIDIPortsFound = true
