@@ -82,7 +82,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
     if (scheduledCommands >= bynaryInSelectedBitness.value.length - 1) {
         if (settings.midiMode) {
             sendMIDIMessage.noteOff(
-                commands[bynaryInSelectedBitness.value.length - 1 - commands.length][0],
+                commands[status.currentCommandsBlock[1] - status.currentCommandsBlock[0]][0],
                 settings.midi.velocity,
                 settings.midi.port,
                 settings.midi.channel
