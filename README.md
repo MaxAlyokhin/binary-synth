@@ -1,65 +1,75 @@
-# Binary Synth (work in progress)
+# Binary Synth
 
-_Binary file interpreter for audio generation_
+_Binary file interpreter for audio synthesis_
 
-## Tech stack
+**Demo**: https://bs.stranno.su
 
-Vue3 + Pinia + Vite.
+_<a href="README_RU.md">Эта страница есть также на русском</a>_
 
-## Применение
+All data on any computer or smartphone is in the form of files. The contents of these files are ultimately just zeros and ones. And these zeros and ones are basically all the same, so we need an interpreter to extract meaning from these texts. Basically, the file format (.mp3, .docx, etc.) is just a pointer to which interpreter we need to pass the text in order to extract meaning from it.
 
--   с помощью текстовых файлов можно будет создавать композиции (Композиция для формата pdf, Композиция для пустого файла txt, Пьеса для фотографии горы Арарат в формате jpg, делать акцент на содержимом файлов)
--   играть нойз из файлов
--   скормить приложухе свой собственный исходный код
+But what if the file format and the interpreter don't match? In the case of musical experimentation, there have been earlier attempts, for example, to "play" a file through an audio editor, which expectedly produced mostly glitch and noise; it might be interesting more from a conceptual than a musical point of view.
 
-## Стратегия синтеза
+We could go further and write our own interpreter that would look at the files without regard to format, use its own "manner of reading" the original zeros and ones, and on that basis provide a complete system for controlled synthesis of sounds.
 
-1. Мы можем интерпретировать файлы как массив чисел. То есть мы разбиваем непрерывный машинный код (ArrayBuffer) на слова некоторой информационной ёмкости (разрядности):
+## Application principle
 
--   8 бит = 0 - 255 (файл должен быть не менее байта)
--   16 бит = 0 - 65 535 (файл должен быть не менее 2 байт)
--   32 бит = 0 - 4 294 967 296 (файл должен быть не менее 4 байт)
+1. We can interpret files as an array of numbers. That is, we divide continuous machine code (ArrayBuffer) into _words_ of some information capacity (bitness):
 
-2. Тогда, каждое слово есть команда
+-   8 bits (numbers from 0 to 255)
+-   16 bits (numbers from 0 to 65 535)
 
-3. Команда может управлять:
+2. Then, each word is a command that defines the frequency of the sound
 
--   нотой
+3. At the level of the whole system, we set global parameters:
 
-    -   длительностью
-    -   громкостью (атакой, целевой громкостью и затуханием)
-    -   частотой
-    -   типом волны (может быть даже задавать кастомную волну)
+-   speed of interpretation
+-   musical scale (or lack thereof), range of notes/frequencies
+-   looping
+-   MIDI mode
+-   smooth or abrupt transition between commands
+-   settings of virtual devices required for synthesis (oscillator, filter, LFO) or MIDI settings
 
--   другой командой
+4. To reduce the load on the device, we divide the file into chunks of 500 commands each
 
-    -   модификатор (меняет другую команду, например предыдущую)
-    -   принимает на вход другие команды с качестве параметров
+5. Recursively schedule the synthesis control by reading 500 instructions per iteration and using global parameters
 
-4. Глобальные параметры, свойственные всей композиции
+6. If we have reached the end of the file, stop execution or start again
 
--   скорость интерпретации
--   музыкальный строй (или его отсутствие), диапазон нот/частот
--   зациклить воспроизведение
--   режим MIDI
--   плавный переход между командами
+## Run locally and build the project
 
-## MVP
+### Just copy the app
 
-Сделать выбор разрядности, размазать частоты 0 - 24000 / ноты 0 - 131 по 255/65 535/4 294 967 296. Все остальные настройки статические, задаваемые перед плеем: скорость, громкость, плавность переходов, диапазоны частот/нот, типа волны.
+Everything you need for the system is contained in a single `.html` file, which you can download in the `dist` folder, or simply go to https://bs.ѕtranno.su and right-click and select Save As in the menu.
 
-## Задачи
+### Build locally to work with the code
 
--   f - сделать tempered
--   f - диапазоны частот для распределения по 256
--   f - 16 разрядов bitness
--   b - неправильно отображается Commands from колво команд меньше на больших файлах
--   b - убрать щелчки во время и в конце воспроизведения
--   b - при загрузке нового файла без нажатия на стоп как будто не затыкается предыдущая рекурсия
+Tech stack: Vue3 + Pinia + Vite.
 
--   задачи процесса воспроизведения
+1. Download and install the LTS version of Node.js
+2. Download the code directly from Github, or via `git clone`.
+3. In the project folder in the terminal execute:
 
-    -   pause
-    -   parallel mode (tone duration, attack, release) / скорость чтения и длина тона это разное - сейчас они совпадают, поэтому шаги последовательны, но можно же сделать накидывание тонов поверх предыдущих
+```bash
+npm i
+npm run dev # development-build
+npm run build # production-build, generate index.html with everything we need
+```
 
--   MIDI (приступать только после parallel mode)
+For MIDI tests, you can use this resource https://studiocode.dev/midi-monitor/
+
+## Interface features
+
+-   Reading speed - interpretation speed; at high speeds over 0.001 the application may become unstable
+
+-   Bitness - we can divide the binary code into words of 8 or 16 bits, which changes the number of available frequencies (256 or 65536).
+
+-   Frequency generation mode
+
+    -   continuous - continuous frequency distribution
+    -   tempered - distribution by 12-step equal-tempered scale. Numbers denote the note number from C-1 to H7.
+
+-   Transition type - transition between frequencies
+    -   immediate - instantaneous, rough transition
+    -   linear - linearly to the next frequency
+    -   exponential - exponentially to the next frequency
