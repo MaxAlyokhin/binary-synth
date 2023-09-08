@@ -86,9 +86,7 @@ watch(midi, () => {
 </script>
 
 <template>
-    <div class="module">
-        <span class="module-span">Frequency</span>
-
+    <div class="">
         <div class="module__container module__container--block">
             <span class="key">Frequency generation mode</span>
 
@@ -103,32 +101,34 @@ watch(midi, () => {
                     <label class="tempered" for="tempered">Tempered</label>
                 </div>
             </div>
-        </div>
 
-        <div v-show="settings.frequencyMode === 'continuous'" class="module__wrapper">
-            <div class="module__container">
-                <span>From</span>
-                <input type="number" step="1" name="frequencies-range-from" class="frequencies-range-from" v-model="frequencyFrom" />
-            </div>
-            <div class="module__container">
-                <span class="freq-to key">To</span>
-                <input type="number" step="1" name="frequencies-range-to" class="frequencies-range-to" v-model="frequencyTo" />
-            </div>
-        </div>
+            <span class="key" style="margin-top: 15px">Frequencies range</span>
 
-        <div v-show="settings.frequencyMode === 'tempered'" class="module__wrapper">
-            <div class="module__container">
-                <span>From</span>
-                <div class="notes-range__inputs">
-                    <input type="number" step="1" name="notes-range-from" class="notes-range-from" v-model="notesFrom" />
-                    <span class="notes-range__from-span"></span>
+            <div v-show="settings.frequencyMode === 'continuous'" class="module__wrapper">
+                <div class="module__container">
+                    <span>From</span>
+                    <input type="number" step="1" name="frequencies-range-from" class="frequencies-range-from" v-model="frequencyFrom" />
+                </div>
+                <div class="module__container">
+                    <span class="freq-to key">To</span>
+                    <input type="number" step="1" name="frequencies-range-to" class="frequencies-range-to" v-model="frequencyTo" />
                 </div>
             </div>
-            <div class="module__container">
-                <span class="notes-range-to-span key">To</span>
-                <div class="notes-range__inputs">
-                    <input type="number" step="1" name="notes-range-to" class="notes-range-to" v-model="notesTo" />
-                    <span class="notes-range__to-span"></span>
+
+            <div v-show="settings.frequencyMode === 'tempered'" class="module__wrapper">
+                <div class="module__container">
+                    <span>From</span>
+                    <div class="notes-range__inputs">
+                        <input type="number" step="1" name="notes-range-from" class="notes-range-from" v-model="notesFrom" />
+                        <span class="notes-range__from-span"></span>
+                    </div>
+                </div>
+                <div class="module__container">
+                    <span class="notes-range-to-span key">To</span>
+                    <div class="notes-range__inputs">
+                        <input type="number" step="1" name="notes-range-to" class="notes-range-to" v-model="notesTo" />
+                        <span class="notes-range__to-span"></span>
+                    </div>
                 </div>
             </div>
         </div>

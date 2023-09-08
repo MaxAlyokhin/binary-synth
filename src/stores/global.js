@@ -26,6 +26,10 @@ export const useSettingsStore = defineStore('settings', () => {
         from: 48,
         to: 60,
     })
+    const commandsRange = ref({
+        from: 0,
+        to: 0,
+    })
     const biquadFilterFrequency = ref(10000.0)
     const biquadFilterQ = ref(1)
     const LFO = ref({
@@ -54,6 +58,7 @@ export const useSettingsStore = defineStore('settings', () => {
         frequencyMode,
         frequenciesRange,
         notesRange,
+        commandsRange,
         midiMode,
         biquadFilterFrequency,
         biquadFilterQ,

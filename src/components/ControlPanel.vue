@@ -4,7 +4,6 @@ import { useFileStore, useSettingsStore, useStatusStore } from '@/stores/global.
 import { toFixedNumber } from '../assets/js/helpers.js'
 import { getFrequency } from '../assets/js/getFrequency.js'
 import fourierCoefficients from '../assets/js/fourierCoefficients.js'
-import Frequency from './ControlPanel/Frequency.vue'
 import Filter from './ControlPanel/Filter.vue'
 import LFO from './ControlPanel/LFO.vue'
 import Oscillator from './ControlPanel/Oscillator.vue'
@@ -17,7 +16,7 @@ const file = useFileStore()
 const settings = useSettingsStore()
 const status = useStatusStore()
 
-const fileReadingLimit = 500 // Планирование композиции делим на итерации по fileReadingLimit шагов
+const fileReadingLimit = computed(() => (settings.bitness === '8' ? 500 : 250)) // Планирование композиции делим на итерации по fileReadingLimit.value шагов
 const iterationTime = computed(() =>
     toFixedNumber((status.currentCommandsBlock[1] - status.currentCommandsBlock[0] + 1) * settings.readingSpeed * 1000)
 )
@@ -49,8 +48,6 @@ lfoDepth.connect(masterGain.gain)
 gain.connect(masterGain)
 masterGain.connect(audioContext.destination)
 
-audioInit()
-
 const squareWave = audioContext.createPeriodicWave(
     Float32Array.from(fourierCoefficients.square.real),
     Float32Array.from(fourierCoefficients.square.imag)
@@ -68,6 +65,8 @@ function audioInit() {
     oscillator.connect(filter)
 }
 
+audioInit()
+
 // Чтобы снизить нагрузку на процессор, мы делим планирование композиции на итерации
 let nextIterationTimeoutID = null
 let midiTimeoutIDs = []
@@ -79,7 +78,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
         return
     }
 
-    if (scheduledCommands >= bynaryInSelectedBitness.value.length - 1) {
+    if (scheduledCommands >= settings.commandsRange.to) {
         if (settings.midiMode) {
             sendMIDIMessage.noteOff(
                 commands[status.currentCommandsBlock[1] - status.currentCommandsBlock[0]][0],
@@ -90,7 +89,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
         }
 
         if (settings.loop) {
-            nextIteration(0, 0)
+            nextIteration(0, settings.commandsRange.from)
             return
         } else {
             stop()
@@ -100,9 +99,9 @@ function nextIteration(iterationNumber, scheduledCommands) {
 
     // Определяем блок команд (500 штук)
     // prettier-ignore
-    const end = scheduledCommands + fileReadingLimit < bynaryInSelectedBitness.value.length - 1
-        ? scheduledCommands + fileReadingLimit - 1
-        : bynaryInSelectedBitness.value.length - 1
+    const end = scheduledCommands + fileReadingLimit.value < settings.commandsRange.to
+        ? scheduledCommands + fileReadingLimit.value - 1
+        : settings.commandsRange.to
 
     status.currentCommandsBlock = [scheduledCommands, end]
     status.iterationNumber = iterationNumber
@@ -197,34 +196,34 @@ function nextIteration(iterationNumber, scheduledCommands) {
         }
     }
 
-    // Если в файле байтов меньше, чем fileReadingLimit, то рекурсия отменяется
-    if (fileReadingLimit >= bynaryInSelectedBitness.value.length) {
+    // Если в файле байтов меньше, чем fileReadingLimit.value, то рекурсия отменяется
+    if (fileReadingLimit.value >= settings.commandsRange.to) {
         if (!settings.loop) {
             nextIterationTimeoutID = setTimeout(() => {
                 // Чтобы последняя нота не затягивалась
                 if (settings.midiMode) {
                     sendMIDIMessage.noteOff(
-                        commands[bynaryInSelectedBitness.value.length - 1][0],
+                        commands[settings.commandsRange.to][0],
                         settings.midi.velocity,
                         settings.midi.port,
                         settings.midi.channel
                     )
                 }
                 status.playing = false
-            }, bynaryInSelectedBitness.value.length * settings.readingSpeed * 1000)
+            }, (settings.commandsRange.to - settings.commandsRange.from) * settings.readingSpeed * 1000)
         } else {
             nextIterationTimeoutID = setTimeout(() => {
                 // Чтобы последняя нота не затягивалась
                 if (settings.midiMode) {
                     sendMIDIMessage.noteOff(
-                        commands[bynaryInSelectedBitness.value.length - 1][0],
+                        commands[settings.commandsRange.to][0],
                         settings.midi.velocity,
                         settings.midi.port,
                         settings.midi.channel
                     )
                 }
-                nextIteration(0, 0)
-            }, bynaryInSelectedBitness.value.length * settings.readingSpeed * 1000)
+                nextIteration(0, settings.commandsRange.from)
+            }, (settings.commandsRange.to - settings.commandsRange.from) * settings.readingSpeed * 1000)
         }
     } else {
         nextIterationTimeoutID = setTimeout(() => {
@@ -232,7 +231,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
             if (settings.midiMode) {
                 sendMIDIMessage.noteOff(commands[commands.length - 1][0], settings.midi.velocity, settings.midi.port, settings.midi.channel)
             }
-            nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit))
+            nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit.value))
         }, iterationTime.value)
     }
 }
@@ -244,17 +243,19 @@ function play() {
         if (!settings.midiMode) oscillator.start()
 
         status.playing = true
-        nextIteration(0, 0)
+        nextIteration(0, settings.commandsRange.from)
     }
 }
 
 function stop() {
     if (status.playing) {
+        clearTimeout(nextIterationTimeoutID)
+
         if (!settings.midiMode) {
             gain.gain.setTargetAtTime(0.0001, audioContext.currentTime, 0.005)
             oscillator.stop(audioContext.currentTime + 0.1)
             oscillator.frequency.cancelScheduledValues(audioContext.currentTime + 0.1)
-            clearTimeout(nextIterationTimeoutID) // Отменяем запланированную рекурсию
+
             audioInit()
         } else {
             midiTimeoutIDs.forEach((id) => {
@@ -448,33 +449,33 @@ watch([readingSpeed, transitionType], () => {
 
         // Заново планируем рекурсию
         // Время следующей рекурсии это количество оставшихся в итерации команд * settings.readingSpeed
-        if (fileReadingLimit >= bynaryInSelectedBitness.value.length) {
+        if (fileReadingLimit.value >= settings.commandsRange.to - settings.commandsRange.from) {
             if (!settings.loop) {
                 nextIterationTimeoutID = setTimeout(() => {
                     // Чтобы последняя нота не затягивалась
                     if (settings.midiMode) {
                         sendMIDIMessage.noteOff(
-                            commands[bynaryInSelectedBitness.value.length - 1][0],
+                            commands[settings.commandsRange.to][0],
                             settings.midi.velocity,
                             settings.midi.port,
                             settings.midi.channel
                         )
                     }
                     status.playing = false
-                }, (bynaryInSelectedBitness.value.length - status.currentCommand) * settings.readingSpeed * 1000)
+                }, (settings.commandsRange.to - settings.commandsRange.from - status.currentCommand) * settings.readingSpeed * 1000)
             } else {
                 nextIterationTimeoutID = setTimeout(() => {
                     // Чтобы последняя нота не затягивалась
                     if (settings.midiMode) {
                         sendMIDIMessage.noteOff(
-                            commands[bynaryInSelectedBitness.value.length - 1][0],
+                            commands[settings.commandsRange.to][0],
                             settings.midi.velocity,
                             settings.midi.port,
                             settings.midi.channel
                         )
                     }
-                    nextIteration(0, 0)
-                }, (bynaryInSelectedBitness.value.length - status.currentCommand) * settings.readingSpeed * 1000)
+                    nextIteration(0, settings.commandsRange.from)
+                }, (settings.commandsRange.to - settings.commandsRange.from - status.currentCommand) * settings.readingSpeed * 1000)
             }
         } else {
             let iterationNumber = status.iterationNumber
@@ -490,7 +491,7 @@ watch([readingSpeed, transitionType], () => {
                     )
                 }
 
-                nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit))
+                nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit.value))
             }, (status.currentCommandsBlock[1] - (status.currentCommandsBlock[0] + status.currentCommand)) * settings.readingSpeed * 1000)
         }
     }
@@ -747,22 +748,22 @@ watch(midiMode, (newValue) => {
 
         // Заново планируем рекурсию
         // Время следующей рекурсии это количество оставшихся в итерации команд * settings.readingSpeed
-        if (fileReadingLimit >= bynaryInSelectedBitness.value.length) {
+        if (fileReadingLimit.value >= settings.commandsRange.to) {
             if (!settings.loop) {
                 nextIterationTimeoutID = setTimeout(() => {
                     status.playing = false
-                }, (bynaryInSelectedBitness.value.length - status.currentCommand) * settings.readingSpeed * 1000)
+                }, (settings.commandsRange.to - status.currentCommand) * settings.readingSpeed * 1000)
             } else {
                 nextIterationTimeoutID = setTimeout(() => {
-                    nextIteration(0, 0)
-                }, (bynaryInSelectedBitness.value.length - status.currentCommand) * settings.readingSpeed * 1000)
+                    nextIteration(0, settings.commandsRange.from)
+                }, (settings.commandsRange.to - status.currentCommand) * settings.readingSpeed * 1000)
             }
         } else {
             let iterationNumber = status.iterationNumber
             let scheduledCommands = status.currentCommandsBlock[0]
 
             nextIterationTimeoutID = setTimeout(() => {
-                nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit))
+                nextIteration(++iterationNumber, (scheduledCommands += fileReadingLimit.value))
             }, (status.currentCommandsBlock[1] - (status.currentCommandsBlock[0] + status.currentCommand)) * settings.readingSpeed * 1000)
         }
     }
@@ -779,7 +780,6 @@ watch(midiMode, (newValue) => {
 
             <div class="control__inputs">
                 <Global />
-                <Frequency />
                 <Oscillator v-if="!settings.midiMode" />
                 <Filter v-if="!settings.midiMode" />
                 <LFO v-if="!settings.midiMode" />

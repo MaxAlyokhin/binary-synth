@@ -12,8 +12,9 @@ const readingSpeed = computed(() => settings.readingSpeed)
 const time = ref(0)
 const bynaryInSelectedBitness = computed(() => (settings.bitness === '8' ? file.binary8 : file.binary16))
 const durationTime = computed(() =>
-    secondsToFormatTime(toFixedNumber(bynaryInSelectedBitness.value?.length * settings.readingSpeed * 1000))
+    secondsToFormatTime(toFixedNumber((settings.commandsRange.to - settings.commandsRange.from) * settings.readingSpeed * 1000))
 )
+const commandsOnList = computed(() => (settings.bitness === '8' ? 499 : 249))
 
 let timerInterval = null
 
@@ -33,8 +34,8 @@ function commandIterator() {
     if (readingSpeed.value >= 0.005) {
         return setInterval(() => {
             // Если у нас один лист
-            if (bynaryInSelectedBitness.value.length <= 499) {
-                if (status.currentCommand === bynaryInSelectedBitness.value.length - 1) {
+            if (settings.commandsRange.to - settings.commandsRange.from <= commandsOnList.value) {
+                if (status.currentCommand === settings.commandsRange.to - settings.commandsRange.from) {
                     status.currentCommand = 0
                 } else {
                     status.currentCommand++
@@ -52,10 +53,11 @@ function commandIterator() {
             }
         }, readingSpeed.value * 1000)
     } else {
+        // Если скорость большая, то отображаем активную команду через каждые 5 команд
         return setInterval(() => {
             // Если у нас один лист
-            if (bynaryInSelectedBitness.value.length <= 499) {
-                if (status.currentCommand >= bynaryInSelectedBitness.value.length - 1) {
+            if (settings.commandsRange.to - settings.commandsRange.from <= commandsOnList.value) {
+                if (status.currentCommand >= settings.commandsRange.to - settings.commandsRange.from) {
                     status.currentCommand = 0
                 } else {
                     status.currentCommand += 5 * (readingSpeed.value * 1000)

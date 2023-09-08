@@ -1,8 +1,14 @@
 <script setup>
-import { ref, watch } from 'vue'
-import { useSettingsStore } from '@/stores/global.js'
+import { computed, ref, watch } from 'vue'
+import { useFileStore, useSettingsStore } from '@/stores/global.js'
+import Frequency from './Frequency.vue'
 
 const settings = useSettingsStore()
+const file = useFileStore()
+
+const commandsCount = computed(() => {
+    if (file.loaded) return settings.bitness === '8' ? file.binary8.length - 1 : file.binary16.length - 1
+})
 
 const loop = ref(settings.loop)
 watch(loop, (newValue) => {
@@ -30,6 +36,47 @@ watch(readingSpeed, (newValue) => {
         settings.readingSpeed = readingSpeed
     }
 })
+
+const commandsFrom = ref(settings.commandsRange.from)
+watch(commandsFrom, (newValue) => {
+    if (isNaN(newValue)) {
+        return
+    } else if (newValue <= 0) {
+        commandsFrom.value = 0
+        settings.commandsRange.from = commandsFrom.value
+    } else if (newValue >= settings.commandsRange.to) {
+        commandsFrom.value = settings.commandsRange.to - 1
+        settings.commandsRange.from = commandsFrom.value
+    } else {
+        settings.commandsRange.from = commandsFrom.value
+    }
+})
+
+const commandsTo = ref(settings.commandsRange.to)
+watch(commandsTo, (newValue) => {
+    // setTimeout чтобы эта проверка сработала после commandsFrom
+    setTimeout(() => {
+        if (isNaN(newValue)) {
+            return
+        } else if (newValue <= 0) {
+            commandsTo.value = 1
+            settings.commandsRange.to = commandsTo.value
+        } else if (newValue > commandsCount.value) {
+            commandsTo.value = commandsCount.value
+            settings.commandsRange.to = commandsTo.value
+        } else if (newValue <= settings.commandsRange.from) {
+            commandsTo.value = settings.commandsRange.from + 1
+            settings.commandsRange.to = commandsTo.value
+        } else {
+            commandsTo.value = newValue
+            settings.commandsRange.to = commandsTo.value
+        }
+    })
+})
+
+watch(commandsCount, (newValue) => {
+    commandsTo.value = newValue
+})
 </script>
 
 <template>
@@ -52,6 +99,8 @@ watch(readingSpeed, (newValue) => {
             </div>
         </div>
 
+        <Frequency />
+
         <div class="module__container module__container--block">
             <span>Bitness</span>
             <div class="module__container module__container--radio">
@@ -62,6 +111,21 @@ watch(readingSpeed, (newValue) => {
                 <div class="radio-element">
                     <input type="radio" name="bitness" id="bitness16" value="16" v-model="settings.bitness" />
                     <label for="bitness16">16-bit</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="module__container module__container--block">
+            <span class="key">Commands range</span>
+
+            <div class="module__wrapper">
+                <div class="module__container">
+                    <span>From</span>
+                    <input type="number" step="1" name="commands-range-from" class="commands-range-from" v-model="commandsFrom" />
+                </div>
+                <div class="module__container">
+                    <span>To</span>
+                    <input type="number" step="1" name="commands-range-to" class="commands-range-to" v-model="commandsTo" />
                 </div>
             </div>
         </div>
