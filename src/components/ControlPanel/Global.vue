@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useFileStore, useSettingsStore } from '@/stores/global.js'
 import Frequency from './Frequency.vue'
+import { getBooleanFromString } from '../../assets/js/helpers.js'
 
 const settings = useSettingsStore()
 const file = useFileStore()
@@ -11,20 +12,20 @@ const commandsCount = computed(() => {
 })
 
 const loop = ref(settings.loop)
-watch(loop, (newValue) => {
-    // prettier-ignore
-    newValue === 'true'
-        ? settings.loop = true
-        : settings.loop = false
-})
+watch(loop, (newValue) => (settings.loop = getBooleanFromString(newValue)))
 
 const midi = ref(settings.midiMode)
 watch(midi, (newValue) => {
-    // prettier-ignore
-    newValue === 'true'
-        ? settings.midiMode = true
-        : settings.midiMode = false
+    settings.midiMode = getBooleanFromString(newValue)
+
+    if (settings.midiMode && settings.readingSpeed <= 0.005) {
+        readingSpeed.value = 0.005
+        settings.readingSpeed = readingSpeed
+    }
 })
+
+const gap = ref(settings.isRandomTimeGap)
+watch(gap, (newValue) => (settings.isRandomTimeGap = getBooleanFromString(newValue)))
 
 const readingSpeed = ref(settings.readingSpeed)
 watch(readingSpeed, (newValue) => {
@@ -140,6 +141,20 @@ watch(commandsCount, (newValue) => {
                 <div class="radio-element">
                     <input type="radio" name="loop" id="loop-no" value="false" v-model="loop" />
                     <label for="loop-no">No</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="module__container module__container--block">
+            <span>Random time gap</span>
+            <div class="module__container module__container--radio">
+                <div class="radio-element">
+                    <input type="radio" name="gap" id="gap-yes" value="true" checked v-model="gap" />
+                    <label for="gap-yes">Yes</label>
+                </div>
+                <div class="radio-element">
+                    <input type="radio" name="gap" id="gap-no" value="false" v-model="gap" />
+                    <label for="gap-no">No</label>
                 </div>
             </div>
         </div>

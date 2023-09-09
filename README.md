@@ -70,6 +70,11 @@ For MIDI tests, you can use this resource https://studiocode.dev/midi-monitor/
     -   tempered - distribution by 12-step equal-tempered scale. Numbers denote the note number from C-1 to H7.
 
 -   Transition type - transition between frequencies
+
     -   immediate - instantaneous, rough transition
     -   linear - linearly to the next frequency
     -   exponential - exponentially to the next frequency
+
+-   Random time gap - adds a random amount of time to the next tone within the Reading speed parameter. Makes the sound less "robotic", as the distance to each tone is slightly different and it adds more "liveliness" to the game
+
+-   Commands range - allows to play not the whole file, but a certain part of it.

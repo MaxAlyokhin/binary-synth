@@ -40,6 +40,7 @@ export const useSettingsStore = defineStore('settings', () => {
     })
     const bitness = ref('8')
     const loop = ref(true)
+    const isRandomTimeGap = ref(true)
     const midiMode = ref(false)
     const midi = ref({
         port: null,
@@ -65,6 +66,7 @@ export const useSettingsStore = defineStore('settings', () => {
         LFO,
         bitness,
         loop,
+        isRandomTimeGap,
         midi,
     }
 })

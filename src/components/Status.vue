@@ -35,7 +35,7 @@ function commandIterator() {
         return setInterval(() => {
             // Если у нас один лист
             if (settings.commandsRange.to - settings.commandsRange.from <= commandsOnList.value) {
-                if (status.currentCommand === settings.commandsRange.to - settings.commandsRange.from) {
+                if (status.currentCommand >= settings.commandsRange.to - settings.commandsRange.from) {
                     status.currentCommand = 0
                 } else {
                     status.currentCommand++

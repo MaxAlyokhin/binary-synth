@@ -39,7 +39,7 @@ onMounted(() => {
     if (navigator.requestMIDIAccess) {
         navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure)
     } else {
-        throw new Error(`MIDI is not supported on this browser.`)
+        alert(`MIDI is not supported on this browser.`)
     }
 })
 

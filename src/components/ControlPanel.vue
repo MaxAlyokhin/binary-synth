@@ -1,7 +1,7 @@
 <script setup>
 import { watch, computed } from 'vue'
 import { useFileStore, useSettingsStore, useStatusStore } from '@/stores/global.js'
-import { toFixedNumber } from '../assets/js/helpers.js'
+import { toFixedNumber, getRandomNumber } from '../assets/js/helpers.js'
 import { getFrequency } from '../assets/js/getFrequency.js'
 import fourierCoefficients from '../assets/js/fourierCoefficients.js'
 import Filter from './ControlPanel/Filter.vue'
@@ -67,6 +67,8 @@ function audioInit() {
 
 audioInit()
 
+const getRandomTimeGap = () => (settings.isRandomTimeGap ? getRandomNumber(0, settings.readingSpeed) : 0)
+
 // Чтобы снизить нагрузку на процессор, мы делим планирование композиции на итерации
 let nextIterationTimeoutID = null
 let midiTimeoutIDs = []
@@ -127,7 +129,11 @@ function nextIteration(iterationNumber, scheduledCommands) {
                         settings.notesRange.from
                     )
                     if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
-                    oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+
+                    oscillator.frequency.setValueAtTime(
+                        command,
+                        audioContext.currentTime + (index * settings.readingSpeed + getRandomTimeGap())
+                    )
                 }
                 break
 
@@ -142,7 +148,10 @@ function nextIteration(iterationNumber, scheduledCommands) {
                         settings.notesRange.from
                     )
                     if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
-                    oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                    oscillator.frequency.linearRampToValueAtTime(
+                        command,
+                        audioContext.currentTime + (index * settings.readingSpeed + getRandomTimeGap())
+                    )
                 }
                 break
 
@@ -157,7 +166,10 @@ function nextIteration(iterationNumber, scheduledCommands) {
                         settings.notesRange.from
                     )
                     if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
-                    oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                    oscillator.frequency.exponentialRampToValueAtTime(
+                        command,
+                        audioContext.currentTime + (index * settings.readingSpeed + getRandomTimeGap())
+                    )
                 }
                 break
         }
@@ -190,33 +202,33 @@ function nextIteration(iterationNumber, scheduledCommands) {
                         sendMIDIMessage.pitch(commands[index][1], settings.midi.port, settings.midi.channel)
                     }
                 },
-                index * settings.readingSpeed * 1000,
+                (index * settings.readingSpeed + getRandomTimeGap()) * 1000,
                 index
             )
         }
     }
 
     // Если в файле байтов меньше, чем fileReadingLimit.value, то рекурсия отменяется
-    if (fileReadingLimit.value >= settings.commandsRange.to) {
+    if (fileReadingLimit.value >= settings.commandsRange.to - settings.commandsRange.from) {
         if (!settings.loop) {
             nextIterationTimeoutID = setTimeout(() => {
                 // Чтобы последняя нота не затягивалась
                 if (settings.midiMode) {
                     sendMIDIMessage.noteOff(
-                        commands[settings.commandsRange.to][0],
+                        commands[settings.commandsRange.to - settings.commandsRange.from][0],
                         settings.midi.velocity,
                         settings.midi.port,
                         settings.midi.channel
                     )
                 }
-                status.playing = false
-            }, (settings.commandsRange.to - settings.commandsRange.from) * settings.readingSpeed * 1000)
+                stop()
+            }, (settings.commandsRange.to - settings.commandsRange.from + 1) * settings.readingSpeed * 1000)
         } else {
             nextIterationTimeoutID = setTimeout(() => {
                 // Чтобы последняя нота не затягивалась
                 if (settings.midiMode) {
                     sendMIDIMessage.noteOff(
-                        commands[settings.commandsRange.to][0],
+                        commands[settings.commandsRange.to - settings.commandsRange.from][0],
                         settings.midi.velocity,
                         settings.midi.port,
                         settings.midi.channel
@@ -330,9 +342,11 @@ const frequencyCoefficients = computed(() => {
     }
 })
 
+// При изменении этих параметров полностью заново пересчитать планирование
 const readingSpeed = computed(() => settings.readingSpeed)
 const transitionType = computed(() => settings.transitionType)
-watch([readingSpeed, transitionType], () => {
+const isRandomTimeGap = computed(() => settings.isRandomTimeGap)
+watch([readingSpeed, transitionType, isRandomTimeGap], () => {
     if (status.playing) {
         let command = null
 
@@ -360,7 +374,11 @@ watch([readingSpeed, transitionType], () => {
                         )
 
                         if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
-                        oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+
+                        oscillator.frequency.setValueAtTime(
+                            command,
+                            audioContext.currentTime + (index * settings.readingSpeed + getRandomTimeGap())
+                        )
                     }
                     break
 
@@ -380,7 +398,10 @@ watch([readingSpeed, transitionType], () => {
                         )
 
                         if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
-                        oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                        oscillator.frequency.linearRampToValueAtTime(
+                            command,
+                            audioContext.currentTime + (index * settings.readingSpeed + getRandomTimeGap())
+                        )
                     }
                     break
 
@@ -400,7 +421,10 @@ watch([readingSpeed, transitionType], () => {
                         )
 
                         if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
-                        oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
+                        oscillator.frequency.exponentialRampToValueAtTime(
+                            command,
+                            audioContext.currentTime + (index * settings.readingSpeed + getRandomTimeGap())
+                        )
                     }
                     break
             }
@@ -441,7 +465,7 @@ watch([readingSpeed, transitionType], () => {
                             sendMIDIMessage.pitch(commands[index][1], settings.midi.port, settings.midi.channel)
                         }
                     },
-                    index * settings.readingSpeed * 1000,
+                    (index * settings.readingSpeed + getRandomTimeGap() + 1) * 1000,
                     index
                 )
             }
@@ -455,20 +479,20 @@ watch([readingSpeed, transitionType], () => {
                     // Чтобы последняя нота не затягивалась
                     if (settings.midiMode) {
                         sendMIDIMessage.noteOff(
-                            commands[settings.commandsRange.to][0],
+                            commands[settings.commandsRange.to - settings.commandsRange.from][0],
                             settings.midi.velocity,
                             settings.midi.port,
                             settings.midi.channel
                         )
                     }
-                    status.playing = false
+                    stop()
                 }, (settings.commandsRange.to - settings.commandsRange.from - status.currentCommand) * settings.readingSpeed * 1000)
             } else {
                 nextIterationTimeoutID = setTimeout(() => {
                     // Чтобы последняя нота не затягивалась
                     if (settings.midiMode) {
                         sendMIDIMessage.noteOff(
-                            commands[settings.commandsRange.to][0],
+                            commands[settings.commandsRange.to - settings.commandsRange.from][0],
                             settings.midi.velocity,
                             settings.midi.port,
                             settings.midi.channel
@@ -497,6 +521,7 @@ watch([readingSpeed, transitionType], () => {
     }
 })
 
+// При изменении этих параметров пересчитать только частоты
 const frequenciesRange = computed(() => settings.frequenciesRange)
 const notesRange = computed(() => settings.notesRange)
 const frequencyMode = computed(() => settings.frequencyMode)
@@ -612,8 +637,10 @@ watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
     }
 })
 
+// При изменении этих параметров начать игру заново
 const bitness = computed(() => settings.bitness)
-watch(bitness, () => {
+const commandsRange = computed(() => settings.commandsRange)
+watch([bitness, commandsRange.value], () => {
     if (playing.value) {
         stop()
         setTimeout(play)
@@ -627,10 +654,15 @@ watch(loaded, () => {
 
 const midiMode = computed(() => settings.midiMode)
 watch(midiMode, (newValue) => {
+    if (!newValue) {
+        audioInit()
+    }
+
     // Если перешли на MIDI-режим, то гасим осциллятор
     if (playing.value) {
         let command = null
 
+        // Если включили MIDI
         if (newValue === true) {
             oscillator.stop(audioContext.currentTime)
             oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
@@ -671,7 +703,9 @@ watch(midiMode, (newValue) => {
                     index
                 )
             }
-        } else {
+        }
+        // Если отключили MIDI
+        else {
             midiTimeoutIDs.forEach((id) => {
                 clearTimeout(id)
             })
@@ -679,7 +713,6 @@ watch(midiMode, (newValue) => {
 
             clearTimeout(nextIterationTimeoutID) // Отменяем запланированную рекурсию
 
-            audioInit()
             oscillator.start()
 
             // Перепланируем изменения в осцилляторе, начиная с последней команды на которой остановились
@@ -751,7 +784,7 @@ watch(midiMode, (newValue) => {
         if (fileReadingLimit.value >= settings.commandsRange.to) {
             if (!settings.loop) {
                 nextIterationTimeoutID = setTimeout(() => {
-                    status.playing = false
+                    stop()
                 }, (settings.commandsRange.to - status.currentCommand) * settings.readingSpeed * 1000)
             } else {
                 nextIterationTimeoutID = setTimeout(() => {

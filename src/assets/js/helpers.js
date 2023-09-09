@@ -14,3 +14,19 @@ export function toFixedNumber(number, digits = 3) {
         return 0
     }
 }
+
+export function getRandomNumber(min, max) {
+    return Math.random() * (max - min) + min
+}
+
+/**
+ * Преобразовывает строки 'true' || 'false' в соответствующее булево значение
+ * @param {String} value - строка для преобразования
+ * @return {Boolean} Возвращает булево значение
+ */
+export function getBooleanFromString(value) {
+    // prettier-ignore
+    return value === 'true'
+        ? true
+        : false
+}
