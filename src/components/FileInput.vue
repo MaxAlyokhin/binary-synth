@@ -2,8 +2,8 @@
 import { ref, onMounted, onBeforeMount } from 'vue'
 import { useFileStore, useStatusStore } from '@/stores/global.js'
 
-// Принимает файл
-// Пишет в стор представления файла и информацию о нём
+// Receives the file
+// Writes the file representation and information about the file to the store
 const reader = new FileReader()
 const file = useFileStore()
 const status = useStatusStore()
@@ -28,8 +28,8 @@ reader.addEventListener('loadend', async (event) => {
         status.currentCommandsBlock = [0, 499]
     }
 
-    // Для файлов с нечётным количеством байт нельзя создать Uint16Array
-    // Поэтому мы можем заполнить недостающее нулями
+    // For files with an odd number of bytes we cannot create a Uint16Array
+    // So we can fill the missing with zeros
     let binary8 = new Uint8Array(event.target.result)
     let binary16 = null
 
@@ -131,6 +131,10 @@ onMounted(() => {
                         <div class="cta">CLICK FOR UPLOAD FILE<br />OR DROP FILE HERE</div>
                     </label>
                 </div>
+
+                <div class="about-on-first-screen">
+                    <a href="https://github.com/MaxAlyokhin/binary-synth" target="_blank" rel="noopener noreferrer">About and sources</a>
+                </div>
             </div>
         </Transition>
     </Teleport>
@@ -191,17 +195,43 @@ onMounted(() => {
 
     .title {
         font-size: 6vw;
+
+        @media (max-width: 768px) {
+            font-size: calc(0.525em + 6vw);
+        }
     }
 
     .description {
         text-transform: uppercase;
         font-size: 2vw;
         font-style: italic;
+
+        @media (max-width: 768px) {
+            font-size: calc(0.325em + 2vw);
+        }
     }
 
     .cta {
         font-size: 2vw;
         margin-top: 50px;
+
+        @media (max-width: 768px) {
+            font-size: calc(0.325em + 2vw);
+        }
+    }
+}
+
+.about-on-first-screen {
+    position: absolute;
+    bottom: 10px;
+
+    a {
+        text-decoration: none;
+        color: rgb(101 106 113);
+
+        &:hover {
+            text-decoration: underline;
+        }
     }
 }
 </style>

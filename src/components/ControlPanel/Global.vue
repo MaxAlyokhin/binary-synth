@@ -55,7 +55,7 @@ watch(commandsFrom, (newValue) => {
 
 const commandsTo = ref(settings.commandsRange.to)
 watch(commandsTo, (newValue) => {
-    // setTimeout чтобы эта проверка сработала после commandsFrom
+    // setTimeout to make this check triggered after frequencyFrom
     setTimeout(() => {
         if (isNaN(newValue)) {
             return

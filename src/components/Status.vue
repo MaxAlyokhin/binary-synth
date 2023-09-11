@@ -24,16 +24,16 @@ function timer() {
     }, 1000)
 }
 
-// Подсветка текущей команды в UI
+// Highlighting the current command in the UI
 let commandIteratorInterval = null
 let currentIteration = 0
 
-// По каждому play создаём новый итератор
+// Create a new iterator for each play
 function commandIterator() {
-    // Максимальная скорость setInterval 5мс
+    // Maximum speed of setInterval 5ms
     if (readingSpeed.value >= 0.005) {
         return setInterval(() => {
-            // Если у нас один лист
+            // If we have one sheet
             if (settings.commandsRange.to - settings.commandsRange.from <= commandsOnList.value) {
                 if (status.currentCommand >= settings.commandsRange.to - settings.commandsRange.from) {
                     status.currentCommand = 0
@@ -41,8 +41,8 @@ function commandIterator() {
                     status.currentCommand++
                 }
             }
-            // Если несколько листов
-            // Мы можем определить переход на следующую порцию команд при изменении status.iterationNumber
+            // If multiple sheets
+            // We can define the transition to the next instruction portion when status.iterationNumber changes
             else {
                 if (currentIteration !== status.iterationNumber) {
                     currentIteration = status.iterationNumber
@@ -53,9 +53,9 @@ function commandIterator() {
             }
         }, readingSpeed.value * 1000)
     } else {
-        // Если скорость большая, то отображаем активную команду через каждые 5 команд
+        // If the speed is high, we display the active command every 5 commands.
         return setInterval(() => {
-            // Если у нас один лист
+            // If we have one sheet
             if (settings.commandsRange.to - settings.commandsRange.from <= commandsOnList.value) {
                 if (status.currentCommand >= settings.commandsRange.to - settings.commandsRange.from) {
                     status.currentCommand = 0
@@ -63,8 +63,8 @@ function commandIterator() {
                     status.currentCommand += 5 * (readingSpeed.value * 1000)
                 }
             }
-            // Если несколько листов
-            // Мы можем определить переход на следующую порцию команд при изменении status.iterationNumber
+            // If multiple sheets
+            // We can define the transition to the next instruction portion when status.iterationNumber changes
             else {
                 if (currentIteration !== status.iterationNumber) {
                     currentIteration = status.iterationNumber
@@ -128,7 +128,7 @@ watch(playing, (newValue) => {
     }
 })
 
-// При изменении в настройках скорости чтения заново определяем интервалы
+// When changing the reading speed settings, redefine the intervals
 watch(readingSpeed, () => {
     if (playing.value) {
         clearInterval(timerInterval)

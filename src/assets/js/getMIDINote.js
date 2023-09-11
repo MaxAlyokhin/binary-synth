@@ -18,18 +18,18 @@ function getNearbyValues(number, array) {
     return [nearbyLess, nearbyOver]
 }
 
-// Вычисляет массив: номер ноты и, при непрерывном режиме, величину питча
+// Calculates an array of: note number and, in continuous mode, pitch value
 let frequency = null
 let nearbyValues = null
 let percent = null
 let pitchValue = null
 
 export function getMIDINote(byte, bitness, mode, coefficients, minimumFrequency, minimumNote) {
-    // Возвращается номер ноты + питч
-    // 1. Вычислить частоту
-    // 2. Найти ближайщую нижнюю ноту в массиве к этой частоте
-    // 3. Вычислить разницу между этой нотой и исходной частотой
-    // 4. Эту разницу перевести в величину питча
+    // Note number + pitch is returned
+    // 1. Calculate frequency
+    // 2. Find the nearest lower note in the array to this frequency
+    // 3. Calculate the difference between this note and the original frequency
+    // 4. Convert this difference into a pitch value
     if (mode === 'continuous') {
         // 1.
         if (byte === 0) frequency = minimumFrequency
@@ -55,7 +55,7 @@ export function getMIDINote(byte, bitness, mode, coefficients, minimumFrequency,
         }
     }
 
-    // Возвращается номер ноты
+    // The note number returned
     if (mode === 'tempered') {
         if (bitness === '8') return [Math.floor(coefficients.tempered8 * byte) + minimumNote]
         if (bitness === '16') return [Math.floor(coefficients.tempered16 * byte) + minimumNote]

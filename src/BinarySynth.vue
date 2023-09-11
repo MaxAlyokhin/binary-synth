@@ -13,6 +13,9 @@ const file = useFileStore()
         <div>
             <FileInput />
             <ControlPanel />
+            <div class="about">
+                <a href="https://github.com/MaxAlyokhin/binary-synth" target="_blank" rel="noopener noreferrer">About and sources</a>
+            </div>
         </div>
         <Status />
     </div>
@@ -36,6 +39,20 @@ const file = useFileStore()
     &--stub {
         opacity: 0;
         position: fixed;
+    }
+
+    .about {
+        padding-top: 10px;
+        text-align: center;
+
+        a {
+            color: rgb(101 106 113);
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
     }
 }
 </style>

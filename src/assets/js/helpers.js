@@ -20,9 +20,9 @@ export function getRandomNumber(min, max) {
 }
 
 /**
- * Преобразовывает строки 'true' || 'false' в соответствующее булево значение
- * @param {String} value - строка для преобразования
- * @return {Boolean} Возвращает булево значение
+ * Converts 'true' || 'false' strings to the corresponding boolean value
+ * @param {String} value - conversion string
+ * @return {Boolean} Returns a boolean value
  */
 export function getBooleanFromString(value) {
     // prettier-ignore

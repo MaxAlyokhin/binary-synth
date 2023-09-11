@@ -21,7 +21,7 @@ watch(frequencyFrom, (newValue) => {
 
 const frequencyTo = ref(settings.frequenciesRange.to)
 watch(frequencyTo, (newValue) => {
-    // setTimeout чтобы эта проверка сработала после frequencyFrom
+    // setTimeout to make this check triggered after frequencyFrom
     setTimeout(() => {
         if (isNaN(newValue)) {
             return

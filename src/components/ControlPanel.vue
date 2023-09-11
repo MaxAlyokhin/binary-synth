@@ -22,7 +22,7 @@ const iterationTime = computed(() =>
 )
 const bynaryInSelectedBitness = computed(() => (settings.bitness === '8' ? file.binary8 : file.binary16))
 
-// Создание
+// Creating
 let audioContext = new AudioContext()
 let oscillator = null
 let gain = audioContext.createGain()
@@ -31,7 +31,7 @@ let lfoDepth = audioContext.createGain()
 let lfoOsc = audioContext.createOscillator()
 let masterGain = audioContext.createGain()
 
-// Настройка
+// Setup
 filter.type = 'lowpass'
 filter.frequency.value = settings.biquadFilterFrequency
 filter.Q.value = settings.biquadFilterQ
@@ -42,7 +42,7 @@ lfoDepth.gain.value = settings.LFO.depth
 gain.gain.value = settings.gain
 masterGain.gain.value = 1
 
-// Соединение
+// Connection
 filter.connect(gain)
 lfoDepth.connect(masterGain.gain)
 gain.connect(masterGain)
@@ -57,8 +57,8 @@ const sawtoothWave = audioContext.createPeriodicWave(
     Float32Array.from(fourierCoefficients.sawtooth.imag)
 )
 
-// При каждом play создаём новый осциллятор и подключаем его
-// Изменение его частоты будет планироваться в nextIteration()
+// At each play, create a new oscillator and connect it
+// Changing its frequency will be planned in nextIteration()
 function audioInit() {
     oscillator = audioContext.createOscillator()
     oscillator.type = settings.waveType
@@ -69,12 +69,12 @@ audioInit()
 
 const getRandomTimeGap = () => (settings.isRandomTimeGap ? getRandomNumber(0, settings.readingSpeed) : 0)
 
-// Чтобы снизить нагрузку на процессор, мы делим планирование композиции на итерации
+// To reduce CPU overhead, we divide composition planning into iterations
 let nextIterationTimeoutID = null
 let midiTimeoutIDs = []
 let commands = []
 function nextIteration(iterationNumber, scheduledCommands) {
-    // Если дошли до конца команд или нажали stop, то выходим из рекурсии
+    // If we have reached the end of the commands or pressed stop, we exit the recursion
     if (!status.playing) {
         stop()
         return
@@ -99,7 +99,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
         }
     }
 
-    // Определяем блок команд (500 штук)
+    // Define block of commands (500 pieces)
     // prettier-ignore
     const end = scheduledCommands + fileReadingLimit.value < settings.commandsRange.to
         ? scheduledCommands + fileReadingLimit.value - 1
@@ -108,13 +108,13 @@ function nextIteration(iterationNumber, scheduledCommands) {
     status.currentCommandsBlock = [scheduledCommands, end]
     status.iterationNumber = iterationNumber
 
-    // Планируем композицию
+    // Planning the composition
     let command = null
 
-    // noteIndex - порядковый номер элемента во всём массиве команд
-    // index - порядковый номер элемента в контексте итерации
+    // noteIndex - serial number of the element in the whole command array
+    // index - sequence number of the element in the iteration context
 
-    // Для обычного режима
+    // For normal mode
 
     if (!settings.midiMode) {
         switch (settings.transitionType) {
@@ -128,7 +128,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
                         settings.frequenciesRange.from,
                         settings.notesRange.from
                     )
-                    if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                    if (!isFinite(command)) command = 0 // There are glitches on large readingSpeeds
 
                     oscillator.frequency.setValueAtTime(
                         command,
@@ -147,7 +147,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
                         settings.frequenciesRange.from,
                         settings.notesRange.from
                     )
-                    if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                    if (!isFinite(command)) command = 0 // There are glitches on large readingSpeeds
                     oscillator.frequency.linearRampToValueAtTime(
                         command,
                         audioContext.currentTime + (index * settings.readingSpeed + getRandomTimeGap())
@@ -165,7 +165,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
                         settings.frequenciesRange.from,
                         settings.notesRange.from
                     )
-                    if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
+                    if (!isFinite(command)) command = 0.01 // There are glitches on large readingSpeeds
                     oscillator.frequency.exponentialRampToValueAtTime(
                         command,
                         audioContext.currentTime + (index * settings.readingSpeed + getRandomTimeGap())
@@ -174,7 +174,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
                 break
         }
     }
-    // Для MIDI-режима
+    // For MIDI-mode
     else {
         midiTimeoutIDs.forEach((id) => {
             clearTimeout(id)
@@ -208,11 +208,11 @@ function nextIteration(iterationNumber, scheduledCommands) {
         }
     }
 
-    // Если в файле байтов меньше, чем fileReadingLimit.value, то рекурсия отменяется
+    // If there are fewer bytes in the file than fileReadingLimit.value, recursion is canceled
     if (fileReadingLimit.value >= settings.commandsRange.to - settings.commandsRange.from) {
         if (!settings.loop) {
             nextIterationTimeoutID = setTimeout(() => {
-                // Чтобы последняя нота не затягивалась
+                // So that the last note doesn't take too long
                 if (settings.midiMode) {
                     sendMIDIMessage.noteOff(
                         commands[settings.commandsRange.to - settings.commandsRange.from][0],
@@ -225,7 +225,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
             }, (settings.commandsRange.to - settings.commandsRange.from + 1) * settings.readingSpeed * 1000)
         } else {
             nextIterationTimeoutID = setTimeout(() => {
-                // Чтобы последняя нота не затягивалась
+                // So that the last note doesn't take too long
                 if (settings.midiMode) {
                     sendMIDIMessage.noteOff(
                         commands[settings.commandsRange.to - settings.commandsRange.from][0],
@@ -239,7 +239,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
         }
     } else {
         nextIterationTimeoutID = setTimeout(() => {
-            // Чтобы последняя нота не затягивалась
+            // So that the last note doesn't take too long
             if (settings.midiMode) {
                 sendMIDIMessage.noteOff(commands[commands.length - 1][0], settings.midi.velocity, settings.midi.port, settings.midi.channel)
             }
@@ -314,7 +314,7 @@ const gainValue = computed(() => settings.gain)
 watch(gainValue, (newValue) => {
     gain.gain.value = newValue
 })
-// При изменении типа волны в UI сразу передаём его в осциллятор
+// When we change the wave type in the UI, we immediately pass it to the oscillator
 const wave = computed(() => settings.waveType)
 watch(wave, (newValue) => {
     if (newValue === 'square2') {
@@ -325,7 +325,7 @@ watch(wave, (newValue) => {
         oscillator.type = newValue
     }
 })
-// По окончании композиции заново создаём связку
+// At the end of the composition, re-create the binder
 const playing = computed(() => status.playing)
 watch(playing, (newValue) => {
     if (newValue === false) {
@@ -342,7 +342,7 @@ const frequencyCoefficients = computed(() => {
     }
 })
 
-// При изменении этих параметров полностью заново пересчитать планирование
+// If these parameters are changed, completely recalculate the scheduling again
 const readingSpeed = computed(() => settings.readingSpeed)
 const transitionType = computed(() => settings.transitionType)
 const isRandomTimeGap = computed(() => settings.isRandomTimeGap)
@@ -350,13 +350,13 @@ watch([readingSpeed, transitionType, isRandomTimeGap], () => {
     if (status.playing) {
         let command = null
 
-        clearTimeout(nextIterationTimeoutID) // Отменяем рекурсию
+        clearTimeout(nextIterationTimeoutID) // Cancel the recursion
 
         if (!settings.midiMode) {
-            // Отменяем уже запланированное для осциллятора
+            // Cancel already planned for the oscillator
             oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
 
-            // Перепланируем изменения в осцилляторе, начиная с последней команды на которой остановились
+            // Reschedule the changes in the oscillator, starting from the last command where we left off
             switch (settings.transitionType) {
                 case 'immediately':
                     for (
@@ -373,7 +373,7 @@ watch([readingSpeed, transitionType, isRandomTimeGap], () => {
                             settings.notesRange.from
                         )
 
-                        if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                        if (!isFinite(command)) command = 0 // There are glitches on large readingSpeeds
 
                         oscillator.frequency.setValueAtTime(
                             command,
@@ -397,7 +397,7 @@ watch([readingSpeed, transitionType, isRandomTimeGap], () => {
                             settings.notesRange.from
                         )
 
-                        if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                        if (!isFinite(command)) command = 0 // There are glitches on large readingSpeeds
                         oscillator.frequency.linearRampToValueAtTime(
                             command,
                             audioContext.currentTime + (index * settings.readingSpeed + getRandomTimeGap())
@@ -420,7 +420,7 @@ watch([readingSpeed, transitionType, isRandomTimeGap], () => {
                             settings.notesRange.from
                         )
 
-                        if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
+                        if (!isFinite(command)) command = 0.01 // There are glitches on large readingSpeeds
                         oscillator.frequency.exponentialRampToValueAtTime(
                             command,
                             audioContext.currentTime + (index * settings.readingSpeed + getRandomTimeGap())
@@ -471,12 +471,12 @@ watch([readingSpeed, transitionType, isRandomTimeGap], () => {
             }
         }
 
-        // Заново планируем рекурсию
-        // Время следующей рекурсии это количество оставшихся в итерации команд * settings.readingSpeed
+        // Reschedule the recursion
+        // The time of the next recursion is the number of commands remaining in the iteration * settings.readingSpeed
         if (fileReadingLimit.value >= settings.commandsRange.to - settings.commandsRange.from) {
             if (!settings.loop) {
                 nextIterationTimeoutID = setTimeout(() => {
-                    // Чтобы последняя нота не затягивалась
+                    // So that the last note doesn't take too long
                     if (settings.midiMode) {
                         sendMIDIMessage.noteOff(
                             commands[settings.commandsRange.to - settings.commandsRange.from][0],
@@ -489,7 +489,7 @@ watch([readingSpeed, transitionType, isRandomTimeGap], () => {
                 }, (settings.commandsRange.to - settings.commandsRange.from - status.currentCommand) * settings.readingSpeed * 1000)
             } else {
                 nextIterationTimeoutID = setTimeout(() => {
-                    // Чтобы последняя нота не затягивалась
+                    // So that the last note doesn't take too long
                     if (settings.midiMode) {
                         sendMIDIMessage.noteOff(
                             commands[settings.commandsRange.to - settings.commandsRange.from][0],
@@ -521,7 +521,7 @@ watch([readingSpeed, transitionType, isRandomTimeGap], () => {
     }
 })
 
-// При изменении этих параметров пересчитать только частоты
+// When changing these parameters, only the frequencies are recalculated
 const frequenciesRange = computed(() => settings.frequenciesRange)
 const notesRange = computed(() => settings.notesRange)
 const frequencyMode = computed(() => settings.frequencyMode)
@@ -530,10 +530,10 @@ watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
         let command = null
 
         if (!settings.midiMode) {
-            // Отменяем уже запланированное для осциллятора
+            // Cancel already planned for the oscillator
             oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
 
-            // Перепланируем изменения в осцилляторе, начиная с последней команды на которой остановились
+            // Reschedule the changes in the oscillator, starting from the last command where we left off
             switch (settings.transitionType) {
                 case 'immediately':
                     for (
@@ -549,7 +549,7 @@ watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
                             settings.frequenciesRange.from,
                             settings.notesRange.from
                         )
-                        if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                        if (!isFinite(command)) command = 0 // There are glitches on large readingSpeeds
                         oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
                     }
                     break
@@ -568,7 +568,7 @@ watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
                             settings.frequenciesRange.from,
                             settings.notesRange.from
                         )
-                        if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                        if (!isFinite(command)) command = 0 // There are glitches on large readingSpeeds
                         oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
                     }
                     break
@@ -587,7 +587,7 @@ watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
                             settings.frequenciesRange.from,
                             settings.notesRange.from
                         )
-                        if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
+                        if (!isFinite(command)) command = 0.01 // There are glitches on large readingSpeeds
                         oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
                     }
                     break
@@ -637,7 +637,7 @@ watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
     }
 })
 
-// При изменении этих параметров начать игру заново
+// If you change these parameters, start the game over again
 const bitness = computed(() => settings.bitness)
 const commandsRange = computed(() => settings.commandsRange)
 watch([bitness, commandsRange.value], () => {
@@ -658,15 +658,15 @@ watch(midiMode, (newValue) => {
         audioInit()
     }
 
-    // Если перешли на MIDI-режим, то гасим осциллятор
+    // If the user has switched to MIDI mode, cancel the oscillator
     if (playing.value) {
         let command = null
 
-        // Если включили MIDI
+        // If MIDI is on
         if (newValue === true) {
             oscillator.stop(audioContext.currentTime)
             oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
-            clearTimeout(nextIterationTimeoutID) // Отменяем запланированную рекурсию
+            clearTimeout(nextIterationTimeoutID) // Cancel the scheduled recursion
 
             for (
                 let noteIndex = status.currentCommandsBlock[0] + status.currentCommand, index = 0;
@@ -704,18 +704,18 @@ watch(midiMode, (newValue) => {
                 )
             }
         }
-        // Если отключили MIDI
+        // If MIDI is off
         else {
             midiTimeoutIDs.forEach((id) => {
                 clearTimeout(id)
             })
             sendMIDIMessage.allSoundOff(settings.midi.port, settings.midi.channel)
 
-            clearTimeout(nextIterationTimeoutID) // Отменяем запланированную рекурсию
+            clearTimeout(nextIterationTimeoutID) // Cancel the scheduled recursion
 
             oscillator.start()
 
-            // Перепланируем изменения в осцилляторе, начиная с последней команды на которой остановились
+            // Reschedule the changes in the oscillator, starting from the last command where we left off
             switch (settings.transitionType) {
                 case 'immediately':
                     for (
@@ -732,7 +732,7 @@ watch(midiMode, (newValue) => {
                             settings.notesRange.from
                         )
 
-                        if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                        if (!isFinite(command)) command = 0 // There are glitches on large readingSpeeds
                         oscillator.frequency.setValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
                     }
                     break
@@ -752,7 +752,7 @@ watch(midiMode, (newValue) => {
                             settings.notesRange.from
                         )
 
-                        if (!isFinite(command)) command = 0 // На больших readingSpeed бывают глюки
+                        if (!isFinite(command)) command = 0 // There are glitches on large readingSpeeds
                         oscillator.frequency.linearRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
                     }
                     break
@@ -772,15 +772,15 @@ watch(midiMode, (newValue) => {
                             settings.notesRange.from
                         )
 
-                        if (!isFinite(command)) command = 0.01 // На больших readingSpeed бывают глюки
+                        if (!isFinite(command)) command = 0.01 // There are glitches on large readingSpeeds
                         oscillator.frequency.exponentialRampToValueAtTime(command, audioContext.currentTime + index * settings.readingSpeed)
                     }
                     break
             }
         }
 
-        // Заново планируем рекурсию
-        // Время следующей рекурсии это количество оставшихся в итерации команд * settings.readingSpeed
+        // Reschedule the recursion
+        // The time of the next recursion is the number of commands remaining in the iteration * settings.readingSpeed
         if (fileReadingLimit.value >= settings.commandsRange.to) {
             if (!settings.loop) {
                 nextIterationTimeoutID = setTimeout(() => {

@@ -2,7 +2,11 @@
 
 _Binary file interpreter for audio synthesis_
 
+[![Uptime Robot status](https://img.shields.io/uptimerobot/status/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su) [![Uptime Robot status](https://img.shields.io/uptimerobot/ratio/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su)
+
 **Demo**: https://bs.stranno.su
+
+![](https://store.stranno.su/bs/design.png)
 
 _<a href="README_RU.md">Эта страница есть также на русском</a>_
 
