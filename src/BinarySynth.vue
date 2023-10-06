@@ -15,6 +15,7 @@ const file = useFileStore()
             <ControlPanel />
             <div class="about">
                 <a href="https://github.com/MaxAlyokhin/binary-synth" target="_blank" rel="noopener noreferrer">About and sources</a>
+                <a href="https://dfap.stranno.su" target="_blank" rel="noopener noreferrer">by DFAP</a>
             </div>
         </div>
         <Status />
@@ -44,6 +45,9 @@ const file = useFileStore()
     .about {
         padding-top: 10px;
         text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
 
         a {
             color: rgb(101 106 113);

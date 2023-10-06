@@ -134,6 +134,7 @@ onMounted(() => {
 
                 <div class="about-on-first-screen">
                     <a href="https://github.com/MaxAlyokhin/binary-synth" target="_blank" rel="noopener noreferrer">About and sources</a>
+                    <a href="https://dfap.stranno.su" target="_blank" rel="noopener noreferrer">by DFAP</a>
                 </div>
             </div>
         </Transition>
@@ -224,6 +225,9 @@ onMounted(() => {
 .about-on-first-screen {
     position: absolute;
     bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
     a {
         text-decoration: none;
