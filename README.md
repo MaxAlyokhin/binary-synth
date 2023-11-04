@@ -6,7 +6,7 @@ _Binary file interpreter for audio synthesis_
 
 **Demo**: https://bs.stranno.su
 
-![](https://store.stranno.su/bs/design.png)
+![](https://store.stranno.su/bs/fuji.png)
 
 _<a href="README_RU.md">Эта страница есть также на русском</a>_
 
