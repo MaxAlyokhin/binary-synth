@@ -128,7 +128,7 @@ onMounted(() => {
                         <input type="file" />
                         <div class="title">BINARY SYNTH</div>
                         <div class="description">Binary file interpreter for audio generation</div>
-                        <div class="cta">CLICK FOR UPLOAD FILE<br />OR DROP FILE HERE</div>
+                        <div class="cta">CLICK TO UPLOAD FILE<br />OR DROP FILE HERE</div>
                     </label>
                 </div>
 

@@ -38,7 +38,11 @@ function commandIterator() {
                 if (status.currentCommand >= settings.commandsRange.to - settings.commandsRange.from) {
                     status.currentCommand = 0
                 } else {
-                    status.currentCommand++
+                    if (settings.isRandomTimeGap && settings.midiMode) {
+                        return
+                    } else {
+                        status.currentCommand++
+                    }
                 }
             }
             // If multiple sheets
@@ -48,7 +52,11 @@ function commandIterator() {
                     currentIteration = status.iterationNumber
                     status.currentCommand = 0
                 } else {
-                    status.currentCommand++
+                    if (settings.isRandomTimeGap && settings.midiMode) {
+                        return
+                    } else {
+                        status.currentCommand++
+                    }
                 }
             }
         }, readingSpeed.value * 1000)

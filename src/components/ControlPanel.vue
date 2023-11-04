@@ -67,7 +67,7 @@ function audioInit() {
 
 audioInit()
 
-const getRandomTimeGap = () => (settings.isRandomTimeGap ? getRandomNumber(0, settings.readingSpeed) : 0)
+const getRandomTimeGap = () => settings.isRandomTimeGap ? getRandomNumber(0, settings.readingSpeed) : 0
 
 // To reduce CPU overhead, we divide composition planning into iterations
 let nextIterationTimeoutID = null
@@ -201,6 +201,8 @@ function nextIteration(iterationNumber, scheduledCommands) {
                     if (settings.frequencyMode === 'continuous') {
                         sendMIDIMessage.pitch(commands[index][1], settings.midi.port, settings.midi.channel)
                     }
+
+                    if (settings.isRandomTimeGap && index !== 0) status.currentCommand++
                 },
                 (index * settings.readingSpeed + getRandomTimeGap()) * 1000,
                 index
@@ -464,6 +466,8 @@ watch([readingSpeed, transitionType, isRandomTimeGap], () => {
                         if (settings.frequencyMode === 'continuous') {
                             sendMIDIMessage.pitch(commands[index][1], settings.midi.port, settings.midi.channel)
                         }
+
+                        if (settings.isRandomTimeGap && index !== 0) status.currentCommand++
                     },
                     (index * settings.readingSpeed + getRandomTimeGap() + 1) * 1000,
                     index
@@ -628,6 +632,8 @@ watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
                         if (settings.frequencyMode === 'continuous') {
                             sendMIDIMessage.pitch(commands[index][1], settings.midi.port, settings.midi.channel)
                         }
+
+                        if (settings.isRandomTimeGap && index !== 0) status.currentCommand++
                     },
                     index * settings.readingSpeed * 1000,
                     index
