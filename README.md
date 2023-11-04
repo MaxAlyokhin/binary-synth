@@ -40,6 +40,22 @@ We could go further and write our own interpreter that would look at the files w
 
 6. If we have reached the end of the file, stop execution or start again
 
+## MIDI
+
+When the MIDI mode is enabled, the first available port and its first channel are automatically selected. Next, a noteOn signal is sent sequentially when reading, and a noteOff signal is sent after the Reading speed time. In Continuous mode, a Pitch signal is sent after each noteOn to hit the desired frequency.
+
+MIDI messages can be sent:
+
+-   to neighboring tabs and browser windows if they are listening to MIDI (e.g., in the web analog [DX7](http://mmontag.github.io/dx7-synth-js))
+-   in DAW and other applications with virtual synthesizers (i.e. BS can control, for example, synthesizer in Ableton).
+-   to MIDI-compatible external devices connected to a computer
+
+To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html).
+
+> **Note**: After any manipulations with MIDI ports (connection/disconnection/re-connection) it is necessary to completely restart the browser, closing all browser windows if there are several of them
+
+> **Note**: MIDI messages are generated on the desktop only
+
 ## Run locally and build the project
 
 ### Just copy the app
