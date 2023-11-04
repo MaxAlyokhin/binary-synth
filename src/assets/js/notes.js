@@ -1,3 +1,5 @@
+import { div } from './helpers'
+
 export const notes = [
     8.176, 8.662, 9.177, 9.723, 10.301, 10.913, 11.562, 12.25, 12.978, 13.75, 14.567, 15.434, 16.351, 17.324, 18.354, 19.445, 20.601,
     21.827, 23.124, 24.499, 25.956, 27.5, 29.135, 30.867, 32.703, 34.647, 36.708, 38.89, 41.203, 43.653, 46.249, 48.999, 51.912, 54.999,
@@ -9,3 +11,22 @@ export const notes = [
     3951.019, 4185.958, 4434.868, 4698.579, 4977.972, 5273.977, 5587.584, 5919.839, 6271.851, 6644.795, 7039.915, 7458.53, 7902.037,
     8371.917, 8869.737, 9397.159, 9955.943, 10547.954, 11175.168, 11839.678, 12543.702, 13289.59, 14079.83, 14917.06, 15804.074,
 ]
+
+/**
+ * Defines the name of the note through the frequency
+ * @param {Number} frequency - frequency
+ * @return {String} noteName - note name
+ */
+
+const notesNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+export function getNoteName(noteID) {
+    // Octave No.
+    const octave = div(noteID, 12) - 1
+    // The order number of the note within an octave
+    // For example, D === 3 (C - C# - D)
+    const noteNumberOnOctave = noteID + 1 - 12 * (octave + 1)
+    // Assemble the name of the note together with the octave No.
+    const noteName = notesNames[noteNumberOnOctave - 1] + String(octave - 1)
+
+    return noteName
+}

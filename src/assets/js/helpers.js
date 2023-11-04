@@ -30,3 +30,12 @@ export function getBooleanFromString(value) {
         ? true
         : false
 }
+
+/**
+ * The function performs integer division
+ * @param {Number} value - what to divide
+ * @param {Number} by - by what
+ * @return {Number} Returns the number you are looking for
+ */
+
+export const div = (value, by) => (value - (value % by)) / by

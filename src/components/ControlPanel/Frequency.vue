@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useSettingsStore } from '@/stores/global.js'
+import { getNoteName } from '../../assets/js/notes'
 
 const settings = useSettingsStore()
 
@@ -18,6 +19,9 @@ watch(frequencyFrom, (newValue) => {
         settings.frequenciesRange.from = frequencyFrom.value
     }
 })
+
+const noteNameFrom = computed(() => getNoteName(settings.notesRange.from))
+const noteNameTo = computed(() => getNoteName(settings.notesRange.to))
 
 const frequencyTo = ref(settings.frequenciesRange.to)
 watch(frequencyTo, (newValue) => {
@@ -120,17 +124,36 @@ watch(midi, () => {
                     <span>From</span>
                     <div class="notes-range__inputs">
                         <input type="number" step="1" name="notes-range-from" class="notes-range-from" v-model="notesFrom" />
-                        <span class="notes-range__from-span"></span>
+                        <span class="notes-range__from-span">{{ noteNameFrom }}</span>
                     </div>
                 </div>
                 <div class="module__container">
                     <span class="notes-range-to-span key">To</span>
                     <div class="notes-range__inputs">
                         <input type="number" step="1" name="notes-range-to" class="notes-range-to" v-model="notesTo" />
-                        <span class="notes-range__to-span"></span>
+                        <span class="notes-range__to-span">{{ noteNameTo }}</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </template>
+
+<style lang="scss" scoped>
+.notes-range {
+    &__inputs {
+        position: relative;
+
+        span {
+            position: absolute;
+            top: 4px;
+            left: 6px;
+        }
+
+        input {
+            color: transparent;
+            appearance: textfield;
+        }
+    }
+}
+</style>
