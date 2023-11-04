@@ -15,6 +15,7 @@
         "@vitejs/plugin-vue": "^4.2.3",
         "sass": "^1.64.2",
         "vite": "^4.4.6",
+        "vite-plugin-mkcert": "^1.16.0",
         "vite-plugin-singlefile": "^0.13.5"
     }
 }
