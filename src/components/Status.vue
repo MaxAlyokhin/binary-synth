@@ -257,13 +257,9 @@ watch(bynaryInSelectedBitness, (newValue) => {
         }
 
         &--16 {
-            grid-template-columns: repeat(12, 1fr);
+            grid-template-columns: repeat(10, 1fr);
 
             @media (max-width: 1800px) {
-                grid-template-columns: repeat(9, 1fr);
-            }
-
-            @media (max-width: 1510px) {
                 grid-template-columns: repeat(5, 1fr);
             }
 
