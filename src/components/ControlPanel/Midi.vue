@@ -1,7 +1,8 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { useSettingsStore } from '@/stores/global.js'
-import sendMIDIMessage from '../../assets/js/midi.js'
+import { useSettingsStore } from '@/stores/globalStore.js'
+import sendMIDIMessage from '../../assets/js/midiMessages.js'
+import { getBooleanFromString } from '../../assets/js/helpers';
 
 const settings = useSettingsStore()
 
@@ -86,6 +87,9 @@ const channel = computed(() => settings.midi.channel)
 watch([port, channel], () => {
     sendMIDIMessage.modulation(settings.midi.modulation, settings.midi.port, settings.midi.channel)
 })
+
+const solidMode = ref(settings.midi.solidMode)
+watch(solidMode, (newValue) => (settings.midi.solidMode = getBooleanFromString(newValue)))
 </script>
 
 <template>
@@ -139,6 +143,20 @@ watch([port, channel], () => {
                 <span>Modulation</span>
                 <div class="notes-range__inputs">
                     <input type="number" step="1" v-model="modulationValue" />
+                </div>
+            </div>
+        </div>
+
+        <div class="module__container module__container--block">
+            <span>Solid mode</span>
+            <div class="module__container module__container--radio">
+                <div class="radio-element">
+                    <input type="radio" name="solidMode" id="solidMode-yes" value="true" checked v-model="solidMode" />
+                    <label for="solidMode-yes">Yes</label>
+                </div>
+                <div class="radio-element">
+                    <input type="radio" name="solidMode" id="solidMode-no" value="false" v-model="solidMode" />
+                    <label for="solidMode-no">No</label>
                 </div>
             </div>
         </div>

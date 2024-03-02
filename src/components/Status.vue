@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
-import { useFileStore, useStatusStore, useSettingsStore } from '@/stores/global.js'
+import { useFileStore, useStatusStore, useSettingsStore } from '@/stores/globalStore.js'
 import { toFixedNumber } from '../assets/js/helpers.js'
 
 const file = useFileStore()

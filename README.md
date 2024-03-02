@@ -98,3 +98,5 @@ For MIDI tests, you can use this resource https://studiocode.dev/midi-monitor/
 -   Random time gap - adds a random amount of time to the next tone within the Reading speed parameter. Makes the sound less "robotic", as the distance to each tone is slightly different and it adds more "liveliness" to the game
 
 -   Commands range - allows to play not the whole file, but a certain part of it.
+
+-   Solid mode - the "solid press" mode, does not send noteOff commands, if the commands are the same in a row (and as a consequence notes), even noteOn is not sent. AllSoundOff is sent at the end. On some synthesizers it allows smooth transitions between notes.

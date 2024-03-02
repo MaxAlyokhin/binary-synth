@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { useFileStore, useSettingsStore } from '@/stores/global.js'
+import { useFileStore, useSettingsStore } from '@/stores/globalStore.js'
 import Frequency from './Frequency.vue'
 import { getBooleanFromString } from '../../assets/js/helpers.js'
 

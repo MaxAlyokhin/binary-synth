@@ -49,6 +49,7 @@ export const useSettingsStore = defineStore('settings', () => {
         modulation: 50,
         noMIDIPortsFound: true,
         velocity: 120,
+        solidMode: false
     })
 
     return {

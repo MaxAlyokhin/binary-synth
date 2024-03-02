@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { useSettingsStore } from '@/stores/global.js'
+import { useSettingsStore } from '@/stores/globalStore.js'
 import { getNoteName } from '../../assets/js/notes'
 
 const settings = useSettingsStore()

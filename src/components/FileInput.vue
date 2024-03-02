@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeMount } from 'vue'
-import { useFileStore, useStatusStore } from '@/stores/global.js'
+import { useFileStore, useStatusStore } from '@/stores/globalStore.js'
 
 // Receives the file
 // Writes the file representation and information about the file to the store

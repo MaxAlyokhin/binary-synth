@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue'
-import { useSettingsStore } from '@/stores/global.js'
+import { useSettingsStore } from '@/stores/globalStore.js'
 
 const settings = useSettingsStore()
 

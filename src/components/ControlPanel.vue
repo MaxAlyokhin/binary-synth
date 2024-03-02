@@ -1,6 +1,6 @@
 <script setup>
 import { watch, computed } from 'vue'
-import { useFileStore, useSettingsStore, useStatusStore } from '@/stores/global.js'
+import { useFileStore, useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
 import { toFixedNumber, getRandomNumber } from '../assets/js/helpers.js'
 import { getFrequency } from '../assets/js/getFrequency.js'
 import fourierCoefficients from '../assets/js/fourierCoefficients.js'
@@ -9,7 +9,7 @@ import LFO from './ControlPanel/LFO.vue'
 import Oscillator from './ControlPanel/Oscillator.vue'
 import Global from './ControlPanel/Global.vue'
 import Midi from './ControlPanel/Midi.vue'
-import sendMIDIMessage from '../assets/js/midi.js'
+import sendMIDIMessage from '../assets/js/midiMessages.js'
 import { getMIDINote } from '../assets/js/getMIDINote.js'
 
 const file = useFileStore()
@@ -67,7 +67,7 @@ function audioInit() {
 
 audioInit()
 
-const getRandomTimeGap = () => settings.isRandomTimeGap ? getRandomNumber(0, settings.readingSpeed) : 0
+const getRandomTimeGap = () => (settings.isRandomTimeGap ? getRandomNumber(0, settings.readingSpeed) : 0)
 
 // To reduce CPU overhead, we divide composition planning into iterations
 let nextIterationTimeoutID = null
@@ -192,14 +192,45 @@ function nextIteration(iterationNumber, scheduledCommands) {
 
             midiTimeoutIDs[index] = setTimeout(
                 (index) => {
-                    if (commands[index - 1]) {
-                        sendMIDIMessage.noteOff(commands[index - 1][0], settings.midi.velocity, settings.midi.port, settings.midi.channel)
-                    }
+                    // NoteOff is not sent in solidMode (only allSoundOff at the end of reading)
+                    // If there are identical commands in a row, noteOn and pitch are not played
+                    // The identical commands in continuous mode are compared by note and its pitch
+                    // In tempered mode only by note
+                    if (!settings.midi.solidMode) {
+                        if (index !== 0) {
+                            sendMIDIMessage.noteOff(
+                                commands[index - 1][0],
+                                settings.midi.velocity,
+                                settings.midi.port,
+                                settings.midi.channel
+                            )
+                        }
 
-                    sendMIDIMessage.noteOn(commands[index][0], settings.midi.velocity, settings.midi.port, settings.midi.channel)
+                        sendMIDIMessage.noteOn(commands[index][0], settings.midi.velocity, settings.midi.port, settings.midi.channel)
 
-                    if (settings.frequencyMode === 'continuous') {
-                        sendMIDIMessage.pitch(commands[index][1], settings.midi.port, settings.midi.channel)
+                        if (settings.frequencyMode === 'continuous') {
+                            sendMIDIMessage.pitch(commands[index][1], settings.midi.port, settings.midi.channel)
+                        }
+                    } else {
+                        let isEqualNote = null
+                        if (index !== 0) {
+                            if (settings.midi.solidMode) {
+                                if (settings.frequencyMode === 'continuous') {
+                                    isEqualNote =
+                                        commands[index - 1][0] === commands[index][0] && commands[index - 1][1] === commands[index][1]
+                                } else {
+                                    isEqualNote = commands[index - 1][0] === commands[index][0]
+                                }
+                            }
+                        }
+
+                        if (!isEqualNote) {
+                            sendMIDIMessage.noteOn(commands[index][0], settings.midi.velocity, settings.midi.port, settings.midi.channel)
+
+                            if (settings.frequencyMode === 'continuous') {
+                                sendMIDIMessage.pitch(commands[index][1], settings.midi.port, settings.midi.channel)
+                            }
+                        }
                     }
 
                     if (settings.isRandomTimeGap && index !== 0) status.currentCommand++
@@ -236,8 +267,10 @@ function nextIteration(iterationNumber, scheduledCommands) {
                         settings.midi.channel
                     )
                 }
+
                 nextIteration(0, settings.commandsRange.from)
-            }, (settings.commandsRange.to - settings.commandsRange.from) * settings.readingSpeed * 1000)
+                // + 1 include zero command
+            }, (settings.commandsRange.to - settings.commandsRange.from + 1) * settings.readingSpeed * 1000)
         }
     } else {
         nextIterationTimeoutID = setTimeout(() => {

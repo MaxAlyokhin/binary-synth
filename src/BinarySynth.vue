@@ -3,7 +3,7 @@ import FileInput from './components/FileInput.vue'
 import ControlPanel from './components/ControlPanel.vue'
 import Status from './components/Status.vue'
 
-import { useFileStore } from '@/stores/global.js'
+import { useFileStore } from '@/stores/globalStore.js'
 
 const file = useFileStore()
 </script>
