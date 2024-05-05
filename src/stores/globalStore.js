@@ -19,7 +19,7 @@ export const useSettingsStore = defineStore('settings', () => {
     const transitionType = ref('immediately')
     const frequencyMode = ref('continuous')
     const frequenciesRange = ref({
-        from: 0,
+        from: 50,
         to: 256,
     })
     const notesRange = ref({

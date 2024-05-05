@@ -16,7 +16,7 @@ const file = useFileStore()
 const settings = useSettingsStore()
 const status = useStatusStore()
 
-const fileReadingLimit = computed(() => (settings.bitness === '8' ? 500 : 250)) // Планирование композиции делим на итерации по fileReadingLimit.value шагов
+const fileReadingLimit = computed(() => (settings.bitness === '8' ? 500 : 250)) // Composition planning is divided into iterations by fileReadingLimit.value steps
 const iterationTime = computed(() =>
     toFixedNumber((status.currentCommandsBlock[1] - status.currentCommandsBlock[0] + 1) * settings.readingSpeed * 1000)
 )

@@ -151,7 +151,8 @@ watch(bynaryInSelectedBitness, (newValue) => {
     if (newValue.length <= 499) {
         status.currentCommandsBlock[1] = newValue.length
     } else {
-        status.currentCommandsBlock = [0, 499]
+        if (settings.bitness === '8') status.currentCommandsBlock = [0, 499]
+        else status.currentCommandsBlock = [0, 249]
     }
 })
 </script>
@@ -211,6 +212,7 @@ watch(bynaryInSelectedBitness, (newValue) => {
 
     div {
         color: $blue;
+        white-space: nowrap;
 
         span {
             color: $orange;
@@ -228,7 +230,7 @@ watch(bynaryInSelectedBitness, (newValue) => {
     }
 
     &__title {
-        margin-top: 20px;
+        margin-top: 10px;
         font-weight: 800;
     }
 
@@ -276,15 +278,11 @@ watch(bynaryInSelectedBitness, (newValue) => {
 
     &__common {
         max-width: 1435px;
-        overflow: auto;
+        overflow-x: scroll;
         overflow-y: hidden;
 
-        @media (max-width: 1550px) {
-            max-width: 1155px;
-        }
-
-        @media (max-width: 1250px) {
-            max-width: 450px;
+        @media (max-width: 1510px) {
+            max-width: 575px;
         }
     }
 }

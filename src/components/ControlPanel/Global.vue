@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import { useFileStore, useSettingsStore } from '@/stores/globalStore.js'
 import Frequency from './Frequency.vue'
 import { getBooleanFromString } from '../../assets/js/helpers.js'
@@ -31,10 +31,11 @@ const readingSpeed = ref(settings.readingSpeed)
 watch(readingSpeed, (newValue) => {
     if (settings.midiMode && newValue <= 0.005) {
         readingSpeed.value = 0.005
-        settings.readingSpeed = readingSpeed
+        settings.readingSpeed = readingSpeed.value
     } else {
-        readingSpeed.value = newValue
-        settings.readingSpeed = readingSpeed
+        if (newValue < 0) readingSpeed.value = 0
+        else readingSpeed.value = newValue
+        settings.readingSpeed = readingSpeed.value
     }
 })
 
@@ -55,8 +56,7 @@ watch(commandsFrom, (newValue) => {
 
 const commandsTo = ref(settings.commandsRange.to)
 watch(commandsTo, (newValue) => {
-    // setTimeout to make this check triggered after frequencyFrom
-    setTimeout(() => {
+    nextTick(() => {
         if (isNaN(newValue)) {
             return
         } else if (newValue <= 0) {

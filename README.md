@@ -56,6 +56,29 @@ To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https:
 
 > **Note**: MIDI messages are generated on the desktop only
 
+## Interface features
+
+-   Reading speed - interpretation speed; at high speeds over 0.001 the application may become unstable
+
+-   Bitness - we can divide the binary code into words of 8 or 16 bits, which changes the number of available frequencies (256 or 65536).
+
+-   Frequency generation mode
+
+    -   continuous - continuous frequency distribution
+    -   tempered - distribution by 12-step equal-tempered scale. Numbers denote the note number from C-1 to H7.
+
+-   Transition type - transition between frequencies
+
+    -   immediate - instantaneous, rough transition
+    -   linear - linearly to the next frequency
+    -   exponential - exponentially to the next frequency
+
+-   Random time gap - adds a random amount of time to the next tone within the Reading speed parameter. Makes the sound less "robotic", as the distance to each tone is slightly different and it adds more "liveliness" to the playing
+
+-   Commands range - allows to play not the whole file, but a certain part of it
+
+-   Solid mode - the "solid press" mode, does not send noteOff commands, if the commands are the same in a row (and as a consequence notes), even noteOn is not sent. AllSoundOff is sent at the end. On some synthesizers it allows smooth transitions between notes
+
 ## Run locally and build the project
 
 ### Just copy the app
@@ -77,26 +100,3 @@ npm run build # production-build, generate index.html with everything we need
 ```
 
 For MIDI tests, you can use this resource https://studiocode.dev/midi-monitor/
-
-## Interface features
-
--   Reading speed - interpretation speed; at high speeds over 0.001 the application may become unstable
-
--   Bitness - we can divide the binary code into words of 8 or 16 bits, which changes the number of available frequencies (256 or 65536).
-
--   Frequency generation mode
-
-    -   continuous - continuous frequency distribution
-    -   tempered - distribution by 12-step equal-tempered scale. Numbers denote the note number from C-1 to H7.
-
--   Transition type - transition between frequencies
-
-    -   immediate - instantaneous, rough transition
-    -   linear - linearly to the next frequency
-    -   exponential - exponentially to the next frequency
-
--   Random time gap - adds a random amount of time to the next tone within the Reading speed parameter. Makes the sound less "robotic", as the distance to each tone is slightly different and it adds more "liveliness" to the game
-
--   Commands range - allows to play not the whole file, but a certain part of it.
-
--   Solid mode - the "solid press" mode, does not send noteOff commands, if the commands are the same in a row (and as a consequence notes), even noteOn is not sent. AllSoundOff is sent at the end. On some synthesizers it allows smooth transitions between notes.
