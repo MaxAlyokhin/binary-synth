@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useSettingsStore } from '@/stores/globalStore.js'
+import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
@@ -44,11 +45,23 @@ watch(biquadFilterQ, (newValue) => {
         <div class="module__wrapper">
             <div class="module__container">
                 <span>Frequency</span>
-                <input type="number" step="0.1" name="filter" class="filter" v-model="biquadFilterFrequency" />
+                <InteractiveInput
+                    :validValue="biquadFilterFrequency"
+                    @valueFromInput="biquadFilterFrequency = $event"
+                    step="0.1"
+                    keyCode="KeyZ"
+                    letter="Z"
+                />
             </div>
             <div class="module__container">
                 <span>Q-factor</span>
-                <input type="number" step="0.1" name="factor" class="factor" v-model="biquadFilterQ" />
+                <InteractiveInput
+                    :validValue="biquadFilterQ"
+                    @valueFromInput="biquadFilterQ = $event"
+                    step="0.1"
+                    keyCode="KeyX"
+                    letter="X"
+                />
             </div>
         </div>
     </div>

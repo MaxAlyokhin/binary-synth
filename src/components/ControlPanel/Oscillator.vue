@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useSettingsStore } from '@/stores/globalStore.js'
+import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
@@ -26,7 +27,13 @@ watch(gain, (newValue) => {
         <div class="module__wrapper">
             <div class="module__container">
                 <span>Gain</span>
-                <input v-model="gain" step="0.01" type="number" min="0" name="gain" />
+                <InteractiveInput
+                    :validValue="gain"
+                    @valueFromInput="gain = $event"
+                    step="0.01"
+                    keyCode="KeyW"
+                    letter="W"
+                />
             </div>
 
             <div class="module__container">

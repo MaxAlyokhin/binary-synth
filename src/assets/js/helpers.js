@@ -39,3 +39,13 @@ export function getBooleanFromString(value) {
  */
 
 export const div = (value, by) => (value - (value % by)) / by
+
+/**
+ * The function performs a count of digits after comma
+ * @param {Number} x - Number
+ * @return {Number} Returns the number of digits after comma
+ */
+
+export function decimalPlaces(x) {
+    return x.toString().includes('.') ? x.toString().split('.').pop().length : 0
+}

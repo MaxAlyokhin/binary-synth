@@ -1,7 +1,8 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useSettingsStore } from '@/stores/globalStore.js'
-import { getNoteName } from '../../assets/js/notes'
+import { getNoteName } from '../../assets/js/notes.js'
+import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
@@ -25,24 +26,21 @@ const noteNameTo = computed(() => getNoteName(settings.notesRange.to))
 
 const frequencyTo = ref(settings.frequenciesRange.to)
 watch(frequencyTo, (newValue) => {
-    // setTimeout to make this check triggered after frequencyFrom
-    setTimeout(() => {
-        if (isNaN(newValue)) {
-            return
-        } else if (newValue <= 0) {
-            frequencyTo.value = 0
-            settings.frequenciesRange.to = frequencyTo
-        } else if (newValue > (settings.midiMode ? 12543 : 24000)) {
-            frequencyTo.value = settings.midiMode ? 12543 : 24000
-            settings.frequenciesRange.to = frequencyTo
-        } else if (newValue <= settings.frequenciesRange.from) {
-            frequencyTo.value = settings.frequenciesRange.from + 1
-            settings.frequenciesRange.to = frequencyTo.value
-        } else {
-            frequencyTo.value = newValue
-            settings.frequenciesRange.to = frequencyTo.value
-        }
-    }, 0)
+    if (isNaN(newValue)) {
+        return
+    } else if (newValue <= 0) {
+        frequencyTo.value = 0
+        settings.frequenciesRange.to = frequencyTo
+    } else if (newValue > (settings.midiMode ? 12543 : 24000)) {
+        frequencyTo.value = settings.midiMode ? 12543 : 24000
+        settings.frequenciesRange.to = frequencyTo
+    } else if (newValue <= settings.frequenciesRange.from) {
+        frequencyTo.value = settings.frequenciesRange.from + 1
+        settings.frequenciesRange.to = frequencyTo.value
+    } else {
+        frequencyTo.value = newValue
+        settings.frequenciesRange.to = frequencyTo.value
+    }
 })
 
 const notesFrom = ref(settings.notesRange.from)
@@ -111,11 +109,22 @@ watch(midi, () => {
             <div v-show="settings.frequencyMode === 'continuous'" class="module__wrapper">
                 <div class="module__container">
                     <span>From</span>
-                    <input type="number" step="1" name="frequencies-range-from" class="frequencies-range-from" v-model="frequencyFrom" />
+                    <InteractiveInput
+                        :validValue="frequencyFrom"
+                        @valueFromInput="frequencyFrom = $event"
+                        step="1"
+                        keyCode="KeyA"
+                        letter="A"
+                    />
                 </div>
                 <div class="module__container">
                     <span class="freq-to key">To</span>
-                    <input type="number" step="1" name="frequencies-range-to" class="frequencies-range-to" v-model="frequencyTo" />
+                    <InteractiveInput
+                        :validValue="frequencyTo"
+                        @valueFromInput="frequencyTo = $event"
+                        step="1"
+                        keyCode="KeyS"
+                        letter="S" />
                 </div>
             </div>
 

@@ -2,6 +2,7 @@
 import { computed, ref, watch, nextTick } from 'vue'
 import { useFileStore, useSettingsStore } from '@/stores/globalStore.js'
 import Frequency from './Frequency.vue'
+import InteractiveInput from './InteractiveInput.vue'
 import { getBooleanFromString } from '../../assets/js/helpers.js'
 
 const settings = useSettingsStore()
@@ -87,7 +88,13 @@ watch(commandsCount, (newValue) => {
         <div class="module__wrapper">
             <div class="module__container">
                 <span class="filter-freq key">Reading speed (s)</span>
-                <input v-model="readingSpeed" step="0.01" type="number" min="0" name="gain" />
+                <InteractiveInput
+                    :validValue="readingSpeed"
+                    @valueFromInput="readingSpeed = $event"
+                    step="0.001"
+                    keyCode="KeyQ"
+                    letter="Q"
+                />
             </div>
 
             <div class="module__container" :class="{ 'module__container--deactive': settings.midiMode }">
@@ -122,11 +129,25 @@ watch(commandsCount, (newValue) => {
             <div class="module__wrapper">
                 <div class="module__container">
                     <span>From</span>
-                    <input type="number" step="1" name="commands-range-from" class="commands-range-from" v-model="commandsFrom" />
+                    <input
+                        type="number"
+                        step="1"
+                        name="commands-range-from"
+                        class="commands-range-from"
+                        v-model="commandsFrom"
+                        @click="$event.target.select()"
+                    />
                 </div>
                 <div class="module__container">
                     <span>To</span>
-                    <input type="number" step="1" name="commands-range-to" class="commands-range-to" v-model="commandsTo" />
+                    <input
+                        type="number"
+                        step="1"
+                        name="commands-range-to"
+                        class="commands-range-to"
+                        v-model="commandsTo"
+                        @click="$event.target.select()"
+                    />
                 </div>
             </div>
         </div>

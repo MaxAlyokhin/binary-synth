@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useSettingsStore } from '@/stores/globalStore.js'
+import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
@@ -75,11 +76,23 @@ watch(rate, (newValue) => {
             </div>
             <div class="module__container">
                 <span>Rate</span>
-                <input type="number" step="0.1" name="rate" class="rate" v-model="rate" />
+                <InteractiveInput
+                    :validValue="rate"
+                    @valueFromInput="rate = $event"
+                    step="0.1"
+                    keyCode="KeyC"
+                    letter="C"
+                />
             </div>
             <div class="module__container">
                 <span>Depth</span>
-                <input type="number" step="0.01" name="depth" class="depth" v-model="depth" />
+                <InteractiveInput
+                    :validValue="depth"
+                    @valueFromInput="depth = $event"
+                    step="0.01"
+                    keyCode="KeyV"
+                    letter="V"
+                />
             </div>
         </div>
     </div>
