@@ -7,14 +7,10 @@ const file = useFileStore()
 const settings = useSettingsStore()
 const status = useStatusStore()
 
-const playing = computed(() => status.playing)
-const readingSpeed = computed(() => settings.readingSpeed)
 const time = ref(0)
-const bynaryInSelectedBitness = computed(() => (settings.bitness === '8' ? file.binary8 : file.binary16))
-const durationTime = computed(() =>
-    secondsToFormatTime(toFixedNumber((settings.commandsRange.to - settings.commandsRange.from) * settings.readingSpeed * 1000))
-)
-const commandsOnList = computed(() => (settings.bitness === '8' ? 499 : 249))
+const durationTime = computed(() => toFixedNumber((settings.commandsRange.to - settings.commandsRange.from) * settings.readingSpeed * 1000))
+const durationTimeFormatted = computed(() => secondsToFormatTime(durationTime.value))
+const commandsOnList = computed(() => (settings.bitness === '8' ? 500 : 249))
 
 let timerInterval = null
 
@@ -124,6 +120,7 @@ function format(number) {
     return strWithSpaces[0] === ' ' ? strWithSpaces.slice(1) : strWithSpaces
 }
 
+const playing = computed(() => status.playing)
 watch(playing, (newValue) => {
     if (newValue) {
         timerInterval = timer()
@@ -137,6 +134,7 @@ watch(playing, (newValue) => {
 })
 
 // When changing the reading speed settings, redefine the intervals
+const readingSpeed = computed(() => settings.readingSpeed)
 watch(readingSpeed, () => {
     if (playing.value) {
         clearInterval(timerInterval)
@@ -147,12 +145,26 @@ watch(readingSpeed, () => {
     }
 })
 
+const bynaryInSelectedBitness = computed(() => (settings.bitness === '8' ? file.binary8 : file.binary16))
 watch(bynaryInSelectedBitness, (newValue) => {
-    if (newValue.length <= 499) {
-        status.currentCommandsBlock[1] = newValue.length
-    } else {
-        if (settings.bitness === '8') status.currentCommandsBlock = [0, 499]
-        else status.currentCommandsBlock = [0, 249]
+    if (settings.bitness === '8') {
+        if ((settings.commandsRange.to - settings.commandsRange.from) >= 499) {
+            status.currentCommandsBlock = [0, 499]
+        } else {
+            status.currentCommandsBlock[1] = settings.commandsRange.to
+        }
+
+        if (newValue.length <= 499) status.currentCommandsBlock[1] = newValue.length
+    }
+
+    if (settings.bitness === '16') {
+        if ((settings.commandsRange.to - settings.commandsRange.from) >= 249) {
+            status.currentCommandsBlock = [0, 249]
+        } else {
+            status.currentCommandsBlock[1] = settings.commandsRange.to
+        }
+
+        if (newValue.length <= 249) status.currentCommandsBlock[1] = newValue.length
     }
 })
 </script>
@@ -176,7 +188,7 @@ watch(bynaryInSelectedBitness, (newValue) => {
                 File size (bytes): <span>{{ format(file.size) }}</span>
             </div>
             <div class="status__composition-duration">
-                Composition duration (s): <span>{{ durationTime }}</span>
+                {{ durationTime >= 50 ? 'Composition duration' : 'Duration of the acoustic pixel' }}: <span>{{ durationTimeFormatted }}</span><span v-show="durationTime <= 50">/ {{ toFixedNumber(1000 / durationTime) }} Hz</span>
             </div>
         </div>
         <div class="status__title">Commands from {{ status.currentCommandsBlock[0] }} to {{ status.currentCommandsBlock[1] }}</div>

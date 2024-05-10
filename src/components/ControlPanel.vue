@@ -1,5 +1,5 @@
 <script setup>
-import { watch, computed } from 'vue'
+import { watch, computed, onMounted, onUnmounted } from 'vue'
 import { useFileStore, useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
 import { toFixedNumber, getRandomNumber } from '../assets/js/helpers.js'
 import { getFrequency } from '../assets/js/getFrequency.js'
@@ -314,6 +314,21 @@ function stop() {
         status.playing = false
     }
 }
+
+function changePlaying(event) {
+    if (event.code === 'Space') {
+        event.preventDefault()
+        status.playing ? stop() : play()
+    }
+}
+
+onMounted(() => {
+    window.addEventListener('keydown', changePlaying)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', changePlaying)
+})
 
 const filterFrequency = computed(() => settings.biquadFilterFrequency)
 watch(filterFrequency, (newValue) => {
@@ -680,10 +695,12 @@ watch([frequenciesRange.value, notesRange.value, frequencyMode], () => {
 const bitness = computed(() => settings.bitness)
 const commandsRange = computed(() => settings.commandsRange)
 watch([bitness, commandsRange.value], () => {
-    if (playing.value) {
-        stop()
-        setTimeout(play)
-    }
+    const end =
+        settings.commandsRange.from + fileReadingLimit.value < settings.commandsRange.to
+            ? settings.commandsRange.from + fileReadingLimit.value - 1
+            : settings.commandsRange.to
+
+    status.currentCommandsBlock = [settings.commandsRange.from, end]
 })
 
 const loaded = computed(() => file.loaded)

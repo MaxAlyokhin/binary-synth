@@ -8,10 +8,6 @@ import { getBooleanFromString } from '../../assets/js/helpers.js'
 const settings = useSettingsStore()
 const file = useFileStore()
 
-const commandsCount = computed(() => {
-    if (file.loaded) return settings.bitness === '8' ? file.binary8.length - 1 : file.binary16.length - 1
-})
-
 const loop = ref(settings.loop)
 watch(loop, (newValue) => (settings.loop = getBooleanFromString(newValue)))
 
@@ -76,8 +72,12 @@ watch(commandsTo, (newValue) => {
     })
 })
 
+// Так как в 16-bit команд в два раза меньше, нужно контролировать, чтобы при переходе из 8-bit на 16-bit не выйти за диапазон
+const commandsCount = computed(() => {
+    if (file.loaded) return settings.bitness === '8' ? file.binary8.length - 1 : file.binary16.length - 1
+})
 watch(commandsCount, (newValue) => {
-    commandsTo.value = newValue
+    if (settings.commandsRange.to >= newValue || settings.commandsRange.to === 0) commandsTo.value = newValue
 })
 </script>
 
