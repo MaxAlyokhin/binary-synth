@@ -1,6 +1,6 @@
 # Binary Synth
 
-_Binary file interpreter for audio synthesis_
+_Audio synthesis from binary code of any file_
 
 [![Uptime Robot status](https://img.shields.io/uptimerobot/status/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su) [![Uptime Robot status](https://img.shields.io/uptimerobot/ratio/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su)
 
@@ -10,9 +10,11 @@ _Binary file interpreter for audio synthesis_
 
 _<a href="README_RU.md">Эта страница есть также на русском</a>_
 
-All data on any computer or smartphone is in the form of files. The contents of these files are ultimately just zeros and ones. And these zeros and ones are basically all the same, so we need an interpreter to extract meaning from these texts. Basically, the file format (.mp3, .docx, etc.) is just a pointer to which interpreter we need to pass the text in order to extract meaning from it.
+All data on any computer or smartphone is in the form of files (which are, in essence, texts). The contents of these files are ultimately just zeros and ones. And these zeros and ones are basically all the same, so we need an interpreter to extract meaning from these texts. Basically, the file format (.mp3, .docx, etc.) is just a pointer to which interpreter we need to pass the text in order to extract meaning from it.
 
-But what if the file format and the interpreter don't match? In the case of musical experimentation, there have been earlier attempts, for example, to "play" a file through an audio editor, which expectedly produced mostly glitch and noise; it might be interesting more from a conceptual than a musical point of view.
+But what if the file format and the interpreter don't match?
+
+In the case of musical experimentation, there have been earlier attempts, for example, to "play" a file through an audio editor.
 
 We could go further and write our own interpreter that would look at the files without regard to format, use its own "manner of reading" the original zeros and ones, and on that basis provide a complete system for controlled synthesis of sounds.
 
@@ -65,7 +67,7 @@ To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https:
 -   Frequency generation mode
 
     -   continuous - continuous frequency distribution
-    -   tempered - distribution by 12-step equal-tempered scale. Numbers denote the note number from C-1 to H7.
+    -   tempered - distribution by 12-step equal-tempered scale. There are notes from C-2 to B8
 
 -   Transition type - transition between frequencies
 
@@ -77,7 +79,7 @@ To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https:
 
 -   Commands range - allows to play not the whole file, but a certain part of it
 
--   Solid mode - the "solid press" mode, does not send noteOff commands, if the commands are the same in a row (and as a consequence notes), even noteOn is not sent. AllSoundOff is sent at the end. On some synthesizers it allows smooth transitions between notes
+-   Solid mode - the "solid press" mode, does not send noteOff commands; if the commands are the same in a row (and as a consequence notes), even noteOn is not sent. allSoundOff is sent at the end. On some synthesizers it allows smooth transitions between notes
 
 - Some input fields have a keyboard shortcut: pressing the corresponding key automatically moves the focus to the item. By pressing a key and moving the mouse at the same time, the values can be changed smoothly. The Y axis of the mouse movement determines the "power" of the value change
 
