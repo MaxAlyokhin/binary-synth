@@ -1,7 +1,7 @@
 <script setup>
 import { watch, computed, onMounted, onUnmounted } from 'vue'
 import { useFileStore, useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
-import { toFixedNumber, getRandomNumber } from '../assets/js/helpers.js'
+import { toFixedNumber, getRandomNumber, getDate } from '../assets/js/helpers.js'
 import { getFrequency } from '../assets/js/getFrequency.js'
 import fourierCoefficients from '../assets/js/fourierCoefficients.js'
 import Filter from './ControlPanel/Filter.vue'
@@ -862,11 +862,130 @@ watch(midiMode, (newValue) => {
         }
     }
 })
+
+// Settings saving
+function save() {
+    const settingsObject = {
+        readingSpeed: settings.readingSpeed,
+        waveType: settings.waveType,
+        gain: settings.gain,
+        transitionType: settings.transitionType,
+        frequencyMode: settings.frequencyMode,
+        frequenciesRange: {
+            from: settings.frequenciesRange.from,
+            to: settings.frequenciesRange.to,
+        },
+        notesRange: {
+            from: settings.notesRange.from,
+            to: settings.notesRange.to,
+        },
+        commandsRange: {
+            from: settings.commandsRange.from,
+            to: settings.commandsRange.to,
+        },
+        biquadFilterFrequency: settings.biquadFilterFrequency,
+        biquadFilterQ: settings.biquadFilterQ,
+        LFO: {
+            enabled: settings.LFO.enabled,
+            type: settings.LFO.type,
+            rate: settings.LFO.rate,
+            depth: settings.LFO.depth,
+        },
+        bitness: settings.bitness,
+        loop: settings.loop,
+        isRandomTimeGap: settings.isRandomTimeGap,
+        midiMode: settings.midiMode,
+        midi: {
+            pitch: settings.midi.pitch,
+            modulation: settings.midi.modulation,
+            velocity: settings.midi.velocity,
+            solidMode: settings.midi.solidMode,
+        },
+    }
+
+    const link = document.createElement('a')
+
+    link.href = URL.createObjectURL(
+        new Blob([JSON.stringify(settingsObject, null, 2)], {
+            type: 'application/json',
+        })
+    )
+
+    link.setAttribute('download', `bs-${getDate()}.json`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+}
+
+// Settings loading
+const reader = new FileReader()
+function load(settingsInJSON) {
+    if (settingsInJSON.type !== 'application/json') throw new Error('JSON file is required')
+
+    reader.readAsText(settingsInJSON)
+
+    reader.addEventListener('load', (event) => {
+        const settingsObject = JSON.parse(event.target.result)
+
+        settings.$patch({
+            readingSpeed: settingsObject.readingSpeed,
+            waveType: settingsObject.waveType,
+            gain: settingsObject.gain,
+            transitionType: settingsObject.transitionType,
+            frequencyMode: settingsObject.frequencyMode,
+            frequenciesRange: {
+                from: settingsObject.frequenciesRange.from,
+                to: settingsObject.frequenciesRange.to,
+            },
+            notesRange: {
+                from: settingsObject.notesRange.from,
+                to: settingsObject.notesRange.to,
+            },
+            commandsRange: {
+                from: settingsObject.commandsRange.from,
+                to: settingsObject.commandsRange.to,
+            },
+            biquadFilterFrequency: settingsObject.biquadFilterFrequency,
+            biquadFilterQ: settingsObject.biquadFilterQ,
+            LFO: {
+                enabled: settingsObject.LFO.enabled,
+                type: settingsObject.LFO.type,
+                rate: settingsObject.LFO.rate,
+                depth: settingsObject.LFO.depth,
+            },
+            bitness: settingsObject.bitness,
+            loop: settingsObject.loop,
+            isRandomTimeGap: settingsObject.isRandomTimeGap,
+            midiMode: settingsObject.midiMode,
+            midi: {
+                pitch: settingsObject.midi.pitch,
+                modulation: settingsObject.midi.modulation,
+                velocity: settingsObject.midi.velocity,
+                solidMode: settingsObject.midi.solidMode
+            }
+        })
+    })
+
+    reader.addEventListener('error', (event) => {
+        throw new Error(event.target.error)
+    })
+}
 </script>
 
 <template>
     <Transition name="opacity" mode="out-in" appear>
         <div class="control" :class="{ deactive: !file.loaded }">
+            <div class="control__playing">
+                <label
+                    class="control__play button"
+                    @change="(event) => (event.target.files.length ? load(event.target.files[0]) : false)"
+                >
+                    <input type="file" />
+                    Load settings
+                </label>
+                <button class="control__play button" @click="save">Save settings</button>
+            </div>
+
             <div class="control__playing">
                 <button class="control__play button" :class="{ active: status.playing }" @click="play">Play</button>
                 <button class="control__play button" :class="{ deactive: !status.playing && file.loaded }" @click="stop">Stop</button>
@@ -915,6 +1034,13 @@ watch(midiMode, (newValue) => {
     &__play {
         color: $white;
         padding: 9px 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        input[type="file"] {
+            display: none;
+        }
     }
 }
 </style>

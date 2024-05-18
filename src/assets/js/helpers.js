@@ -49,3 +49,13 @@ export const div = (value, by) => (value - (value % by)) / by
 export function decimalPlaces(x) {
     return x.toString().includes('.') ? x.toString().split('.').pop().length : 0
 }
+
+/**
+ * The function returns a string with the time of the call in the format number-month-year-hour-minutes-seconds
+ * @return {String}
+ */
+
+export function getDate() {
+    let date = new Date()
+    return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}`
+  }

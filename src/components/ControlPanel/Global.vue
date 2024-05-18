@@ -8,68 +8,59 @@ import { getBooleanFromString } from '../../assets/js/helpers.js'
 const settings = useSettingsStore()
 const file = useFileStore()
 
-const loop = ref(settings.loop)
-watch(loop, (newValue) => (settings.loop = getBooleanFromString(newValue)))
-
-const midi = ref(settings.midiMode)
-watch(midi, (newValue) => {
-    settings.midiMode = getBooleanFromString(newValue)
-
-    if (settings.midiMode && settings.readingSpeed <= 0.005) {
-        readingSpeed.value = 0.005
-        settings.readingSpeed = readingSpeed
+const loop = computed({
+    get() {
+        return settings.loop
+    },
+    set(value) {
+        settings.loop = getBooleanFromString(value)
     }
 })
 
-const gap = ref(settings.isRandomTimeGap)
-watch(gap, (newValue) => (settings.isRandomTimeGap = getBooleanFromString(newValue)))
+const midi = computed({
+    get() {
+        return settings.midiMode
+    },
+    set(value) {
+        settings.midiMode = getBooleanFromString(value)
+    }
+})
+watch(midi, (newValue) => {
+    if (settings.midiMode && settings.readingSpeed <= 0.005) {
+        settings.readingSpeed = 0.005
+    }
+})
 
-const readingSpeed = ref(settings.readingSpeed)
+const gap = computed({
+    get() {
+        return settings.isRandomTimeGap
+    },
+    set(value) {
+        settings.isRandomTimeGap = getBooleanFromString(value)
+    }
+})
+
+const readingSpeed = computed(() => settings.readingSpeed)
 watch(readingSpeed, (newValue) => {
     if (settings.midiMode && newValue <= 0.005) {
-        readingSpeed.value = 0.005
-        settings.readingSpeed = readingSpeed.value
+         settings.readingSpeed = 0.005
     } else {
-        if (newValue < 0) readingSpeed.value = 0
-        else readingSpeed.value = newValue
-        settings.readingSpeed = readingSpeed.value
+        if (newValue < 0) settings.readingSpeed = 0
+        else settings.readingSpeed = newValue
     }
 })
 
-const commandsFrom = ref(settings.commandsRange.from)
+const commandsFrom = computed(() => settings.commandsRange.from)
 watch(commandsFrom, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
-        commandsFrom.value = 0
-        settings.commandsRange.from = commandsFrom.value
+        settings.commandsRange.from = 0
     } else if (newValue >= settings.commandsRange.to) {
-        commandsFrom.value = settings.commandsRange.to - 1
-        settings.commandsRange.from = commandsFrom.value
+        settings.commandsRange.from = settings.commandsRange.to - 1
     } else {
-        settings.commandsRange.from = commandsFrom.value
+        settings.commandsRange.from = newValue
     }
-})
-
-const commandsTo = ref(settings.commandsRange.to)
-watch(commandsTo, (newValue) => {
-    nextTick(() => {
-        if (isNaN(newValue)) {
-            return
-        } else if (newValue <= 0) {
-            commandsTo.value = 1
-            settings.commandsRange.to = commandsTo.value
-        } else if (newValue > commandsCount.value) {
-            commandsTo.value = commandsCount.value
-            settings.commandsRange.to = commandsTo.value
-        } else if (newValue <= settings.commandsRange.from) {
-            commandsTo.value = settings.commandsRange.from + 1
-            settings.commandsRange.to = commandsTo.value
-        } else {
-            commandsTo.value = newValue
-            settings.commandsRange.to = commandsTo.value
-        }
-    })
 })
 
 // Так как в 16-bit команд в два раза меньше, нужно контролировать, чтобы при переходе из 8-bit на 16-bit не выйти за диапазон
@@ -77,7 +68,24 @@ const commandsCount = computed(() => {
     if (file.loaded) return settings.bitness === '8' ? file.binary8.length - 1 : file.binary16.length - 1
 })
 watch(commandsCount, (newValue) => {
-    if (settings.commandsRange.to >= newValue || settings.commandsRange.to === 0) commandsTo.value = newValue
+    if (settings.commandsRange.to >= newValue || settings.commandsRange.to === 0) settings.commandsRange.to = newValue
+})
+
+const commandsTo = computed(() => settings.commandsRange.to)
+watch(commandsTo, (newValue) => {
+    nextTick(() => {
+        if (isNaN(newValue)) {
+            return
+        } else if (newValue <= 0) {
+            settings.commandsRange.to = 1
+        } else if (newValue > commandsCount.value) {
+            settings.commandsRange.to = commandsCount.value
+        } else if (newValue <= settings.commandsRange.from) {
+            settings.commandsRange.to = settings.commandsRange.from + 1
+        } else {
+            settings.commandsRange.to = newValue
+        }
+    })
 })
 </script>
 
@@ -89,8 +97,8 @@ watch(commandsCount, (newValue) => {
             <div class="module__container">
                 <span class="filter-freq key">Reading speed (s)</span>
                 <InteractiveInput
-                    :validValue="readingSpeed"
-                    @valueFromInput="readingSpeed = $event"
+                    :validValue="settings.readingSpeed"
+                    @valueFromInput="settings.readingSpeed = $event"
                     step="0.001"
                     keyCode="KeyQ"
                     letter="Q"
@@ -130,8 +138,8 @@ watch(commandsCount, (newValue) => {
                 <div class="module__container">
                     <span>From</span>
                     <InteractiveInput
-                        :validValue="commandsFrom"
-                        @valueFromInput="commandsFrom = $event"
+                        :validValue="settings.commandsRange.from"
+                        @valueFromInput="settings.commandsRange.from = $event"
                         step="1"
                         keyCode="KeyD"
                         letter="D"
@@ -140,8 +148,8 @@ watch(commandsCount, (newValue) => {
                 <div class="module__container">
                     <span>To</span>
                     <InteractiveInput
-                        :validValue="commandsTo"
-                        @valueFromInput="commandsTo = $event"
+                        :validValue="settings.commandsRange.to"
+                        @valueFromInput="settings.commandsRange.to = $event"
                         step="1"
                         keyCode="KeyF"
                         letter="F"

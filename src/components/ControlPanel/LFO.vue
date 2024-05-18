@@ -1,46 +1,43 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useSettingsStore } from '@/stores/globalStore.js'
 import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
-const mode = ref(settings.LFO.enabled)
-const depth = ref(settings.LFO.depth)
-const rate = ref(settings.LFO.rate)
-
-watch(mode, (newValue) => {
-    // prettier-ignore
-    newValue === 'true'
-        ? settings.LFO.enabled = true
-        : settings.LFO.enabled = false
+const mode = computed({
+    get() {
+        return settings.LFO.enabled
+    },
+    set(value) {
+        // prettier-ignore
+        value === 'true'
+            ? settings.LFO.enabled = true
+            : settings.LFO.enabled = false
+        }
 })
+const depth = computed(() => settings.LFO.depth)
+const rate = computed(() => settings.LFO.rate)
 
 watch(depth, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue < 0) {
-        depth.value = 0
-        settings.LFO.depth = depth.value
+        settings.LFO.depth = 0
     } else if (newValue > 1) {
-        depth.value = 1
-        settings.LFO.depth = depth.value
+        settings.LFO.depth = 1
     } else {
-        depth.value = newValue
-        settings.LFO.depth = depth.value
+        settings.LFO.depth = newValue
     }
 })
 
 watch(rate, (newValue) => {
     if (isNaN(newValue) || newValue < 0) {
-        rate.value = 0
-        settings.LFO.rate = rate.value
+        settings.LFO.rate = 0
     } else if (newValue > 24000) {
-        rate.value = 24000
-        settings.LFO.rate = rate.value
+        settings.LFO.rate = 24000
     } else {
-        rate.value = newValue
-        settings.LFO.rate = rate.value
+        settings.LFO.rate = newValue
     }
 })
 </script>
@@ -77,8 +74,8 @@ watch(rate, (newValue) => {
             <div class="module__container">
                 <span>Rate</span>
                 <InteractiveInput
-                    :validValue="rate"
-                    @valueFromInput="rate = $event"
+                    :validValue="settings.LFO.rate"
+                    @valueFromInput="settings.LFO.rate = $event"
                     step="0.1"
                     keyCode="KeyC"
                     letter="C"
@@ -87,8 +84,8 @@ watch(rate, (newValue) => {
             <div class="module__container">
                 <span>Depth</span>
                 <InteractiveInput
-                    :validValue="depth"
-                    @valueFromInput="depth = $event"
+                    :validValue="settings.LFO.depth"
+                    @valueFromInput="settings.LFO.depth = $event"
                     step="0.01"
                     keyCode="KeyV"
                     letter="V"

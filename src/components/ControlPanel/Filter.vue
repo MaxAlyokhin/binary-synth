@@ -1,25 +1,22 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useSettingsStore } from '@/stores/globalStore.js'
 import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
-const biquadFilterFrequency = ref(settings.biquadFilterFrequency)
-const biquadFilterQ = ref(settings.biquadFilterQ)
+const biquadFilterFrequency = computed(() => settings.biquadFilterFrequency)
+const biquadFilterQ = computed(() => settings.biquadFilterQ)
 
 watch(biquadFilterFrequency, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
-        biquadFilterFrequency.value = 0
-        settings.biquadFilterFrequency = biquadFilterFrequency.value
+        settings.biquadFilterFrequency = 0
     } else if (newValue > 24000) {
-        biquadFilterFrequency.value = 24000
-        settings.biquadFilterFrequency = biquadFilterFrequency.value
+        settings.biquadFilterFrequency = 24000
     } else {
-        biquadFilterFrequency.value = newValue
-        settings.biquadFilterFrequency = biquadFilterFrequency.value
+        settings.biquadFilterFrequency = newValue
     }
 })
 
@@ -27,14 +24,11 @@ watch(biquadFilterQ, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
-        biquadFilterQ.value = 0.0001
-        settings.biquadFilterQ = biquadFilterQ.value
+        settings.biquadFilterQ = 0.0001
     } else if (newValue > 1000) {
-        biquadFilterQ.value = 1000
-        settings.biquadFilterQ = biquadFilterQ.value
+        settings.biquadFilterQ = 1000
     } else {
-        biquadFilterQ.value = newValue
-        settings.biquadFilterQ = biquadFilterQ.value
+        settings.biquadFilterQ = newValue
     }
 })
 </script>
@@ -46,8 +40,8 @@ watch(biquadFilterQ, (newValue) => {
             <div class="module__container">
                 <span>Frequency</span>
                 <InteractiveInput
-                    :validValue="biquadFilterFrequency"
-                    @valueFromInput="biquadFilterFrequency = $event"
+                    :validValue="settings.biquadFilterFrequency"
+                    @valueFromInput="settings.biquadFilterFrequency = $event"
                     step="0.1"
                     keyCode="KeyZ"
                     letter="Z"
@@ -56,8 +50,8 @@ watch(biquadFilterQ, (newValue) => {
             <div class="module__container">
                 <span>Q-factor</span>
                 <InteractiveInput
-                    :validValue="biquadFilterQ"
-                    @valueFromInput="biquadFilterQ = $event"
+                    :validValue="settings.biquadFilterQ"
+                    @valueFromInput="settings.biquadFilterQ = $event"
                     step="0.1"
                     keyCode="KeyX"
                     letter="X"

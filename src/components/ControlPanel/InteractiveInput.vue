@@ -131,7 +131,7 @@ watch(valid, (newValue) => {
         color: #3e4656;
         top: 5px;
         right: 6px;
-        z-index: 10;
+        z-index: 0;
         font-weight: 700;
         font-size: 10px;
     }
@@ -205,7 +205,7 @@ input:focus {
     justify-content: center;
     align-items: center;
     font-size: 80px;
-    background: #000000a3;
+    background: rgb(0 0 0 / 87%);
     color: $white;
 }
 </style>

@@ -44,35 +44,29 @@ onMounted(() => {
     }
 })
 
-const velocity = ref(settings.midi.velocity)
+const velocity = computed(() => settings.midi.velocity)
 watch(velocity, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
-        velocity.value = 0
-        settings.midi.velocity = velocity
+        settings.midi.velocity = 0
     } else if (newValue >= 127) {
-        velocity.value = 127
-        settings.midi.velocity = velocity
+        settings.midi.velocity = 127
     } else {
-        velocity.value = newValue
-        settings.midi.velocity = velocity
+        settings.midi.velocity = newValue
     }
 })
 
-const modulationValue = ref(settings.midi.modulation)
+const modulationValue = computed(() => settings.midi.modulation)
 watch(modulationValue, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
-        modulationValue.value = 0
-        settings.midi.modulation = modulationValue
+        settings.midi.modulation = 0
     } else if (newValue >= 127) {
-        modulationValue.value = 127
-        settings.midi.modulation = modulationValue
+        settings.midi.modulation = 127
     } else {
-        modulationValue.value = newValue
-        settings.midi.modulation = modulationValue
+        settings.midi.modulation = newValue
     }
 
     sendMIDIMessage.modulation(settings.midi.modulation, settings.midi.port, settings.midi.channel)
@@ -88,8 +82,15 @@ watch([port, channel], () => {
     sendMIDIMessage.modulation(settings.midi.modulation, settings.midi.port, settings.midi.channel)
 })
 
-const solidMode = ref(settings.midi.solidMode)
-watch(solidMode, (newValue) => (settings.midi.solidMode = getBooleanFromString(newValue)))
+const solidMode = computed({
+    get() {
+        return settings.midi.solidMode
+    },
+    set(value) {
+        settings.midi.solidMode = getBooleanFromString(value)
+    }
+})
+// watch(solidMode, (newValue) => (settings.midi.solidMode = getBooleanFromString(newValue)))
 </script>
 
 <template>
@@ -136,13 +137,13 @@ watch(solidMode, (newValue) => (settings.midi.solidMode = getBooleanFromString(n
             <div class="module__container">
                 <span>Velocity</span>
                 <div class="notes-range__inputs">
-                    <input type="number" step="1" v-model="velocity" />
+                    <input type="number" step="1" v-model="settings.midi.velocity" />
                 </div>
             </div>
             <div class="module__container">
                 <span>Modulation</span>
                 <div class="notes-range__inputs">
-                    <input type="number" step="1" v-model="modulationValue" />
+                    <input type="number" step="1" v-model="settings.midi.modulation" />
                 </div>
             </div>
         </div>

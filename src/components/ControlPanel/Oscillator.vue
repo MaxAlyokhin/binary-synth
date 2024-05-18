@@ -1,21 +1,19 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useSettingsStore } from '@/stores/globalStore.js'
 import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
-const gain = ref(settings.gain)
+const gain = computed(() => settings.gain)
 
 watch(gain, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
-        gain.value = 0
-        settings.gain = gain.value
+        settings.gain = 0
     } else {
-        gain.value = newValue
-        settings.gain = gain.value
+        settings.gain = newValue
     }
 })
 </script>
@@ -28,8 +26,8 @@ watch(gain, (newValue) => {
             <div class="module__container">
                 <span>Gain</span>
                 <InteractiveInput
-                    :validValue="gain"
-                    @valueFromInput="gain = $event"
+                    :validValue="settings.gain"
+                    @valueFromInput="settings.gain = $event"
                     step="0.01"
                     keyCode="KeyW"
                     letter="W"
