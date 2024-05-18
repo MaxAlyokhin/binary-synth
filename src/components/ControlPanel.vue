@@ -317,17 +317,22 @@ function stop() {
 
 function changePlaying(event) {
     if (event.code === 'Space') {
-        event.preventDefault()
         status.playing ? stop() : play()
     }
 }
 
+function preventScrollOnSpacePress(event) {
+    if (event.code === 'Space') event.preventDefault()
+}
+
 onMounted(() => {
-    window.addEventListener('keydown', changePlaying)
+    window.addEventListener('keydown', preventScrollOnSpacePress)
+    window.addEventListener('keyup', changePlaying)
 })
 
 onUnmounted(() => {
-    window.removeEventListener('keydown', changePlaying)
+    window.removeEventListener('keydown', preventScrollOnSpacePress)
+    window.removeEventListener('keyup', changePlaying)
 })
 
 const filterFrequency = computed(() => settings.biquadFilterFrequency)
