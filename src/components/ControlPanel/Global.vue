@@ -129,24 +129,22 @@ watch(commandsCount, (newValue) => {
             <div class="module__wrapper">
                 <div class="module__container">
                     <span>From</span>
-                    <input
-                        type="number"
+                    <InteractiveInput
+                        :validValue="commandsFrom"
+                        @valueFromInput="commandsFrom = $event"
                         step="1"
-                        name="commands-range-from"
-                        class="commands-range-from"
-                        v-model="commandsFrom"
-                        @click="$event.target.select()"
+                        keyCode="KeyD"
+                        letter="D"
                     />
                 </div>
                 <div class="module__container">
                     <span>To</span>
-                    <input
-                        type="number"
+                    <InteractiveInput
+                        :validValue="commandsTo"
+                        @valueFromInput="commandsTo = $event"
                         step="1"
-                        name="commands-range-to"
-                        class="commands-range-to"
-                        v-model="commandsTo"
-                        @click="$event.target.select()"
+                        keyCode="KeyF"
+                        letter="F"
                     />
                 </div>
             </div>
