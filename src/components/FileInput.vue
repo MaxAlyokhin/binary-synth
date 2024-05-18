@@ -148,6 +148,7 @@ onMounted(() => {
         display: block;
         height: 40px;
         width: 100%;
+        max-width: 323px;
         text-align: center;
         margin: 0 auto;
         margin-bottom: 20px;

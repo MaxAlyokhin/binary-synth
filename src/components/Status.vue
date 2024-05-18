@@ -296,6 +296,10 @@ watch(bynaryInSelectedBitness, (newValue) => {
         @media (max-width: 1510px) {
             max-width: 575px;
         }
+
+        @media (max-width: 575px) {
+            max-width: 320px;
+        }
     }
 }
 
