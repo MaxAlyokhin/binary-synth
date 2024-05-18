@@ -186,6 +186,7 @@ onMounted(() => {
 
         label {
             width: 100%;
+            max-width: 100%;
             height: 100%;
             display: flex;
             justify-content: center;
