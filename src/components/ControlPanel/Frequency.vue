@@ -6,40 +6,34 @@ import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
-const frequencyFrom = ref(settings.frequenciesRange.from)
+const frequencyFrom = computed(() => settings.frequenciesRange.from)
 watch(frequencyFrom, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
-        frequencyFrom.value = 0
-        settings.frequenciesRange.from = frequencyFrom.value
+        settings.frequenciesRange.from = 0
     } else if (newValue > (settings.midiMode ? 12543 : 24000) || newValue >= settings.frequenciesRange.to) {
-        frequencyFrom.value = settings.frequenciesRange.to - 1
-        settings.frequenciesRange.from = frequencyFrom.value
+        settings.frequenciesRange.from = settings.frequenciesRange.to - 1
     } else {
-        settings.frequenciesRange.from = frequencyFrom.value
+        settings.frequenciesRange.from = newValue
     }
 })
 
 const noteNameFrom = computed(() => getNoteName(settings.notesRange.from))
 const noteNameTo = computed(() => getNoteName(settings.notesRange.to))
 
-const frequencyTo = ref(settings.frequenciesRange.to)
+const frequencyTo = computed(() => settings.frequenciesRange.to)
 watch(frequencyTo, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
-        frequencyTo.value = 0
-        settings.frequenciesRange.to = frequencyTo
+        settings.frequenciesRange.to = 0
     } else if (newValue > (settings.midiMode ? 12543 : 24000)) {
-        frequencyTo.value = settings.midiMode ? 12543 : 24000
-        settings.frequenciesRange.to = frequencyTo
+        settings.frequenciesRange.to = settings.midiMode ? 12543 : 24000
     } else if (newValue <= settings.frequenciesRange.from) {
-        frequencyTo.value = settings.frequenciesRange.from + 1
-        settings.frequenciesRange.to = frequencyTo.value
+        settings.frequenciesRange.to = settings.frequenciesRange.from + 1
     } else {
-        frequencyTo.value = newValue
-        settings.frequenciesRange.to = frequencyTo.value
+        settings.frequenciesRange.to = newValue
     }
 })
 
@@ -110,8 +104,8 @@ watch(midi, () => {
                 <div class="module__container">
                     <span>From</span>
                     <InteractiveInput
-                        :validValue="frequencyFrom"
-                        @valueFromInput="frequencyFrom = $event"
+                        :validValue="settings.frequenciesRange.from"
+                        @valueFromInput="settings.frequenciesRange.from = $event"
                         step="1"
                         keyCode="KeyA"
                         letter="A"
@@ -120,8 +114,8 @@ watch(midi, () => {
                 <div class="module__container">
                     <span class="freq-to key">To</span>
                     <InteractiveInput
-                        :validValue="frequencyTo"
-                        @valueFromInput="frequencyTo = $event"
+                        :validValue="settings.frequenciesRange.to"
+                        @valueFromInput="settings.frequenciesRange.to = $event"
                         step="1"
                         keyCode="KeyS"
                         letter="S" />
