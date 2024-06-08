@@ -285,7 +285,7 @@ function nextIteration(iterationNumber, scheduledCommands) {
 
 function play() {
     if (file.loaded && !status.playing) {
-        gain.gain.value = settings.gain
+        gain.gain.setTargetAtTime(settings.gain, audioContext.currentTime, 0.005)
 
         if (!settings.midiMode) oscillator.start()
 
@@ -337,11 +337,27 @@ onUnmounted(() => {
 
 const filterFrequency = computed(() => settings.biquadFilterFrequency)
 watch(filterFrequency, (newValue) => {
-    filter.frequency.value = newValue
+    if (isNaN(newValue)) {
+        return
+    } else if (newValue <= 0) {
+        filter.frequency.value = 0
+    } else if (newValue > 24000) {
+        filter.frequency.value = 24000
+    } else {
+        filter.frequency.value = newValue
+    }
 })
 const filterQ = computed(() => settings.biquadFilterQ)
 watch(filterQ, (newValue) => {
-    filter.Q.value = newValue
+     if (isNaN(newValue)) {
+        return
+    } else if (newValue <= 0) {
+        filter.Q.value = 0.0001
+    } else if (newValue > 1000) {
+        filter.Q.value = 1000
+    } else {
+        filter.Q.value = newValue
+    }
 })
 const lfoEnabled = computed(() => settings.LFO.enabled)
 watch(lfoEnabled, (newValue) => {
@@ -359,15 +375,35 @@ watch(lfoType, (newValue) => {
 })
 const lfoRate = computed(() => settings.LFO.rate)
 watch(lfoRate, (newValue) => {
-    lfoOsc.frequency.value = newValue
+    if (isNaN(newValue) || newValue < 0) {
+        lfoOsc.frequency.value = 0
+    } else if (newValue > 24000) {
+        lfoOsc.frequency.value = 24000
+    } else {
+        lfoOsc.frequency.value = newValue
+    }
 })
 const lfoDepthValue = computed(() => settings.LFO.depth)
 watch(lfoDepthValue, (newValue) => {
-    lfoDepth.gain.value = newValue
+    if (isNaN(newValue)) {
+        return
+    } else if (newValue < 0) {
+        lfoDepth.gain.setTargetAtTime(0, audioContext.currentTime, 0.005)
+    } else if (newValue > 1) {
+        lfoDepth.gain.setTargetAtTime(1, audioContext.currentTime, 0.005)
+    } else {
+        lfoDepth.gain.setTargetAtTime(newValue, audioContext.currentTime, 0.005)
+    }
 })
 const gainValue = computed(() => settings.gain)
 watch(gainValue, (newValue) => {
-    gain.gain.value = newValue
+    if (isNaN(newValue)) {
+        return
+    } else if (newValue <= 0) {
+        gain.gain.setTargetAtTime(0, audioContext.currentTime, 0.005)
+    } else {
+        gain.gain.setTargetAtTime(newValue, audioContext.currentTime, 0.005)
+    }
 })
 // When we change the wave type in the UI, we immediately pass it to the oscillator
 const wave = computed(() => settings.waveType)
@@ -961,8 +997,8 @@ function load(settingsInJSON) {
                 pitch: settingsObject.midi.pitch,
                 modulation: settingsObject.midi.modulation,
                 velocity: settingsObject.midi.velocity,
-                solidMode: settingsObject.midi.solidMode
-            }
+                solidMode: settingsObject.midi.solidMode,
+            },
         })
     })
 
@@ -976,10 +1012,7 @@ function load(settingsInJSON) {
     <Transition name="opacity" mode="out-in" appear>
         <div class="control" :class="{ deactive: !file.loaded }">
             <div class="control__playing">
-                <label
-                    class="control__play button"
-                    @change="(event) => (event.target.files.length ? load(event.target.files[0]) : false)"
-                >
+                <label class="control__play button" @change="(event) => (event.target.files.length ? load(event.target.files[0]) : false)">
                     <input type="file" />
                     Load settings
                 </label>
@@ -1038,7 +1071,7 @@ function load(settingsInJSON) {
         justify-content: center;
         align-items: center;
 
-        input[type="file"] {
+        input[type='file'] {
             display: none;
         }
     }
