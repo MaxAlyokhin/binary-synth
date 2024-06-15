@@ -10,6 +10,12 @@ _Audio synthesis from binary code of any file_
 
 _<a href="README_RU.md">Эта страница есть также на русском</a>_
 
+A web-synthesizer that generates sound from the binary code of any files. It can synthesize sound directly in the browser, or be a generator of MIDI messages to external devices or DAWs, turning any file into a score. All the application code is written in Javascript and along with everything you need is packed into a single .html file of about 750kb. The synthesizer doesn't need internet, it can be downloaded and run locally on any device with a browser.
+
+The application reads sequentially one or two bytes at a time, and due to the high speed of reading and random deviation of reading duration, we can get quite unpredictable generation of timbre nuances, and at certain settings we can switch to granular synthesis.
+
+## Application principle
+
 All data on any computer or smartphone is in the form of files (which are, in essence, texts). The contents of these files are ultimately just zeros and ones. And these zeros and ones are basically all the same, so we need an interpreter to extract meaning from these texts. Basically, the file format (.mp3, .docx, etc.) is just a pointer to which interpreter we need to pass the text in order to extract meaning from it.
 
 But what if the file format and the interpreter don't match?
@@ -17,8 +23,6 @@ But what if the file format and the interpreter don't match?
 In the case of musical experimentation, there have been earlier attempts, for example, to "play" a file through an audio editor.
 
 We could go further and write our own interpreter that would look at the files without regard to format, use its own "manner of reading" the original zeros and ones, and on that basis provide a complete system for controlled synthesis of sounds.
-
-## Application principle
 
 1. We can interpret files as an array of numbers. That is, we divide continuous machine code (ArrayBuffer) into _words_ of some information capacity (bitness):
 
@@ -42,9 +46,21 @@ We could go further and write our own interpreter that would look at the files w
 
 6. If we have reached the end of the file, stop execution or start again
 
+## Switching to granular mode
+
+> **Note**: Here and below the instrument interface terms are used. For their description, see below in the Interface features section
+
+Granular synthesis operates on small pieces of sounds — acoustic pixels. It is generally accepted that granular synthesis "starts" when operating with sounds <50ms. At values `commands range` * `reading speed` = <50 we begin to operate with acoustic pixels.
+
+In this case, each command from `commands range` can be considered a "subpixel" (wavelet), which, with `random time gap` enabled, is unique each time, and the pixel, respectively, is unique in multiples of the number of subpixels. As a result, we get a mutable timbre.
+
+In classical granular synthesis, pixels play simultaneously and in parallel, and their number can change over time. In BS, on the other hand, the pixels form a thread along which we move.
+
+That is, in conventional granular synthesis, a truck with sand is thrown on the listener, where each grain of sand is an acoustic pixel, but here this sand is poured out through a funnel with the diameter of one grain of sand, and this thin stream is what we observe.
+
 ## MIDI
 
-When the MIDI mode is enabled, the first available port and its first channel are automatically selected. Next, a noteOn signal is sent sequentially when reading, and a noteOff signal is sent after the Reading speed time. In Continuous mode, a Pitch signal is sent after each noteOn to hit the desired frequency.
+When the MIDI mode is enabled, the first available port and its first channel are automatically selected. Next, a `noteOn` signal is sent sequentially when reading, and a `noteOff` signal is sent after the `reading speed` time. In `continuous` mode, a `Pitch` signal is sent after each noteOn to hit the desired frequency.
 
 MIDI messages can be sent:
 
@@ -60,26 +76,26 @@ To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https:
 
 ## Interface features
 
--   Reading speed - interpretation speed; at high speeds over 0.001 the application may become unstable
+-   `Reading speed` — interpretation speed; at high speeds over 0.001 the application may become unstable
 
--   Bitness - we can divide the binary code into words of 8 or 16 bits, which changes the number of available frequencies (256 or 65536).
+-   `Bitness` — we can divide the binary code into words of 8 or 16 bits, which changes the number of available frequencies (256 or 65536).
 
--   Frequency generation mode
+-   `Frequency generation mode`
 
-    -   continuous - continuous frequency distribution
-    -   tempered - distribution by 12-step equal-tempered scale. There are notes from C-2 to B8
+    -   `continuous` — continuous frequency distribution
+    -   `tempered` — distribution by 12-step equal-tempered scale. There are notes from C-2 to B8
 
--   Transition type - transition between frequencies
+-   `Transition type` — transition between frequencies
 
-    -   immediate - instantaneous, rough transition
-    -   linear - linearly to the next frequency
-    -   exponential - exponentially to the next frequency
+    -   `immediate` — instantaneous, rough transition
+    -   `linear` — linearly to the next frequency
+    -   `exponential` — exponentially to the next frequency
 
--   Random time gap - adds a random amount of time to the next tone within the Reading speed parameter. Makes the sound less "robotic", as the distance to each tone is slightly different and it adds more "liveliness" to the playing
+-   `Random time gap` — adds a random amount of time to the next tone within the `reading speed` parameter. Makes the sound less "robotic", as the distance to each tone is slightly different and it adds more "liveliness" to the playing
 
--   Commands range - allows to play not the whole file, but a certain part of it
+-   `Commands range` — allows to play not the whole file, but a certain part of it
 
--   Solid mode - the "solid press" mode, does not send noteOff commands; if the commands are the same in a row (and as a consequence notes), even noteOn is not sent. allSoundOff is sent at the end. On some synthesizers it allows smooth transitions between notes
+-   `Solid mode` — the "solid press" mode, does not send `noteOff` commands; if the commands are the same in a row (and as a consequence notes), even noteOn is not sent. `allSoundOff` is sent at the end. On some synthesizers it allows smooth transitions between notes
 
 - Some input fields have a keyboard shortcut: pressing the corresponding key automatically moves the focus to the item. By pressing a key and moving the mouse at the same time, the values can be changed smoothly. The Y axis of the mouse movement determines the "power" of the value change
 
