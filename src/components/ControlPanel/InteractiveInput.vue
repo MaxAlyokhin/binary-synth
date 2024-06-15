@@ -80,7 +80,7 @@ function changeInput(value) {
 }
 
 watch(inputValue, (newValue) => {
-    if (newValue) changeInput(newValue)
+    if (newValue || newValue === 0) changeInput(newValue)
 })
 
 const valid = computed(() => props.validValue)
