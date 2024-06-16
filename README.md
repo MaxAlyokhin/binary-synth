@@ -6,13 +6,15 @@ _Audio synthesis from binary code of any file_
 
 **Demo**: https://bs.stranno.su
 
+**Video**: https://youtu.be/5LMYiLwfvRg
+
 ![](https://store.stranno.su/bs/fuji.png)
 
 _<a href="README_RU.md">Эта страница есть также на русском</a>_
 
 A web-synthesizer that generates sound from the binary code of any files. It can synthesize sound directly in the browser, or be a generator of MIDI messages to external devices or DAWs, turning any file into a score. All the application code is written in Javascript and along with everything you need is packed into a single .html file of about 750kb. The synthesizer doesn't need internet, it can be downloaded and run locally on any device with a browser.
 
-The application reads sequentially one or two bytes at a time, and due to the high speed of reading and random deviation of reading duration, we can get quite unpredictable generation of timbre nuances, and at certain settings we can switch to granular synthesis.
+The application reads the file sequentially, and due to the high speed of reading and random deviation of reading duration, we can get quite unpredictable generation of timbre nuances, and at certain settings we can switch to granular synthesis.
 
 ## Application principle
 
@@ -24,7 +26,7 @@ In the case of musical experimentation, there have been earlier attempts, for ex
 
 We could go further and write our own interpreter that would look at the files without regard to format, use its own "manner of reading" the original zeros and ones, and on that basis provide a complete system for controlled synthesis of sounds.
 
-1. We can interpret files as an array of numbers. That is, we divide continuous machine code (ArrayBuffer) into _words_ of some information capacity (bitness):
+1. We can interpret files as an array of numbers. That is, we divide continuous machine code into _words_ of some information capacity (bitness):
 
 -   8 bits (numbers from 0 to 255)
 -   16 bits (numbers from 0 to 65 535)
