@@ -54,11 +54,15 @@ We could go further and write our own interpreter that would look at the files w
 
 Granular synthesis operates on small pieces of sounds — acoustic pixels. It is generally accepted that granular synthesis "starts" when operating with sounds <50ms. At values `commands range` * `reading speed` = <50 we begin to operate with acoustic pixels.
 
-In this case, each command from `commands range` can be considered a "subpixel" (wavelet), which, with `random time gap` enabled, is unique each time, and the pixel, respectively, is unique in multiples of the number of subpixels. As a result, we get a mutable timbre.
+In this case, each command from `commands range` can be considered a "subpixel", which, with `random time gap` enabled, is unique each time, and the pixel, respectively, is unique in multiples of the number of subpixels. As a result, we get a mutable timbre.
 
 In classical granular synthesis, pixels play simultaneously and in parallel, and their number can change over time. In BS, on the other hand, the pixels form a thread along which we move.
 
-That is, in conventional granular synthesis, a truck with sand is thrown on the listener, where each grain of sand is an acoustic pixel, but here this sand is poured out through a funnel with the diameter of one grain of sand, and this thin stream is what we observe.
+*That is, in conventional granular synthesis, a truck with sand is thrown on the listener, where each grain of sand is an acoustic pixel, but here this sand is poured out through a funnel with the diameter of one grain of sand, and this thin stream is what we observe.*
+
+The image below shows the formation of an acoustic pixel from two commands (`commands range: from = 0, to = 1`), at a reading speed of 0.005 s. We need to consider that each frequency has a period *T*, equal to the ratio of a unit of time (1 second = 1000 milliseconds) to the frequency. This means that we can think of sound not only in terms of frequency, but also in terms of the time it takes for the wave to make one complete oscillation. If the wave does not have time to make a complete oscillation, such an object is called a "wavelet".
+
+![](https://store.stranno.su/bs/granular.jpg)
 
 ## MIDI
 
