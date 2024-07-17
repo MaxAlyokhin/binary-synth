@@ -39,6 +39,7 @@ export const useSettingsStore = defineStore('settings', () => {
         depth: 1,
     })
     const bitness = ref('8')
+    const panner = ref(0)
     const loop = ref(true)
     const isRandomTimeGap = ref(true)
     const midiMode = ref(false)
@@ -66,6 +67,7 @@ export const useSettingsStore = defineStore('settings', () => {
         biquadFilterQ,
         LFO,
         bitness,
+        panner,
         loop,
         isRandomTimeGap,
         midi,

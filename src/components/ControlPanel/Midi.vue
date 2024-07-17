@@ -148,7 +148,7 @@ const solidMode = computed({
             </div>
         </div>
 
-        <div class="module__container module__container--block">
+        <div class="module__container module__container--block-row">
             <span>Solid mode</span>
             <div class="module__container module__container--radio">
                 <div class="radio-element">

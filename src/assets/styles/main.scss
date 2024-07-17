@@ -104,9 +104,9 @@ input {
     border: 1px solid $white;
     border-radius: 5px;
     padding: 0px 5px;
-    width: 140px;
-    max-width: 400px;
     height: 20px;
+    width: 100%;
+    max-width: 140px;
 
     &:hover {
         background: #090c0f;
@@ -149,6 +149,7 @@ input {
         display: flex;
         flex-direction: column;
         align-items: center;
+        width: 100%;
 
         > span {
             margin-bottom: 5px;
@@ -172,6 +173,42 @@ input {
             border-radius: 5px;
             padding: 5px;
             align-items: unset;
+        }
+
+        &--block-row {
+            flex-direction: row;
+            border: 1px solid rgb(201, 209, 204);
+            border-radius: 5px;
+            padding: 5px;
+
+            span {
+                white-space: nowrap;
+                margin-bottom: 0;
+            }
+
+            .module__container--radio {
+                justify-content: end;
+                gap: 30px;
+            }
+        }
+
+        &--row {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            border: none;
+            padding: 0;
+            gap: 8px;
+
+            .module__container {
+                width: 100%;
+                height: 100%;
+                justify-content: space-around;
+
+                &--radio {
+                    height: auto;
+                }
+            }
         }
     }
 }

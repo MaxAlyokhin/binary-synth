@@ -30,6 +30,7 @@ let filter = audioContext.createBiquadFilter()
 let lfoDepth = audioContext.createGain()
 let lfoOsc = audioContext.createOscillator()
 let masterGain = audioContext.createGain()
+let panner = audioContext.createStereoPanner()
 
 // Setup
 filter.type = 'lowpass'
@@ -41,12 +42,12 @@ lfoOsc.start()
 lfoDepth.gain.value = settings.LFO.depth
 gain.gain.value = settings.gain
 masterGain.gain.value = 1
+panner.pan.value = settings.panner
 
 // Connection
-filter.connect(gain)
+filter.connect(gain).connect(masterGain).connect(panner).connect(audioContext.destination)
+
 lfoDepth.connect(masterGain.gain)
-gain.connect(masterGain)
-masterGain.connect(audioContext.destination)
 
 const squareWave = audioContext.createPeriodicWave(
     Float32Array.from(fourierCoefficients.square.real),
@@ -115,7 +116,6 @@ function nextIteration(iterationNumber, scheduledCommands) {
     // index - sequence number of the element in the iteration context
 
     // For normal mode
-
     if (!settings.midiMode) {
         switch (settings.transitionType) {
             case 'immediately':
@@ -349,7 +349,7 @@ watch(filterFrequency, (newValue) => {
 })
 const filterQ = computed(() => settings.biquadFilterQ)
 watch(filterQ, (newValue) => {
-     if (isNaN(newValue)) {
+    if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
         filter.Q.value = 0.0001
@@ -403,6 +403,18 @@ watch(gainValue, (newValue) => {
         gain.gain.setTargetAtTime(0, audioContext.currentTime, 0.005)
     } else {
         gain.gain.setTargetAtTime(newValue, audioContext.currentTime, 0.005)
+    }
+})
+const pannerValue = computed(() => settings.panner)
+watch(pannerValue, (newValue) => {
+    if (isNaN(newValue)) {
+        return
+    } else if (newValue <= -1) {
+        panner.pan.setTargetAtTime(-1, audioContext.currentTime, 0.005)
+    } else if (newValue >= 1) {
+        panner.pan.setTargetAtTime(1, audioContext.currentTime, 0.005)
+    } else {
+        panner.pan.setTargetAtTime(newValue, audioContext.currentTime, 0.005)
     }
 })
 // When we change the wave type in the UI, we immediately pass it to the oscillator

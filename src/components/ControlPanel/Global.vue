@@ -14,7 +14,7 @@ const loop = computed({
     },
     set(value) {
         settings.loop = getBooleanFromString(value)
-    }
+    },
 })
 
 const midi = computed({
@@ -23,7 +23,7 @@ const midi = computed({
     },
     set(value) {
         settings.midiMode = getBooleanFromString(value)
-    }
+    },
 })
 watch(midi, (newValue) => {
     if (settings.midiMode && settings.readingSpeed <= 0.005) {
@@ -37,13 +37,22 @@ const gap = computed({
     },
     set(value) {
         settings.isRandomTimeGap = getBooleanFromString(value)
+    },
+})
+
+const panner = computed(() => settings.panner)
+watch(panner, (newValue) => {
+    if (newValue <= -1) {
+        settings.panner = -1
+    } else if (newValue >= 1) {
+        settings.panner = 1
     }
 })
 
 const readingSpeed = computed(() => settings.readingSpeed)
 watch(readingSpeed, (newValue) => {
     if (settings.midiMode && newValue <= 0.005) {
-         settings.readingSpeed = 0.005
+        settings.readingSpeed = 0.005
     } else {
         if (newValue < 0) settings.readingSpeed = 0
         else settings.readingSpeed = newValue
@@ -117,16 +126,31 @@ watch(commandsTo, (newValue) => {
 
         <Frequency />
 
-        <div class="module__container module__container--block">
-            <span>Bitness</span>
-            <div class="module__container module__container--radio">
-                <div class="radio-element">
-                    <input type="radio" name="bitness" id="bitness8" value="8" checked v-model="settings.bitness" />
-                    <label for="bitness8">8-bit</label>
+        <div class="module__container module__container--row">
+            <div class="module__container module__container--block">
+                <span>Bitness</span>
+                <div class="module__container module__container--radio">
+                    <div class="radio-element">
+                        <input type="radio" name="bitness" id="bitness8" value="8" checked v-model="settings.bitness" />
+                        <label for="bitness8">8-bit</label>
+                    </div>
+                    <div class="radio-element">
+                        <input type="radio" name="bitness" id="bitness16" value="16" v-model="settings.bitness" />
+                        <label for="bitness16">16-bit</label>
+                    </div>
                 </div>
-                <div class="radio-element">
-                    <input type="radio" name="bitness" id="bitness16" value="16" v-model="settings.bitness" />
-                    <label for="bitness16">16-bit</label>
+            </div>
+
+            <div class="module__container module__container--block" :class="{ 'module__container--deactive': settings.midiMode }">
+                <span>Panner</span>
+                <div class="module__container">
+                    <InteractiveInput
+                        :validValue="settings.panner"
+                        @valueFromInput="settings.panner = $event"
+                        step=".01"
+                        keyCode="KeyG"
+                        letter="G"
+                    />
                 </div>
             </div>
         </div>
@@ -158,7 +182,7 @@ watch(commandsTo, (newValue) => {
             </div>
         </div>
 
-        <div class="module__container module__container--block">
+        <div class="module__container module__container--block-row">
             <span>Loop</span>
             <div class="module__container module__container--radio">
                 <div class="radio-element">
@@ -172,7 +196,7 @@ watch(commandsTo, (newValue) => {
             </div>
         </div>
 
-        <div class="module__container module__container--block">
+        <div class="module__container module__container--block-row">
             <span>Random time gap</span>
             <div class="module__container module__container--radio">
                 <div class="radio-element">
@@ -186,7 +210,7 @@ watch(commandsTo, (newValue) => {
             </div>
         </div>
 
-        <div class="module__container module__container--block">
+        <div class="module__container module__container--block-row">
             <span>MIDI</span>
             <div class="module__container module__container--radio">
                 <div class="radio-element">
