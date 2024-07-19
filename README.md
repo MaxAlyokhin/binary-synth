@@ -64,6 +64,14 @@ The image below shows the formation of an acoustic pixel from two commands (`com
 
 ![](https://store.stranno.su/bs/granular.jpg)
 
+## Recommendations for optimal performance
+
+- Use incognito mode with extensions disabled
+- Close the non-incognito browser
+- Leave only BS tabs in incognito mode
+
+BS under workload requires on average up to 7.1% CPU, in incognito mode 6%, Firefox 4.2%, but runs less stable. Also the browser's open console/DevTools increases CPU consumption per tab by 10%. It is recommended to use BS in incognito mode without any other open tabs except BS tabs for maximum efficiency.
+
 ## MIDI
 
 When the MIDI mode is enabled, the first available port and its first channel are automatically selected. Next, a `noteOn` signal is sent sequentially when reading, and a `noteOff` signal is sent after the `reading speed` time. In `continuous` mode, a `Pitch` signal is sent after each noteOn to hit the desired frequency.
@@ -84,7 +92,9 @@ To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https:
 
 -   `Reading speed` — interpretation speed; at high speeds over 0.001 the application may become unstable
 
--   `Bitness` — we can divide the binary code into words of 8 or 16 bits, which changes the number of available frequencies (256 or 65536).
+-   `Bitness` — we can divide the binary code into words of 8 or 16 bits, which changes the number of available frequencies (256 or 65536)
+
+-   `Panner` - pan between left (-1) and right (1) channels
 
 -   `Frequency generation mode`
 
