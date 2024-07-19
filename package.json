@@ -9,7 +9,8 @@
     },
     "dependencies": {
         "pinia": "^2.1.4",
-        "vue": "^3.3.4"
+        "vue": "^3.3.4",
+        "worker-timers": "^8.0.2"
     },
     "devDependencies": {
         "@vitejs/plugin-vue": "^4.2.3",
