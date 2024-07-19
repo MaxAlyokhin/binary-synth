@@ -90,6 +90,15 @@ const solidMode = computed({
         settings.midi.solidMode = getBooleanFromString(value)
     }
 })
+
+const lastNoteOn = computed({
+    get() {
+        return settings.midi.lastNoteOn
+    },
+    set(value) {
+        settings.midi.lastNoteOn = getBooleanFromString(value)
+    }
+})
 // watch(solidMode, (newValue) => (settings.midi.solidMode = getBooleanFromString(newValue)))
 </script>
 
@@ -158,6 +167,20 @@ const solidMode = computed({
                 <div class="radio-element">
                     <input type="radio" name="solidMode" id="solidMode-no" value="false" v-model="solidMode" />
                     <label for="solidMode-no">No</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="module__container module__container--block-row" :class="{ 'module__container--deactive': settings.midi.solidMode }">
+            <span>Last noteOn mode</span>
+            <div class="module__container module__container--radio">
+                <div class="radio-element">
+                    <input type="radio" name="lastNoteOn" id="lastNoteOn-yes" value="true" checked v-model="lastNoteOn" />
+                    <label for="lastNoteOn-yes">Yes</label>
+                </div>
+                <div class="radio-element">
+                    <input type="radio" name="lastNoteOn" id="lastNoteOn-no" value="false" v-model="lastNoteOn" />
+                    <label for="lastNoteOn-no">No</label>
                 </div>
             </div>
         </div>

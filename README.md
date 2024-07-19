@@ -103,6 +103,8 @@ To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https:
 
 -   `Solid mode` — the "solid press" mode, does not send `noteOff` commands; if the commands are the same in a row (and as a consequence notes), even noteOn is not sent. `allSoundOff` is sent at the end. On some synthesizers it allows smooth transitions between notes
 
+- `Last noteOn mode` - leaves the last command in the loop pressed. Allows to make smoother transitions between repeats of patterns.
+
 - Some input fields have a keyboard shortcut: pressing the corresponding key automatically moves the focus to the item. By pressing a key and moving the mouse at the same time, the values can be changed smoothly. The Y axis of the mouse movement determines the "power" of the value change
 
 ## Run locally and build the project

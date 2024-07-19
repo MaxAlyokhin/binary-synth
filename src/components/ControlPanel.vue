@@ -268,13 +268,8 @@ function nextIteration(iterationNumber, scheduledCommands) {
         } else {
             nextIterationTimeoutID = setTimeout(() => {
                 // So that the last note doesn't take too long
-                if (settings.midiMode) {
-                    sendMIDIMessage.noteOff(
-                        commands[settings.commandsRange.to - settings.commandsRange.from][0],
-                        settings.midi.velocity,
-                        settings.midi.port,
-                        settings.midi.channel
-                    )
+                if (settings.midiMode && !settings.midi.solidMode && !settings.midi.lastNoteOn) {
+                    sendMIDIMessage.allSoundOff(settings.midi.port, settings.midi.channel)
                 }
 
                 nextIteration(0, settings.commandsRange.from)
@@ -1009,6 +1004,8 @@ function load(settingsInJSON) {
     flex-direction: column;
     gap: 20px;
     align-items: center;
+    width: 100%;
+    max-width: 320px;
 
     &__inputs {
         display: grid;
