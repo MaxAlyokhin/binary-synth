@@ -1,6 +1,5 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
-import { clearInterval, setInterval } from 'worker-timers'
 import { useFileStore, useStatusStore, useSettingsStore } from '@/stores/globalStore.js'
 import { toFixedNumber } from '../assets/js/helpers.js'
 
