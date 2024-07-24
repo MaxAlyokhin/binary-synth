@@ -108,7 +108,7 @@ watch(commandsTo, (newValue) => {
                 <InteractiveInput
                     :validValue="settings.readingSpeed"
                     @valueFromInput="settings.readingSpeed = $event"
-                    step="0.001"
+                    step="0.00001"
                     keyCode="KeyQ"
                     letter="Q"
                 />
