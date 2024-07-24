@@ -72,6 +72,8 @@ The image below shows the formation of an acoustic pixel from two commands (`com
 
 BS under workload requires on average up to 7.1% CPU, in incognito mode 6%, Firefox 4.2%, but runs less stable. Also the browser's open console/DevTools increases CPU consumption per tab by 10%. It is recommended to use BS in incognito mode without any other open tabs except BS tabs for maximum efficiency.
 
+More interesting sound is obtained with several independent instances of BS in different tabs. Theoretically, it would be possible to implement several BS threads in one tab, but this is less optimal, because browsers limit the maximum CPU usage per tab (in Chrome it is 10% of CPU). Also, each tab has its own [event loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop). You can use `ctrl + tab number` to quickly switch between tabs.
+
 ## MIDI
 
 When the MIDI mode is enabled, the first available port and its first channel are automatically selected. Next, a `noteOn` signal is sent sequentially when reading, and a `noteOff` signal is sent after the `reading speed` time. In `continuous` mode, a `Pitch` signal is sent after each noteOn to hit the desired frequency.
