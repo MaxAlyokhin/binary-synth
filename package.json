@@ -1,6 +1,6 @@
 {
     "name": "binary-synth",
-    "version": "0.0.0",
+    "version": "1.5.3",
     "private": true,
     "scripts": {
         "dev": "vite --host",
