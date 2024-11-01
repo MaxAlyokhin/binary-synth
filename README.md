@@ -16,7 +16,26 @@ A web-synthesizer that generates sound from the binary code of any files. It can
 
 The application reads the file sequentially, and due to the high speed of reading and random deviation of reading duration, we can get quite unpredictable generation of timbre nuances, and at certain settings we can switch to granular synthesis.
 
+You can try some examples of instrument settings that will sound about the same for most files:
+
+- [IDM](https:/bs.stranno.su/#{%22readingSpeed%22:0.0001,%22waveType%22:%22sine%22,%22gain%22:2.04,%22transitionType%22:%22immediately%22,%22frequencyMode%22:%22continuous%22,%22frequenciesRange%22:{%22from%22:0,%22to%22:8},%22notesRange%22:{%22from%22:48,%22to%22:60},%22commandsRange%22:{%22from%22:0,%22to%22:5000},%22midiMode%22:false,%22biquadFilterFrequency%22:33.1,%22biquadFilterQ%22:112.4,%22LFO%22:{%22enabled%22:true,%22type%22:%22triangle%22,%22rate%22:34.5,%22depth%22:1},%22bitness%22:%2216%22,%22panner%22:-0.67,%22loop%22:true,%22isRandomTimeGap%22:true,%22midi%22:{%22port%22:null,%22channel%22:0,%22pitch%22:8192,%22modulation%22:50,%22noMIDIPortsFound%22:true,%22velocity%22:120,%22solidMode%22:false,%22lastNoteOnMode%22:true}})
+
+- [Ambient](https:/bs.stranno.su/#{%22readingSpeed%22:0.0001,%22waveType%22:%22triangle%22,%22gain%22:0.41,%22transitionType%22:%22immediately%22,%22frequencyMode%22:%22continuous%22,%22frequenciesRange%22:{%22from%22:0,%22to%22:1},%22notesRange%22:{%22from%22:48,%22to%22:104},%22commandsRange%22:{%22from%22:0,%22to%22:624},%22midiMode%22:false,%22biquadFilterFrequency%22:39.3,%22biquadFilterQ%22:121.3,%22LFO%22:{%22enabled%22:true,%22type%22:%22sine%22,%22rate%22:99,%22depth%22:0.395},%22bitness%22:%228%22,%22panner%22:0,%22loop%22:true,%22isRandomTimeGap%22:true,%22midi%22:{%22port%22:null,%22channel%22:0,%22pitch%22:8192,%22modulation%22:66,%22noMIDIPortsFound%22:true,%22velocity%22:66,%22solidMode%22:true,%22lastNoteOnMode%22:true}})
+
+- [Harsh noise](https:/bs.stranno.su/#{%22readingSpeed%22:0.0001,%22waveType%22:%22sine%22,%22gain%22:2.56,%22transitionType%22:%22immediately%22,%22frequencyMode%22:%22continuous%22,%22frequenciesRange%22:{%22from%22:41,%22to%22:90},%22notesRange%22:{%22from%22:48,%22to%22:104},%22commandsRange%22:{%22from%22:0,%22to%22:100720},%22midiMode%22:false,%22biquadFilterFrequency%22:418.5,%22biquadFilterQ%22:66.6,%22LFO%22:{%22enabled%22:true,%22type%22:%22sine%22,%22rate%22:91,%22depth%22:0.546},%22bitness%22:%228%22,%22panner%22:0.15,%22loop%22:true,%22isRandomTimeGap%22:true,%22midi%22:{%22port%22:null,%22channel%22:0,%22pitch%22:8192,%22modulation%22:66,%22noMIDIPortsFound%22:true,%22velocity%22:66,%22solidMode%22:true,%22lastNoteOnMode%22:true}})
+
+## Contents
+
+- [Application principle](#principle)
+- [Switching to granular mode](#granular)
+- [Recommendations for optimal performance](#recommendation)
+- [MIDI](#midi)
+- [Interface features](#interface)
+- [Saving settings](#settings)
+- [Run locally and build the project](#run)
+
 ## Application principle
+<a id="principle"></a>
 
 All data on any computer or smartphone is in the form of files (which are, in essence, texts). The contents of these files are ultimately just zeros and ones. And these zeros and ones are basically all the same, so we need an interpreter to extract meaning from these texts. Basically, the file format (.mp3, .docx, etc.) is just a pointer to which interpreter we need to pass the text in order to extract meaning from it.
 
@@ -49,6 +68,7 @@ We could go further and write our own interpreter that would look at the files w
 6. If we have reached the end of the file, stop execution or start again
 
 ## Switching to granular mode
+<a id="granular"></a>
 
 > **Note**: Here and below the instrument interface terms are used. For their description, see below in the Interface features section
 
@@ -65,6 +85,7 @@ The image below shows the formation of an acoustic pixel from two commands (`com
 ![](https://store.stranno.su/bs/granular.jpg)
 
 ## Recommendations for optimal performance
+<a id="recommendation"></a>
 
 - Use incognito mode with extensions disabled
 - Close the non-incognito browser
@@ -75,6 +96,7 @@ BS under workload requires on average up to 7.1% CPU, in incognito mode 6%, Fire
 More interesting sound is obtained with several independent instances of BS in different tabs. Theoretically, it would be possible to implement several BS threads in one tab, but this is less optimal, because browsers limit the maximum CPU usage per tab (in Chrome it is 10% of CPU). Also, each tab has its own [event loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop). You can use `ctrl + tab number` to quickly switch between tabs.
 
 ## MIDI
+<a id="midi"></a>
 
 When the MIDI mode is enabled, the first available port and its first channel are automatically selected. Next, a `noteOn` signal is sent sequentially when reading, and a `noteOff` signal is sent after the `reading speed` time. In `continuous` mode, a `Pitch` signal is sent after each noteOn to hit the desired frequency.
 
@@ -91,6 +113,7 @@ To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https:
 > **Note**: MIDI messages are generated on the desktop only
 
 ## Interface features
+<a id="interface"></a>
 
 -   `Reading speed` — interpretation speed; at high speeds over 0.001 the application may become unstable
 
@@ -119,7 +142,16 @@ To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https:
 
 - Some input fields have a keyboard shortcut: pressing the corresponding key automatically moves the focus to the item. By pressing a key and moving the mouse at the same time, the values can be changed smoothly. The Y axis of the mouse movement determines the "power" of the value change
 
+## Saving settings
+<a id="settings"></a>
+
+You can save your settings in two ways:
+
+- via a URL link. When you click in the address bar of your browser, the application automatically generates a link to which the settings are written. You can copy it and when you open the link, the settings will be applied immediately, all you have to do is download a file for sound synthesis.
+- through a file. The interface includes Save settings and Load settings buttons, which allow you to save or load a settings file to or from your computer.
+
 ## Run locally and build the project
+<a id="run"></a>
 
 ### Just copy the app
 

@@ -267,11 +267,20 @@ input {
     height: 40px;
     width: 100%;
     max-width: 154px;
+    color: $white;
+    padding: 9px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     &:hover {
         background: #090c0f;
         transform: translateY(1px);
         border-bottom: 2px solid $white;
+    }
+
+    input[type='file'] {
+        display: none;
     }
 }
 
