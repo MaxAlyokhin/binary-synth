@@ -47,6 +47,7 @@ function commandIterator() {
                 if (currentIteration !== status.iterationNumber) {
                     currentIteration = status.iterationNumber
                     status.currentCommand = 0
+                    status.currentCommand++
                 } else {
                     if (settings.isRandomTimeGap && settings.midiMode) {
                         return
