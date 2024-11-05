@@ -64,7 +64,15 @@ const sawtoothWave = audioContext.createPeriodicWave(
 // Changing its frequency will be planned in nextIteration()
 function audioInit() {
     oscillator = audioContext.createOscillator()
-    oscillator.type = settings.waveType
+
+    if (settings.waveType === 'square2') {
+        oscillator.setPeriodicWave(squareWave)
+    } else if (settings.waveType === 'sawtooth2') {
+        oscillator.setPeriodicWave(sawtoothWave)
+    } else {
+        oscillator.type = settings.waveType
+    }
+
     oscillator.connect(filter)
 }
 
