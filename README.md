@@ -88,6 +88,7 @@ The image below shows the formation of an acoustic pixel from two commands (`com
 - Use incognito mode with extensions disabled
 - Close the non-incognito browser
 - Leave only BS tabs in incognito mode
+- Use a separate browser [ungoogled-chromium](https://github.com/ungoogled-software/ungoogled-chromium), which uses a little less CPU and a lot less RAM.
 
 BS under workload requires on average up to 7.1% CPU, in incognito mode 6%, Firefox 4.2%, but runs less stable. Also the browser's open console/DevTools increases CPU consumption per tab by 10%. It is recommended to use BS in incognito mode without any other open tabs except BS tabs for maximum efficiency.
 
@@ -138,7 +139,7 @@ To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https:
 
 - `Last noteOn mode` — leaves the last command in the loop pressed. Allows to make smoother transitions between repeats of patterns.
 
-- Some input fields have a keyboard shortcut: pressing the corresponding key automatically moves the focus to the item. By pressing a key and moving the mouse at the same time, the values can be changed smoothly. The Y axis of the mouse movement determines the "power" of the value change
+- Some input fields have a keyboard shortcut: pressing the corresponding key automatically moves the focus to the item. By pressing a key and moving the mouse at the same time, the values can be changed smoothly. The Y axis of the mouse movement determines the "power" of the value change. The cursor disappears in order to be able to change values indefinitely. To return the cursor, press Esc.
 
 ## Saving settings
 <a id="settings"></a>
