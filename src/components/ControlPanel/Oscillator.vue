@@ -28,7 +28,7 @@ watch(gain, (newValue) => {
                 <InteractiveInput
                     :validValue="settings.gain"
                     @valueFromInput="settings.gain = $event"
-                    step="0.01"
+                    step="0.0001"
                     keyCode="KeyW"
                     letter="W"
                 />

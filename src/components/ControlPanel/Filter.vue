@@ -52,7 +52,7 @@ watch(biquadFilterQ, (newValue) => {
                 <InteractiveInput
                     :validValue="settings.biquadFilterQ"
                     @valueFromInput="settings.biquadFilterQ = $event"
-                    step="0.1"
+                    step="0.01"
                     keyCode="KeyX"
                     letter="X"
                 />

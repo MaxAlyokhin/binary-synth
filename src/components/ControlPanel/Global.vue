@@ -147,7 +147,7 @@ watch(commandsTo, (newValue) => {
                     <InteractiveInput
                         :validValue="settings.panner"
                         @valueFromInput="settings.panner = $event"
-                        step=".01"
+                        step=".001"
                         keyCode="KeyG"
                         letter="G"
                     />

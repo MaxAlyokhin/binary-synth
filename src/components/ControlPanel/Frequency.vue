@@ -106,7 +106,7 @@ watch(midi, () => {
                     <InteractiveInput
                         :validValue="settings.frequenciesRange.from"
                         @valueFromInput="settings.frequenciesRange.from = $event"
-                        step="1"
+                        step="0.1"
                         keyCode="KeyA"
                         letter="A"
                     />
@@ -116,7 +116,7 @@ watch(midi, () => {
                     <InteractiveInput
                         :validValue="settings.frequenciesRange.to"
                         @valueFromInput="settings.frequenciesRange.to = $event"
-                        step="1"
+                        step="0.1"
                         keyCode="KeyS"
                         letter="S" />
                 </div>

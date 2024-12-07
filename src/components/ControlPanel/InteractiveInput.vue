@@ -9,8 +9,9 @@ const inputValue = ref(props.validValue)
 const input = ref(null)
 
 let isInteractiveMode = ref(false)
-let initialClientX = null
 let initialClientY = null
+let currentX = null
+let currentY = null
 let initialInputValue = null
 let inputValueFactor = ref(1)
 let isMoved = false
@@ -28,7 +29,7 @@ onUnmounted(() => {
 function activateInteractiveMode(event) {
     if (!isInteractiveMode.value && event.code === props.keyCode && !event.ctrlKey) {
         input.value.focus()
-        window.addEventListener('mousemove', mousemoveHandler)
+        document.addEventListener('mousemove', mousemoveHandler)
     }
 }
 
@@ -36,41 +37,51 @@ function deactivateInteractiveMode(event) {
     if (event.code === props.keyCode) {
         isInteractiveMode.value = false
         isMoved = false
-        initialClientX = null
         initialClientY = null
+        currentX = 0
         initialInputValue = null
         inputValueFactor.value = 1
-        window.removeEventListener('mousemove', mousemoveHandler)
+        document.removeEventListener('mousemove', mousemoveHandler)
     }
 }
 
-function mousemoveHandler(event) {
+async function mousemoveHandler(event) {
     if (!isMoved) {
+        if (!document.pointerLockElement) {
+            await input.value.requestPointerLock({
+                unadjustedMovement: true,
+            })
+        }
+
         isInteractiveMode.value = true
-        initialClientX = event.clientX
         initialClientY = event.clientY
+        currentY = event.clientY
         initialInputValue = inputValue.value
         isMoved = true
     }
 
-    inputValueFactor.value = getInputValueFactor(event.clientY - initialClientY)
+    currentX += event.movementX
+    currentY += event.movementY
+
+    inputValueFactor.value = getInputValueFactor(currentY - initialClientY)
+
     inputValue.value = toFixedNumber(
-        initialInputValue + (event.clientX - initialClientX) * props.step * inputValueFactor.value,
-        decimalPlaces(props.step) + decimalPlaces(inputValueFactor.value)
+        initialInputValue + currentX * inputValueFactor.value * Number(props.step),
+        decimalPlaces(Number(props.step)) + decimalPlaces(inputValueFactor.value)
     )
 }
 
-// Через каждые 100 пикселей шаг мощности
+// Every 2500 pixels a power step
 function getInputValueFactor(verticalDifference) {
     if (verticalDifference > 0) {
-        if (verticalDifference > 300) return 0.001
-        if (verticalDifference > 200) return 0.01
-        if (verticalDifference > 100) return 0.1
+        if (verticalDifference > 10000) return 0.001
+        if (verticalDifference > 5000) return 0.01
+        if (verticalDifference > 2500) return 0.1
         else return 1
     } else {
-        if (verticalDifference < -300) return 1000
-        if (verticalDifference < -200) return 100
-        if (verticalDifference < -100) return 10
+        if (verticalDifference < -10000) return 1000
+        if (verticalDifference < -5000) return 100
+        if (verticalDifference < -2500) return 10
         else return 1
     }
 }
@@ -106,16 +117,6 @@ watch(valid, (newValue) => {
 
         <div v-show="isInteractiveMode" class="scales">
             <div class="factor">x{{ inputValueFactor }}</div>
-
-            <div class="gorizontal" :style="{ left: `${initialClientX}px`, borderWidth: `3px` }">{{ initialInputValue }}</div>
-
-            <div class="vertical" :style="{ top: `${initialClientY}px`, borderWidth: `3px` }">x1</div>
-            <div class="vertical" :style="{ top: `${initialClientY + 100}px` }">x0.1</div>
-            <div class="vertical" :style="{ top: `${initialClientY + 200}px` }">x0.01</div>
-            <div class="vertical" :style="{ top: `${initialClientY + 300}px` }">x0.001</div>
-            <div class="vertical" :style="{ top: `${initialClientY - 100}px` }">x10</div>
-            <div class="vertical" :style="{ top: `${initialClientY - 200}px` }">x100</div>
-            <div class="vertical" :style="{ top: `${initialClientY - 300}px` }">x1000</div>
         </div>
     </div>
 </template>
@@ -173,39 +174,17 @@ input:focus {
     height: 100vh;
     z-index: 1;
 }
-.gorizontal,
-.vertical {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 10;
-    padding: 5px;
-    color: $white;
-}
-
-.gorizontal {
-    height: 100vh;
-    width: 1px;
-    border-left: 1px solid $white;
-}
-
-.vertical {
-    width: 100vw;
-    height: 1px;
-    border-top: 1px solid $white;
-}
 
 .factor {
     position: fixed;
     top: 0;
-    left: 0;
+    right: 15px;
     width: 100%;
     height: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: end;
+    align-items: end;
     font-size: 80px;
-    background: rgb(0 0 0 / 87%);
     color: $white;
 }
 </style>
