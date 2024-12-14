@@ -40,26 +40,28 @@ const gap = computed({
     },
 })
 
-const panner = computed(() => settings.panner)
+const panner = ref(null)
 watch(panner, (newValue) => {
     if (newValue <= -1) {
         settings.panner = -1
     } else if (newValue >= 1) {
         settings.panner = 1
+    } else {
+        settings.panner = newValue
     }
 })
 
-const readingSpeed = computed(() => settings.readingSpeed)
+const readingSpeed = ref(null)
 watch(readingSpeed, (newValue) => {
     if (settings.midiMode && newValue <= 0.005) {
         settings.readingSpeed = 0.005
     } else {
-        if (newValue < 0) settings.readingSpeed = 0
+        if (newValue <= 0) settings.readingSpeed = 0.00001
         else settings.readingSpeed = newValue
     }
 })
 
-const commandsFrom = computed(() => settings.commandsRange.from)
+const commandsFrom = ref(null)
 watch(commandsFrom, (newValue) => {
     if (isNaN(newValue)) {
         return
@@ -80,21 +82,17 @@ watch(commandsCount, (newValue) => {
     if (settings.commandsRange.to >= newValue || settings.commandsRange.to === 0) settings.commandsRange.to = newValue
 })
 
-const commandsTo = computed(() => settings.commandsRange.to)
+let commandsTo = ref(null)
 watch(commandsTo, (newValue) => {
-    nextTick(() => {
-        if (isNaN(newValue)) {
-            return
-        } else if (newValue <= 0) {
-            settings.commandsRange.to = 1
-        } else if (newValue > commandsCount.value) {
-            settings.commandsRange.to = commandsCount.value
-        } else if (newValue <= settings.commandsRange.from) {
-            settings.commandsRange.to = settings.commandsRange.from + 1
-        } else {
-            settings.commandsRange.to = newValue
-        }
-    })
+    if (isNaN(newValue)) {
+        return
+    } else if (newValue > commandsCount.value) {
+        settings.commandsRange.to = commandsCount.value
+    } else if (newValue <= settings.commandsRange.from) {
+        settings.commandsRange.to = settings.commandsRange.from + 1
+    } else {
+        settings.commandsRange.to = newValue
+    }
 })
 </script>
 
@@ -107,7 +105,7 @@ watch(commandsTo, (newValue) => {
                 <span class="filter-freq key">Reading speed (s)</span>
                 <InteractiveInput
                     :validValue="settings.readingSpeed"
-                    @valueFromInput="settings.readingSpeed = $event"
+                    @valueFromInput="readingSpeed = $event"
                     step="0.00001"
                     keyCode="KeyQ"
                     letter="Q"
@@ -146,7 +144,7 @@ watch(commandsTo, (newValue) => {
                 <div class="module__container">
                     <InteractiveInput
                         :validValue="settings.panner"
-                        @valueFromInput="settings.panner = $event"
+                        @valueFromInput="panner = $event"
                         step=".001"
                         keyCode="KeyG"
                         letter="G"
@@ -163,7 +161,7 @@ watch(commandsTo, (newValue) => {
                     <span>From</span>
                     <InteractiveInput
                         :validValue="settings.commandsRange.from"
-                        @valueFromInput="settings.commandsRange.from = $event"
+                        @valueFromInput="commandsFrom = $event"
                         step="1"
                         keyCode="KeyD"
                         letter="D"
@@ -173,7 +171,7 @@ watch(commandsTo, (newValue) => {
                     <span>To</span>
                     <InteractiveInput
                         :validValue="settings.commandsRange.to"
-                        @valueFromInput="settings.commandsRange.to = $event"
+                        @valueFromInput="commandsTo = $event"
                         step="1"
                         keyCode="KeyF"
                         letter="F"

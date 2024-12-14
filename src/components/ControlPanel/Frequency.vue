@@ -6,7 +6,7 @@ import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
-const frequencyFrom = computed(() => settings.frequenciesRange.from)
+const frequencyFrom = ref(null)
 watch(frequencyFrom, (newValue) => {
     if (isNaN(newValue)) {
         return
@@ -19,15 +19,10 @@ watch(frequencyFrom, (newValue) => {
     }
 })
 
-const noteNameFrom = computed(() => getNoteName(settings.notesRange.from))
-const noteNameTo = computed(() => getNoteName(settings.notesRange.to))
-
-const frequencyTo = computed(() => settings.frequenciesRange.to)
+const frequencyTo = ref(null)
 watch(frequencyTo, (newValue) => {
     if (isNaN(newValue)) {
         return
-    } else if (newValue <= 0) {
-        settings.frequenciesRange.to = 0
     } else if (newValue > (settings.midiMode ? 12543 : 24000)) {
         settings.frequenciesRange.to = settings.midiMode ? 12543 : 24000
     } else if (newValue <= settings.frequenciesRange.from) {
@@ -36,6 +31,9 @@ watch(frequencyTo, (newValue) => {
         settings.frequenciesRange.to = newValue
     }
 })
+
+const noteNameFrom = computed(() => getNoteName(settings.notesRange.from))
+const noteNameTo = computed(() => getNoteName(settings.notesRange.to))
 
 const notesFrom = ref(settings.notesRange.from)
 watch(notesFrom, (newValue) => {
@@ -57,9 +55,6 @@ const notesTo = ref(settings.notesRange.to)
 watch(notesTo, (newValue) => {
     if (isNaN(newValue)) {
         return
-    } else if (newValue <= 0) {
-        notesTo.value = 0
-        settings.notesRange.to = notesTo.value
     } else if (newValue >= (settings.midiMode ? 127 : 131)) {
         notesTo.value = settings.midiMode ? 127 : 131
         settings.notesRange.to = notesTo.value
@@ -105,7 +100,7 @@ watch(midi, () => {
                     <span>From</span>
                     <InteractiveInput
                         :validValue="settings.frequenciesRange.from"
-                        @valueFromInput="settings.frequenciesRange.from = $event"
+                        @valueFromInput="frequencyFrom = $event"
                         step="0.1"
                         keyCode="KeyA"
                         letter="A"
@@ -115,7 +110,7 @@ watch(midi, () => {
                     <span class="freq-to key">To</span>
                     <InteractiveInput
                         :validValue="settings.frequenciesRange.to"
-                        @valueFromInput="settings.frequenciesRange.to = $event"
+                        @valueFromInput="frequencyTo = $event"
                         step="0.1"
                         keyCode="KeyS"
                         letter="S" />

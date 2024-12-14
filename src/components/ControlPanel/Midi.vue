@@ -99,7 +99,6 @@ const lastNoteOn = computed({
         settings.midi.lastNoteOn = getBooleanFromString(value)
     }
 })
-// watch(solidMode, (newValue) => (settings.midi.solidMode = getBooleanFromString(newValue)))
 </script>
 
 <template>

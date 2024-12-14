@@ -5,8 +5,7 @@ import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
-const gain = computed(() => settings.gain)
-
+const gain = ref(null)
 watch(gain, (newValue) => {
     if (isNaN(newValue)) {
         return
@@ -27,7 +26,7 @@ watch(gain, (newValue) => {
                 <span>Gain</span>
                 <InteractiveInput
                     :validValue="settings.gain"
-                    @valueFromInput="settings.gain = $event"
+                    @valueFromInput="gain = $event"
                     step="0.0001"
                     keyCode="KeyW"
                     letter="W"

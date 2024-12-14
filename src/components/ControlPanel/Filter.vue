@@ -5,9 +5,7 @@ import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
-const biquadFilterFrequency = computed(() => settings.biquadFilterFrequency)
-const biquadFilterQ = computed(() => settings.biquadFilterQ)
-
+const biquadFilterFrequency = ref(null)
 watch(biquadFilterFrequency, (newValue) => {
     if (isNaN(newValue)) {
         return
@@ -20,6 +18,7 @@ watch(biquadFilterFrequency, (newValue) => {
     }
 })
 
+const biquadFilterQ = ref(null)
 watch(biquadFilterQ, (newValue) => {
     if (isNaN(newValue)) {
         return
@@ -41,7 +40,7 @@ watch(biquadFilterQ, (newValue) => {
                 <span>Frequency</span>
                 <InteractiveInput
                     :validValue="settings.biquadFilterFrequency"
-                    @valueFromInput="settings.biquadFilterFrequency = $event"
+                    @valueFromInput="biquadFilterFrequency = $event"
                     step="0.1"
                     keyCode="KeyZ"
                     letter="Z"
@@ -51,7 +50,7 @@ watch(biquadFilterQ, (newValue) => {
                 <span>Q-factor</span>
                 <InteractiveInput
                     :validValue="settings.biquadFilterQ"
-                    @valueFromInput="settings.biquadFilterQ = $event"
+                    @valueFromInput="biquadFilterQ = $event"
                     step="0.01"
                     keyCode="KeyX"
                     letter="X"

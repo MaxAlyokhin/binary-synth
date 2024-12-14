@@ -65,34 +65,26 @@ async function mousemoveHandler(event) {
 
     inputValueFactor.value = getInputValueFactor(currentY - initialClientY)
 
-    inputValue.value = toFixedNumber(
+    emits('valueFromInput', toFixedNumber(
         initialInputValue + currentX * inputValueFactor.value * Number(props.step),
         decimalPlaces(Number(props.step)) + decimalPlaces(inputValueFactor.value)
-    )
+    ))
 }
 
 // Every 2500 pixels a power step
 function getInputValueFactor(verticalDifference) {
     if (verticalDifference > 0) {
-        if (verticalDifference > 10000) return 0.001
+        if (verticalDifference > 7500) return 0.001
         if (verticalDifference > 5000) return 0.01
         if (verticalDifference > 2500) return 0.1
         else return 1
     } else {
-        if (verticalDifference < -10000) return 1000
+        if (verticalDifference < -7500) return 1000
         if (verticalDifference < -5000) return 100
         if (verticalDifference < -2500) return 10
         else return 1
     }
 }
-
-function changeInput(value) {
-    emits('valueFromInput', Number(value))
-}
-
-watch(inputValue, (newValue) => {
-    if (newValue || newValue === 0) changeInput(newValue)
-})
 
 const valid = computed(() => props.validValue)
 watch(valid, (newValue) => {
@@ -100,6 +92,10 @@ watch(valid, (newValue) => {
         inputValue.value = props.validValue
     }
 })
+
+function syncValidValue(value) {
+    inputValue.value = props.validValue
+}
 </script>
 
 <template>
@@ -108,7 +104,9 @@ watch(valid, (newValue) => {
             <input
                 :class="{ 'interactive-input--active': isInteractiveMode }"
                 ref="input"
-                v-model="inputValue"
+                :value="inputValue"
+                @change="syncValidValue(Number($event.target.value))"
+                @input="[emits('valueFromInput', Number($event.target.value)), syncValidValue(Number($event.target.value))]"
                 :step="step"
                 type="number"
             />

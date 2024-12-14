@@ -16,9 +16,8 @@ const mode = computed({
             : settings.LFO.enabled = false
         }
 })
-const depth = computed(() => settings.LFO.depth)
-const rate = computed(() => settings.LFO.rate)
 
+const depth = ref(null)
 watch(depth, (newValue) => {
     if (isNaN(newValue)) {
         return
@@ -31,6 +30,7 @@ watch(depth, (newValue) => {
     }
 })
 
+const rate = ref(null)
 watch(rate, (newValue) => {
     if (isNaN(newValue) || newValue < 0) {
         settings.LFO.rate = 0
@@ -75,7 +75,7 @@ watch(rate, (newValue) => {
                 <span>Rate</span>
                 <InteractiveInput
                     :validValue="settings.LFO.rate"
-                    @valueFromInput="settings.LFO.rate = $event"
+                    @valueFromInput="rate = $event"
                     step="0.01"
                     keyCode="KeyC"
                     letter="C"
@@ -85,7 +85,7 @@ watch(rate, (newValue) => {
                 <span>Depth</span>
                 <InteractiveInput
                     :validValue="settings.LFO.depth"
-                    @valueFromInput="settings.LFO.depth = $event"
+                    @valueFromInput="depth = $event"
                     step="0.0001"
                     keyCode="KeyV"
                     letter="V"
