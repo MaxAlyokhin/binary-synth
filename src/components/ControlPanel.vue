@@ -872,7 +872,6 @@ watch(midiMode, (newValue) => {
 <template>
     <Transition name="opacity" mode="out-in" appear>
         <div class="control" :class="{ deactive: !file.loaded }">
-
             <SettingsExchange />
 
             <div class="control__playing">
@@ -902,6 +901,7 @@ watch(midiMode, (newValue) => {
     align-items: center;
     width: 100%;
     max-width: 320px;
+    margin: 0 auto;
 
     &__inputs {
         display: grid;
