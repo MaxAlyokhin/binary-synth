@@ -94,7 +94,7 @@ watch(valid, (newValue) => {
 })
 
 function syncValidValue(value) {
-    inputValue.value = props.validValue
+    input.value.value = props.validValue
 }
 </script>
 
