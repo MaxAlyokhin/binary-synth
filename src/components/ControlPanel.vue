@@ -38,9 +38,6 @@ let panner = audioContext.createStereoPanner()
 filter.type = 'lowpass'
 filter.frequency.value = settings.biquadFilterFrequency
 filter.Q.value = settings.biquadFilterQ
-lfoOsc.type = settings.LFO.type
-lfoOsc.frequency.value = settings.LFO.rate
-lfoOsc.start()
 lfoDepth.gain.value = settings.LFO.depth
 gain.gain.value = settings.gain
 masterGain.gain.value = 1
@@ -74,9 +71,12 @@ function audioInit() {
     }
 
     oscillator.connect(filter)
-}
 
-audioInit()
+    lfoOsc = audioContext.createOscillator()
+    lfoOsc.type = settings.LFO.type
+    lfoOsc.frequency.value = settings.LFO.rate
+    lfoOsc.connect(lfoDepth)
+}
 
 const getRandomTimeGap = () => (settings.isRandomTimeGap ? getRandomNumber(0, settings.readingSpeed) : 0)
 
@@ -300,7 +300,12 @@ function play() {
     if (file.loaded && !status.playing) {
         gain.gain.setTargetAtTime(settings.gain, audioContext.currentTime, 0.005)
 
-        if (!settings.midiMode) oscillator.start()
+        if (!settings.midiMode) {
+            oscillator.start()
+            if (settings.LFO.enabled) {
+                lfoOsc.start()
+            }
+        }
 
         status.playing = true
         nextIteration(0, settings.commandsRange.from)
@@ -314,6 +319,7 @@ function stop() {
         if (!settings.midiMode) {
             gain.gain.setTargetAtTime(0.0001, audioContext.currentTime, 0.005)
             oscillator.stop(audioContext.currentTime + 0.1)
+            if (settings.LFO.enabled) lfoOsc.stop(audioContext.currentTime + 0.1)
             oscillator.frequency.cancelScheduledValues(audioContext.currentTime + 0.1)
 
             audioInit()
@@ -341,6 +347,8 @@ function preventScrollOnSpacePress(event) {
 onMounted(() => {
     window.addEventListener('keydown', preventScrollOnSpacePress)
     window.addEventListener('keyup', changePlaying)
+
+    audioInit()
 })
 
 onUnmounted(() => {
@@ -374,7 +382,19 @@ watch(filterQ, (newValue) => {
 })
 const lfoEnabled = computed(() => settings.LFO.enabled)
 watch(lfoEnabled, (newValue) => {
-    newValue ? lfoOsc.connect(lfoDepth) : lfoOsc.disconnect(lfoDepth)
+    if (newValue) {
+        if (status.playing) {
+            lfoOsc.start()
+        }
+    } else {
+        if (status.playing) {
+            lfoOsc.stop(audioContext.currentTime + 0.1)
+            lfoOsc = audioContext.createOscillator()
+            lfoOsc.type = settings.LFO.type
+            lfoOsc.frequency.value = settings.LFO.rate
+            lfoOsc.connect(lfoDepth)
+        }
+    }
 })
 const lfoType = computed(() => settings.LFO.type)
 watch(lfoType, (newValue) => {
@@ -749,6 +769,7 @@ watch(midiMode, (newValue) => {
         // If MIDI is on
         if (newValue === true) {
             oscillator.stop(audioContext.currentTime)
+            if (settings.LFO.enabled) lfoOsc.stop(audioContext.currentTime)
             oscillator.frequency.cancelScheduledValues(audioContext.currentTime)
             clearTimeout(nextIterationTimeoutID) // Cancel the scheduled recursion
 
@@ -780,6 +801,7 @@ watch(midiMode, (newValue) => {
             clearTimeout(nextIterationTimeoutID) // Cancel the scheduled recursion
 
             oscillator.start()
+            if (settings.LFO.enabled) lfoOsc.start()
 
             // Reschedule the changes in the oscillator, starting from the last command where we left off
             switch (settings.transitionType) {
