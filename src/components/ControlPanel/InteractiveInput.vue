@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
+import { ref, watch, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { decimalPlaces, toFixedNumber } from '../../assets/js/helpers.js'
 
 const emits = defineEmits(['valueFromInput'])
@@ -65,10 +65,13 @@ async function mousemoveHandler(event) {
 
     inputValueFactor.value = getInputValueFactor(currentY - initialClientY)
 
-    emits('valueFromInput', toFixedNumber(
-        initialInputValue + currentX * inputValueFactor.value * Number(props.step),
-        decimalPlaces(Number(props.step)) + decimalPlaces(inputValueFactor.value)
-    ))
+    emits(
+        'valueFromInput',
+        toFixedNumber(
+            initialInputValue + currentX * inputValueFactor.value * Number(props.step),
+            decimalPlaces(Number(props.step)) + decimalPlaces(inputValueFactor.value)
+        )
+    )
 }
 
 // Every 2500 pixels a power step
@@ -93,8 +96,32 @@ watch(valid, (newValue) => {
     }
 })
 
-function syncValidValue(value) {
-    input.value.value = props.validValue
+let oldValidValue = props.validValue.value
+async function check(event) {
+    await nextTick()
+    if (oldValidValue !== undefined && !Number.isInteger(oldValidValue) && Number.isInteger(props.validValue)) {
+        const value = props.validValue
+        input.value.value = ''
+        input.value.value = value
+        oldValidValue = props.validValue
+    } else if (!event.data || event.data === '.') {
+        return
+    } else if (event.data === ',' || Number(event.target.value) === props.validValue) {
+        oldValidValue = props.validValue
+    } else if (oldValidValue === props.validValue) {
+        input.value.value = props.validValue
+    } else {
+        oldValidValue = props.validValue
+    }
+}
+
+function checkComma(event) {
+    if (event.data === '.' || event.target.value === '') {
+        input.value.value = props.validValue
+        return props.validValue
+    } else {
+        return Number(event.target.value)
+    }
 }
 </script>
 
@@ -105,8 +132,7 @@ function syncValidValue(value) {
                 :class="{ 'interactive-input--active': isInteractiveMode }"
                 ref="input"
                 :value="inputValue"
-                @change="syncValidValue(Number($event.target.value))"
-                @input="[emits('valueFromInput', Number($event.target.value)), syncValidValue(Number($event.target.value))]"
+                @input="[emits('valueFromInput', checkComma($event)), check($event)]"
                 :step="step"
                 type="number"
             />
