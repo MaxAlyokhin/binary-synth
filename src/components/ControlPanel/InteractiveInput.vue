@@ -105,7 +105,7 @@ async function check(event) {
         input.value.value = value
         oldValidValue = props.validValue
     } else if (!event.data || event.data === '.') {
-        return
+        input.value.value = props.validValue
     } else if (event.data === ',' || Number(event.target.value) === props.validValue) {
         oldValidValue = props.validValue
     } else if (oldValidValue === props.validValue) {
