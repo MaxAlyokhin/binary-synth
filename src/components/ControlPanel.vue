@@ -73,7 +73,15 @@ function audioInit() {
     oscillator.connect(filter)
 
     lfoOsc = audioContext.createOscillator()
-    lfoOsc.type = settings.LFO.type
+
+    if (settings.LFO.type === 'square2') {
+        lfoOsc.setPeriodicWave(squareWave)
+    } else if (settings.LFO.type === 'sawtooth2') {
+        lfoOsc.setPeriodicWave(sawtoothWave)
+    } else {
+        lfoOsc.type = settings.LFO.type
+    }
+
     lfoOsc.frequency.value = settings.LFO.rate
     lfoOsc.connect(lfoDepth)
 }
