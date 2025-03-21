@@ -218,6 +218,7 @@ watch(bynaryInSelectedBitness, (newValue) => {
 
 .status {
     transition: all 70ms ease-in;
+    font-size: 11px;
 
     .active {
         color: $orange;
@@ -256,6 +257,8 @@ watch(bynaryInSelectedBitness, (newValue) => {
         grid-template-columns: repeat(25, 1fr);
         margin-top: 20px;
         max-width: fit-content;
+        position: sticky;
+        top: 10px;
 
         @media (max-width: 1800px) {
             grid-template-columns: repeat(20, 1fr);
