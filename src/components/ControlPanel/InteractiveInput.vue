@@ -9,12 +9,11 @@ const inputValue = ref(props.validValue)
 const input = ref(null)
 
 let isInteractiveMode = ref(false)
-let initialClientY = null
 let currentX = null
-let currentY = null
 let initialInputValue = null
 let inputValueFactor = ref(1)
 let isMoved = false
+let isPressed = false // If pressed props.keyCode
 
 onMounted(() => {
     window.addEventListener('keydown', activateInteractiveMode)
@@ -30,6 +29,13 @@ function activateInteractiveMode(event) {
     if (!isInteractiveMode.value && event.code === props.keyCode && !event.ctrlKey) {
         input.value.focus()
         document.addEventListener('mousemove', mousemoveHandler)
+        isPressed = true
+    }
+
+    // Shift increase, Ctrl decrease factor
+    if (isPressed) {
+        if (event.code === 'ShiftLeft') inputValueFactor.value *= 10
+        if (event.code === 'ControlLeft') inputValueFactor.value /= 10
     }
 }
 
@@ -37,11 +43,11 @@ function deactivateInteractiveMode(event) {
     if (event.code === props.keyCode) {
         isInteractiveMode.value = false
         isMoved = false
-        initialClientY = null
         currentX = 0
         initialInputValue = null
         inputValueFactor.value = 1
         document.removeEventListener('mousemove', mousemoveHandler)
+        isPressed = false
     }
 }
 
@@ -54,16 +60,11 @@ async function mousemoveHandler(event) {
         }
 
         isInteractiveMode.value = true
-        initialClientY = event.clientY
-        currentY = event.clientY
         initialInputValue = inputValue.value
         isMoved = true
     }
 
     currentX += event.movementX
-    currentY += event.movementY
-
-    inputValueFactor.value = getInputValueFactor(currentY - initialClientY)
 
     emits(
         'valueFromInput',
@@ -72,21 +73,6 @@ async function mousemoveHandler(event) {
             decimalPlaces(Number(props.step)) + decimalPlaces(inputValueFactor.value)
         )
     )
-}
-
-// Every 2500 pixels a power step
-function getInputValueFactor(verticalDifference) {
-    if (verticalDifference > 0) {
-        if (verticalDifference > 7500) return 0.001
-        if (verticalDifference > 5000) return 0.01
-        if (verticalDifference > 2500) return 0.1
-        else return 1
-    } else {
-        if (verticalDifference < -7500) return 1000
-        if (verticalDifference < -5000) return 100
-        if (verticalDifference < -2500) return 10
-        else return 1
-    }
 }
 
 const valid = computed(() => props.validValue)
@@ -139,7 +125,7 @@ function checkComma(event) {
             <div class="letter">{{ props.letter }}</div>
         </div>
 
-        <div v-show="isInteractiveMode" class="scales">
+        <div v-show="inputValueFactor !== 1" class="scales">
             <div class="factor">x{{ inputValueFactor }}</div>
         </div>
     </div>

@@ -139,7 +139,7 @@ To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https:
 
 - `Last noteOn mode` — leaves the last command in the loop pressed. Allows to make smoother transitions between repeats of patterns.
 
-- Some input fields have a keyboard shortcut: pressing the corresponding key automatically moves the focus to the item. By pressing a key and moving the mouse at the same time, the values can be changed smoothly. The Y axis of the mouse movement determines the "power" of the value change. The cursor disappears in order to be able to change values indefinitely. To return the cursor, press Esc.
+- Some input fields have a keyboard shortcut: pressing the corresponding key automatically moves the focus to the item. By pressing a key and moving the mouse at the same time, the values can be changed smoothly. Pressing `Shift` will increase (10x, 100x, 1000x) the "power" of the value change, pressing `Ctrl` will decrease (0.1x, 0.01x, 0.001x). The cursor disappears in order to be able to change values indefinitely. To return the cursor, press `Esc`.
 
 ## Saving settings
 <a id="settings"></a>
