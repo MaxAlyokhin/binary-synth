@@ -155,7 +155,7 @@ watch(readingSpeed, () => {
 const bynaryInSelectedBitness = computed(() => (settings.bitness === '8' ? file.binary8 : file.binary16))
 watch(bynaryInSelectedBitness, (newValue) => {
     if (settings.bitness === '8') {
-        if ((settings.commandsRange.to - settings.commandsRange.from) >= 499) {
+        if (settings.commandsRange.to - settings.commandsRange.from >= 499) {
             status.currentCommandsBlock = [0, 499]
         } else {
             status.currentCommandsBlock[1] = settings.commandsRange.to
@@ -165,7 +165,7 @@ watch(bynaryInSelectedBitness, (newValue) => {
     }
 
     if (settings.bitness === '16') {
-        if ((settings.commandsRange.to - settings.commandsRange.from) >= 249) {
+        if (settings.commandsRange.to - settings.commandsRange.from >= 249) {
             status.currentCommandsBlock = [0, 249]
         } else {
             status.currentCommandsBlock[1] = settings.commandsRange.to
@@ -177,7 +177,7 @@ watch(bynaryInSelectedBitness, (newValue) => {
 </script>
 
 <template>
-    <div class="status" :class="{ deactive: !file.loaded }">
+    <div class="status">
         <div class="status__common">
             <div class="status__playing">
                 Playing: <span :class="{ playing: status.playing }">{{ status.playing }}</span>
@@ -185,9 +185,13 @@ watch(bynaryInSelectedBitness, (newValue) => {
             <div class="status__playing-time">
                 Playing time: <span>{{ toHHMMSS(time) }} | {{ time }}</span>
             </div>
+            <div class="status__composition-duration">
+                Fragment duration:
+                <span>{{ durationTimeFormatted }}</span
+                ><span v-show="durationTime <= 50">| {{ toFixedNumber(1000 / durationTime) }} Hz</span>
             </div>
-            <div class="status__type">
-                File type: <span>{{ file.type }}</span>
+            <div class="status__size">
+                File size: <span>{{ format(file.size) }}</span>
             </div>
             <div class="status__name">
                 File name: <span>{{ file.name }}</span>
@@ -258,34 +262,27 @@ watch(bynaryInSelectedBitness, (newValue) => {
 
     &__commands {
         display: grid;
-        grid-template-columns: repeat(25, 1fr);
+        grid-template-columns: repeat(10, 1fr);
         margin-top: 20px;
         max-width: fit-content;
         position: sticky;
         top: 10px;
+        font-size: 15px;
 
-        @media (max-width: 1800px) {
-            grid-template-columns: repeat(20, 1fr);
+        @media (max-width: 1024px) {
+            font-size: 12px;
         }
 
-        @media (max-width: 1510px) {
-            grid-template-columns: repeat(10, 1fr);
-        }
-
-        @media (max-width: 960px) {
+        @media (max-width: 1023px) {
             grid-template-columns: repeat(5, 1fr);
             margin-left: auto;
             margin-right: auto;
         }
 
         &--16 {
-            grid-template-columns: repeat(10, 1fr);
+            grid-template-columns: repeat(5, 1fr);
 
-            @media (max-width: 1800px) {
-                grid-template-columns: repeat(5, 1fr);
-            }
-
-            @media (max-width: 960px) {
+            @media (max-width: 1023px) {
                 grid-template-columns: repeat(2, 1fr);
             }
         }

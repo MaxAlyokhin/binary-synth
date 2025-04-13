@@ -52,6 +52,9 @@ reader.addEventListener('error', (event) => {
 })
 
 function readFile(rawFile) {
+    // If file is empty
+    if (rawFile.size === 0) return
+
     file.$patch({
         name: rawFile.name,
         size: rawFile.size,
@@ -151,7 +154,7 @@ onMounted(() => {
         max-width: 323px;
         text-align: center;
         margin: 0 auto;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
 
     input[type='file'] {

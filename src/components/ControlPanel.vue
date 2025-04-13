@@ -927,7 +927,7 @@ watch(midiMode, (newValue) => {
     transition: all 200ms ease-in;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
     align-items: center;
     width: 100%;
     max-width: 320px;
@@ -948,7 +948,7 @@ watch(midiMode, (newValue) => {
     &__playing {
         display: flex;
         justify-content: center;
-        column-gap: 15px;
+        column-gap: 10px;
         width: 100%;
     }
 }
