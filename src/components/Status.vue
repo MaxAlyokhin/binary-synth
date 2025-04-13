@@ -7,22 +7,55 @@ const file = useFileStore()
 const settings = useSettingsStore()
 const status = useStatusStore()
 
-const time = ref(0)
+function secondsToFormatTime(ms) {
+    const years = Math.floor(ms / (365 * 24 * 60 * 60 * 1000))
+    const yearsms = ms % (365 * 24 * 60 * 60 * 1000)
+
+    const days = Math.floor(yearsms / (24 * 60 * 60 * 1000))
+    const daysms = ms % (24 * 60 * 60 * 1000)
+
+    const hours = Math.floor(daysms / (60 * 60 * 1000))
+    const hoursms = ms % (60 * 60 * 1000)
+
+    const minutes = Math.floor(hoursms / (60 * 1000))
+    const minutesms = ms % (60 * 1000)
+
+    const seconds = Math.floor(minutesms / 1000)
+
+    const milliseconds = toFixedNumber(ms % 1000, 2)
+
+    const yDisplay = years > 0 ? years + (years === 1 ? ' year ' : ' years ') : ''
+    const dDisplay = days > 0 ? days + (days === 1 ? ' day ' : ' days ') : ''
+    const hDisplay = hours > 0 ? hours + (hours === 1 ? ' hour ' : ' hours ') : ''
+    const mDisplay = minutes > 0 ? minutes + (minutes === 1 ? ' minute ' : ' minutes ') : ''
+    const sDisplay = seconds > 0 ? seconds + (seconds === 1 ? ' second ' : ' seconds ') : ''
+    const msDisplay = milliseconds > 0 ? milliseconds + (milliseconds === 1 ? ' millisecond ' : ' milliseconds ') : ''
+
+    return yDisplay + dDisplay + hDisplay + mDisplay + sDisplay + msDisplay
+}
+
 const durationTime = computed(() => toFixedNumber((settings.commandsRange.to - settings.commandsRange.from) * settings.readingSpeed * 1000))
 const durationTimeFormatted = computed(() => secondsToFormatTime(durationTime.value))
-const commandsOnList = computed(() => (settings.bitness === '8' ? 500 : 249))
 
 let timerInterval = null
 
+const time = ref(0)
 function timer() {
     return setInterval(() => {
         time.value++
     }, 1000)
 }
 
+function toHHMMSS(seconds) {
+    return [Math.trunc(seconds / 3600), Math.trunc((seconds % 3600) / 60), seconds % 60]
+        .map((value) => ('0' + value)
+        .slice(-2)).join(':')
+}
+
 // Highlighting the current command in the UI
 let commandIteratorInterval = null
 let currentIteration = 0
+const commandsOnList = computed(() => (settings.bitness === '8' ? 500 : 249))
 
 // Create a new iterator for each play
 function commandIterator() {
@@ -80,33 +113,6 @@ function commandIterator() {
             }
         }, 5)
     }
-}
-
-function secondsToFormatTime(ms) {
-    const years = Math.floor(ms / (365 * 24 * 60 * 60 * 1000))
-    const yearsms = ms % (365 * 24 * 60 * 60 * 1000)
-
-    const days = Math.floor(yearsms / (24 * 60 * 60 * 1000))
-    const daysms = ms % (24 * 60 * 60 * 1000)
-
-    const hours = Math.floor(daysms / (60 * 60 * 1000))
-    const hoursms = ms % (60 * 60 * 1000)
-
-    const minutes = Math.floor(hoursms / (60 * 1000))
-    const minutesms = ms % (60 * 1000)
-
-    const seconds = Math.floor(minutesms / 1000)
-
-    const milliseconds = toFixedNumber(ms % 1000, 2)
-
-    const yDisplay = years > 0 ? years + (years === 1 ? ' year ' : ' years ') : ''
-    const dDisplay = days > 0 ? days + (days === 1 ? ' day ' : ' days ') : ''
-    const hDisplay = hours > 0 ? hours + (hours === 1 ? ' hour ' : ' hours ') : ''
-    const mDisplay = minutes > 0 ? minutes + (minutes === 1 ? ' minute ' : ' minutes ') : ''
-    const sDisplay = seconds > 0 ? seconds + (seconds === 1 ? ' second ' : ' seconds ') : ''
-    const msDisplay = milliseconds > 0 ? milliseconds + (milliseconds === 1 ? ' millisecond ' : ' milliseconds ') : ''
-
-    return yDisplay + dDisplay + hDisplay + mDisplay + sDisplay + msDisplay
 }
 
 function format(number) {
@@ -177,7 +183,8 @@ watch(bynaryInSelectedBitness, (newValue) => {
                 Playing: <span :class="{ playing: status.playing }">{{ status.playing }}</span>
             </div>
             <div class="status__playing-time">
-                Playing time (s): <span>{{ time }}</span>
+                Playing time: <span>{{ toHHMMSS(time) }} | {{ time }}</span>
+            </div>
             </div>
             <div class="status__type">
                 File type: <span>{{ file.type }}</span>
