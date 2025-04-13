@@ -1,15 +1,17 @@
 <script setup>
 import { onMounted, onUnmounted } from 'vue'
-import { useSettingsStore } from '@/stores/globalStore.js'
+import { useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
 import { getDate } from '@/assets/js/helpers.js'
 
 const settings = useSettingsStore()
+const status = useStatusStore()
 
 function setSettings(settingsObject) {
     settings.$patch({
         readingSpeed: settingsObject.readingSpeed,
         waveType: settingsObject.waveType,
         gain: settingsObject.gain,
+        settingsFileName: settingsObject.name,
         transitionType: settingsObject.transitionType,
         frequencyMode: settingsObject.frequencyMode,
         frequenciesRange: {
@@ -110,7 +112,9 @@ function load(settingsInJSON) {
 
     reader.addEventListener('load', (event) => {
         const fromFile = JSON.parse(event.target.result)
+        fromFile.name = settingsInJSON.name
         setSettings(fromFile)
+        status.isSettingsFileActual = true
     })
 
     reader.addEventListener('error', (event) => {
@@ -128,6 +132,10 @@ function getSettingsFromURL() {
         setSettings(fromURL)
     }
 }
+
+settings.$subscribe((mutation, state) => {
+  if (status.isSettingsFileActual) status.isSettingsFileActual = false
+})
 
 onMounted(() => {
     getSettingsFromURL()

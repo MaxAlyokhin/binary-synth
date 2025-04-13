@@ -1,10 +1,11 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { useSettingsStore } from '@/stores/globalStore.js'
+import { useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
 import sendMIDIMessage from '../../assets/js/midiMessages.js'
 import { getBooleanFromString } from '../../assets/js/helpers';
 
 const settings = useSettingsStore()
+const status = useStatusStore()
 
 let midi = null // MIDI object
 const outputs = ref([])
@@ -29,6 +30,7 @@ function onMIDISuccess(midiAccess) {
 
     setTimeout(() => {
         document.querySelector('select[name=port]').selectedIndex = 0
+        status.isSettingsFileActual = true
     })
 }
 

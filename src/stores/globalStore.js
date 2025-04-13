@@ -16,6 +16,7 @@ export const useSettingsStore = defineStore('settings', () => {
     const readingSpeed = ref(0.01)
     const waveType = ref('sine')
     const gain = ref(1)
+    const settingsFileName = ref('')
     const transitionType = ref('immediately')
     const frequencyMode = ref('continuous')
     const frequenciesRange = ref({
@@ -58,6 +59,7 @@ export const useSettingsStore = defineStore('settings', () => {
         readingSpeed,
         waveType,
         gain,
+        settingsFileName,
         transitionType,
         frequencyMode,
         frequenciesRange,
@@ -81,6 +83,7 @@ export const useStatusStore = defineStore('status', () => {
     const currentCommandsBlock = ref([0, 499])
     const currentCommand = ref(0)
     const iterationNumber = ref(0)
+    const isSettingsFileActual = ref(false)
 
-    return { playing, timer, currentCommandsBlock, currentCommand, iterationNumber }
+    return { playing, timer, currentCommandsBlock, currentCommand, iterationNumber, isSettingsFileActual }
 })

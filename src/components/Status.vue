@@ -185,11 +185,8 @@ watch(bynaryInSelectedBitness, (newValue) => {
             <div class="status__name">
                 File name: <span>{{ file.name }}</span>
             </div>
-            <div class="status__size">
-                File size (bytes): <span>{{ format(file.size) }}</span>
-            </div>
-            <div class="status__composition-duration">
-                {{ durationTime >= 50 ? 'Composition duration' : 'Duration of the acoustic pixel' }}: <span>{{ durationTimeFormatted }}</span><span v-show="durationTime <= 50">/ {{ toFixedNumber(1000 / durationTime) }} Hz</span>
+            <div v-show="settings.settingsFileName" class="status__settings-file-name" :class="{ deactive: !status.isSettingsFileActual }">
+                Settings: <span>{{ settings.settingsFileName }}</span>
             </div>
         </div>
         <div class="status__title">Commands from {{ status.currentCommandsBlock[0] }} to {{ status.currentCommandsBlock[1] }}</div>
@@ -307,7 +304,7 @@ watch(bynaryInSelectedBitness, (newValue) => {
     }
 }
 
-.status.deactive {
+.deactive {
     filter: brightness(0.5);
 }
 </style>
