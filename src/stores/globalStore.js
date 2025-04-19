@@ -24,8 +24,8 @@ export const useSettingsStore = defineStore('settings', () => {
         to: 256,
     })
     const notesRange = ref({
-        from: 48,
-        to: 60,
+        from: 36,
+        to: 48,
     })
     const fragment = ref({
         from: 0,

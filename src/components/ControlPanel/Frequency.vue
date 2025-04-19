@@ -121,14 +121,26 @@ watch(midi, () => {
                 <div class="module__container">
                     <span>From</span>
                     <div class="notes-range__inputs">
-                        <input type="number" step="1" name="notes-range-from" class="notes-range-from" v-model="notesFrom" />
+                        <InteractiveInput
+                            :validValue="settings.notesRange.from"
+                            @valueFromInput="notesFrom = $event"
+                            step="1"
+                            keyCode="KeyA"
+                            letter="A"
+                        />
                         <span class="notes-range__from-span">{{ noteNameFrom }}</span>
                     </div>
                 </div>
                 <div class="module__container">
                     <span class="notes-range-to-span key">To</span>
                     <div class="notes-range__inputs">
-                        <input type="number" step="1" name="notes-range-to" class="notes-range-to" v-model="notesTo" />
+                        <InteractiveInput
+                            :validValue="settings.notesRange.to"
+                            @valueFromInput="notesTo = $event"
+                            step="1"
+                            keyCode="KeyS"
+                            letter="S"
+                        />
                         <span class="notes-range__to-span">{{ noteNameTo }}</span>
                     </div>
                 </div>
@@ -145,7 +157,9 @@ watch(midi, () => {
         span {
             position: absolute;
             top: 4px;
-            left: 6px;
+            left: 95px;
+            line-height: 13px;
+            z-index: 10;
         }
 
         input {
