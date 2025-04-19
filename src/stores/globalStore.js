@@ -27,7 +27,7 @@ export const useSettingsStore = defineStore('settings', () => {
         from: 48,
         to: 60,
     })
-    const commandsRange = ref({
+    const fragment = ref({
         from: 0,
         to: 0,
     })
@@ -64,7 +64,7 @@ export const useSettingsStore = defineStore('settings', () => {
         frequencyMode,
         frequenciesRange,
         notesRange,
-        commandsRange,
+        fragment,
         midiMode,
         biquadFilterFrequency,
         biquadFilterQ,
@@ -80,10 +80,10 @@ export const useSettingsStore = defineStore('settings', () => {
 export const useStatusStore = defineStore('status', () => {
     const playing = ref(false)
     const timer = ref(0)
-    const currentCommandsBlock = ref([0, 499])
+    const startAndEndOfList = ref([0, 499])
     const currentCommand = ref(0)
-    const iterationNumber = ref(0)
+    const listID = ref(0)
     const isSettingsFileActual = ref(false)
 
-    return { playing, timer, currentCommandsBlock, currentCommand, iterationNumber, isSettingsFileActual }
+    return { playing, timer, startAndEndOfList, currentCommand, listID, isSettingsFileActual }
 })

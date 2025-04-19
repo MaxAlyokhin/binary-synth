@@ -7,92 +7,15 @@ const settings = useSettingsStore()
 const status = useStatusStore()
 
 function setSettings(settingsObject) {
-    settings.$patch({
-        readingSpeed: settingsObject.readingSpeed,
-        waveType: settingsObject.waveType,
-        gain: settingsObject.gain,
-        settingsFileName: settingsObject.name,
-        transitionType: settingsObject.transitionType,
-        frequencyMode: settingsObject.frequencyMode,
-        frequenciesRange: {
-            from: settingsObject.frequenciesRange.from,
-            to: settingsObject.frequenciesRange.to,
-        },
-        notesRange: {
-            from: settingsObject.notesRange.from,
-            to: settingsObject.notesRange.to,
-        },
-        commandsRange: {
-            from: settingsObject.commandsRange.from,
-            to: settingsObject.commandsRange.to,
-        },
-        biquadFilterFrequency: settingsObject.biquadFilterFrequency,
-        biquadFilterQ: settingsObject.biquadFilterQ,
-        LFO: {
-            enabled: settingsObject.LFO.enabled,
-            type: settingsObject.LFO.type,
-            rate: settingsObject.LFO.rate,
-            depth: settingsObject.LFO.depth,
-        },
-        bitness: settingsObject.bitness,
-        panner: settingsObject.panner,
-        loop: settingsObject.loop,
-        isRandomTimeGap: settingsObject.isRandomTimeGap,
-        midiMode: settingsObject.midiMode,
-        midi: {
-            pitch: settingsObject.midi.pitch,
-            modulation: settingsObject.midi.modulation,
-            velocity: settingsObject.midi.velocity,
-            solidMode: settingsObject.midi.solidMode,
-        },
-    })
+    settings.$patch(settingsObject)
 }
 
 // Settings saving
 function save() {
-    const settingsObject = {
-        readingSpeed: settings.readingSpeed,
-        waveType: settings.waveType,
-        gain: settings.gain,
-        transitionType: settings.transitionType,
-        frequencyMode: settings.frequencyMode,
-        frequenciesRange: {
-            from: settings.frequenciesRange.from,
-            to: settings.frequenciesRange.to,
-        },
-        notesRange: {
-            from: settings.notesRange.from,
-            to: settings.notesRange.to,
-        },
-        commandsRange: {
-            from: settings.commandsRange.from,
-            to: settings.commandsRange.to,
-        },
-        biquadFilterFrequency: settings.biquadFilterFrequency,
-        biquadFilterQ: settings.biquadFilterQ,
-        LFO: {
-            enabled: settings.LFO.enabled,
-            type: settings.LFO.type,
-            rate: settings.LFO.rate,
-            depth: settings.LFO.depth,
-        },
-        bitness: settings.bitness,
-        panner: settings.panner,
-        loop: settings.loop,
-        isRandomTimeGap: settings.isRandomTimeGap,
-        midiMode: settings.midiMode,
-        midi: {
-            pitch: settings.midi.pitch,
-            modulation: settings.midi.modulation,
-            velocity: settings.midi.velocity,
-            solidMode: settings.midi.solidMode,
-        },
-    }
-
     const link = document.createElement('a')
 
     link.href = URL.createObjectURL(
-        new Blob([JSON.stringify(settingsObject, null, 2)], {
+        new Blob([JSON.stringify(settings.$state, null, 2)], {
             type: 'application/json',
         })
     )
@@ -112,7 +35,11 @@ function load(settingsInJSON) {
 
     reader.addEventListener('load', (event) => {
         const fromFile = JSON.parse(event.target.result)
-        fromFile.name = settingsInJSON.name
+        fromFile.settingsFileName = settingsInJSON.name
+
+        // Для обратной совместимости после ренейма commandsRange на fragment
+        if (!fromFile.fragment) fromFile.fragment = fromFile.commandsRange
+
         setSettings(fromFile)
         status.isSettingsFileActual = true
     })

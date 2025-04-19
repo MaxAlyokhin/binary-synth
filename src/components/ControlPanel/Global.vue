@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch, nextTick } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useFileStore, useSettingsStore } from '@/stores/globalStore.js'
 import Frequency from './Frequency.vue'
 import InteractiveInput from './InteractiveInput.vue'
@@ -61,16 +61,16 @@ watch(readingSpeed, (newValue) => {
     }
 })
 
-const commandsFrom = ref(null)
-watch(commandsFrom, (newValue) => {
+const fragmentFrom = ref(null)
+watch(fragmentFrom, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
-        settings.commandsRange.from = 0
-    } else if (newValue >= settings.commandsRange.to) {
-        settings.commandsRange.from = settings.commandsRange.to - 1
+        settings.fragment.from = 0
+    } else if (newValue >= settings.fragment.to) {
+        settings.fragment.from = settings.fragment.to - 1
     } else {
-        settings.commandsRange.from = newValue
+        settings.fragment.from = newValue
     }
 })
 
@@ -79,19 +79,19 @@ const commandsCount = computed(() => {
     if (file.loaded) return settings.bitness === '8' ? file.binary8.length - 1 : file.binary16.length - 1
 })
 watch(commandsCount, (newValue) => {
-    if (settings.commandsRange.to >= newValue || settings.commandsRange.to === 0) settings.commandsRange.to = newValue
+    if (settings.fragment.to >= newValue || settings.fragment.to === 0) settings.fragment.to = newValue
 })
 
-let commandsTo = ref(null)
-watch(commandsTo, (newValue) => {
+let fragmentTo = ref(null)
+watch(fragmentTo, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue > commandsCount.value) {
-        settings.commandsRange.to = commandsCount.value
-    } else if (newValue <= settings.commandsRange.from) {
-        settings.commandsRange.to = settings.commandsRange.from + 1
+        settings.fragment.to = commandsCount.value
+    } else if (newValue <= settings.fragment.from) {
+        settings.fragment.to = settings.fragment.from + 1
     } else {
-        settings.commandsRange.to = newValue
+        settings.fragment.to = newValue
     }
 })
 </script>
@@ -154,14 +154,14 @@ watch(commandsTo, (newValue) => {
         </div>
 
         <div class="module__container module__container--block">
-            <span class="key">Commands range</span>
+            <span class="key">Fragment</span>
 
             <div class="module__wrapper">
                 <div class="module__container">
                     <span>From</span>
                     <InteractiveInput
-                        :validValue="settings.commandsRange.from"
-                        @valueFromInput="commandsFrom = $event"
+                        :validValue="settings.fragment.from"
+                        @valueFromInput="fragmentFrom = $event"
                         step="1"
                         keyCode="KeyD"
                         letter="D"
@@ -170,8 +170,8 @@ watch(commandsTo, (newValue) => {
                 <div class="module__container">
                     <span>To</span>
                     <InteractiveInput
-                        :validValue="settings.commandsRange.to"
-                        @valueFromInput="commandsTo = $event"
+                        :validValue="settings.fragment.to"
+                        @valueFromInput="fragmentTo = $event"
                         step="1"
                         keyCode="KeyF"
                         letter="F"

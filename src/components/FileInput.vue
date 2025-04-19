@@ -23,9 +23,9 @@ reader.addEventListener('loadend', async (event) => {
     isLoading.value = false
 
     if (event.target.result.byteLength <= 499) {
-        status.currentCommandsBlock[1] = event.target.result.byteLength - 1
+        status.startAndEndOfList[1] = event.target.result.byteLength - 1
     } else {
-        status.currentCommandsBlock = [0, 499]
+        status.startAndEndOfList = [0, 499]
     }
 
     // For files with an odd number of bytes we cannot create a Uint16Array

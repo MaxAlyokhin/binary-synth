@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import { useSettingsStore } from '@/stores/globalStore.js'
-import InteractiveInput from './InteractiveInput.vue'
+import InteractiveInput from '@/components/ControlPanel/InteractiveInput.vue'
 
 const settings = useSettingsStore()
 

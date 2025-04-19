@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import { useFileStore, useStatusStore, useSettingsStore } from '@/stores/globalStore.js'
-import { toFixedNumber } from '../assets/js/helpers.js'
+import { toFixedNumber } from '@/assets/js/helpers.js'
 
 const file = useFileStore()
 const settings = useSettingsStore()
@@ -34,7 +34,7 @@ function secondsToFormatTime(ms) {
     return yDisplay + dDisplay + hDisplay + mDisplay + sDisplay + msDisplay
 }
 
-const durationTime = computed(() => toFixedNumber((settings.commandsRange.to - settings.commandsRange.from) * settings.readingSpeed * 1000))
+const durationTime = computed(() => toFixedNumber((settings.fragment.to - settings.fragment.from) * settings.readingSpeed * 1000))
 const durationTimeFormatted = computed(() => secondsToFormatTime(durationTime.value))
 
 let timerInterval = null
@@ -63,8 +63,8 @@ function commandIterator() {
     if (readingSpeed.value >= 0.005) {
         return setInterval(() => {
             // If we have one sheet
-            if (settings.commandsRange.to - settings.commandsRange.from <= commandsOnList.value) {
-                if (status.currentCommand >= settings.commandsRange.to - settings.commandsRange.from) {
+            if (settings.fragment.to - settings.fragment.from <= commandsOnList.value) {
+                if (status.currentCommand >= settings.fragment.to - settings.fragment.from) {
                     status.currentCommand = 0
                 } else {
                     if (settings.isRandomTimeGap && settings.midiMode) {
@@ -75,10 +75,10 @@ function commandIterator() {
                 }
             }
             // If multiple sheets
-            // We can define the transition to the next instruction portion when status.iterationNumber changes
+            // We can define the transition to the next instruction portion when status.listID changes
             else {
-                if (currentIteration !== status.iterationNumber) {
-                    currentIteration = status.iterationNumber
+                if (currentIteration !== status.listID) {
+                    currentIteration = status.listID
                     status.currentCommand = 0
                     status.currentCommand++
                 } else {
@@ -94,18 +94,18 @@ function commandIterator() {
         // If the speed is high, we display the active command every 5 commands.
         return setInterval(() => {
             // If we have one sheet
-            if (settings.commandsRange.to - settings.commandsRange.from <= commandsOnList.value) {
-                if (status.currentCommand >= settings.commandsRange.to - settings.commandsRange.from) {
+            if (settings.fragment.to - settings.fragment.from <= commandsOnList.value) {
+                if (status.currentCommand >= settings.fragment.to - settings.fragment.from) {
                     status.currentCommand = 0
                 } else {
                     status.currentCommand += 5 * (readingSpeed.value * 1000)
                 }
             }
             // If multiple sheets
-            // We can define the transition to the next instruction portion when status.iterationNumber changes
+            // We can define the transition to the next instruction portion when status.listID changes
             else {
-                if (currentIteration !== status.iterationNumber) {
-                    currentIteration = status.iterationNumber
+                if (currentIteration !== status.listID) {
+                    currentIteration = status.listID
                     status.currentCommand = 0
                 } else {
                     status.currentCommand += 5 * (readingSpeed.value * 1000)
@@ -155,23 +155,23 @@ watch(readingSpeed, () => {
 const bynaryInSelectedBitness = computed(() => (settings.bitness === '8' ? file.binary8 : file.binary16))
 watch(bynaryInSelectedBitness, (newValue) => {
     if (settings.bitness === '8') {
-        if (settings.commandsRange.to - settings.commandsRange.from >= 499) {
-            status.currentCommandsBlock = [0, 499]
+        if (settings.fragment.to - settings.fragment.from >= 499) {
+            status.startAndEndOfList = [0, 499]
         } else {
-            status.currentCommandsBlock[1] = settings.commandsRange.to
+            status.startAndEndOfList[1] = settings.fragment.to
         }
 
-        if (newValue.length <= 499) status.currentCommandsBlock[1] = newValue.length
+        if (newValue.length <= 499) status.startAndEndOfList[1] = newValue.length
     }
 
     if (settings.bitness === '16') {
-        if (settings.commandsRange.to - settings.commandsRange.from >= 249) {
-            status.currentCommandsBlock = [0, 249]
+        if (settings.fragment.to - settings.fragment.from >= 249) {
+            status.startAndEndOfList = [0, 249]
         } else {
-            status.currentCommandsBlock[1] = settings.commandsRange.to
+            status.startAndEndOfList[1] = settings.fragment.to
         }
 
-        if (newValue.length <= 249) status.currentCommandsBlock[1] = newValue.length
+        if (newValue.length <= 249) status.startAndEndOfList[1] = newValue.length
     }
 })
 </script>
@@ -200,13 +200,13 @@ watch(bynaryInSelectedBitness, (newValue) => {
                 Settings: <span>{{ settings.settingsFileName }}</span>
             </div>
         </div>
-        <div class="status__title">Commands from {{ status.currentCommandsBlock[0] }} to {{ status.currentCommandsBlock[1] }}</div>
+        <div class="status__title">Fragment from {{ status.startAndEndOfList[0] }} to {{ status.startAndEndOfList[1] }}</div>
         <div class="status__commands" v-if="file.loaded" :class="{ 'status__commands--16': settings.bitness === '16' }">
             <div
                 class="status__command"
                 v-for="(command, index) in bynaryInSelectedBitness.slice(
-                    status.currentCommandsBlock[0],
-                    status.currentCommandsBlock[1] + 1
+                    status.startAndEndOfList[0],
+                    status.startAndEndOfList[1] + 1
                 )"
                 :id="index"
                 :class="{ active: index === status.currentCommand }"
