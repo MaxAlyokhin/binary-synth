@@ -55,7 +55,7 @@ function toHHMMSS(seconds) {
 // Highlighting the current command in the UI
 let commandIteratorInterval = null
 let currentIteration = 0
-const commandsOnList = computed(() => (settings.bitness === '8' ? 500 : 249))
+const commandsOnList = computed(() => (settings.bitness === '8' ? 500 : 250))
 
 // Create a new iterator for each play
 function commandIterator() {
