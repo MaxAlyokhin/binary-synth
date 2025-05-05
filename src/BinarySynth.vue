@@ -14,7 +14,7 @@ const file = useFileStore()
             <FileInput />
             <ControlPanel />
             <div class="about">
-                <a href="https://github.com/MaxAlyokhin/binary-synth" target="_blank" rel="noopener noreferrer">About and sources (v1.10.0)</a>
+                <a href="https://github.com/MaxAlyokhin/binary-synth" target="_blank" rel="noopener noreferrer">About and sources (v1.10.1)</a>
                 <a href="https://dfap.stranno.su" target="_blank" rel="noopener noreferrer">by DFAP</a>
             </div>
         </div>
@@ -32,10 +32,13 @@ const file = useFileStore()
     justify-content: center;
 
     @media (max-width: 1023px) {
-        flex-direction: column;
         justify-content: unset;
         width: auto;
         padding: 20px;
+    }
+
+    @media (max-width: 675px) {
+        flex-direction: column;
     }
 
     &--stub {

@@ -269,7 +269,7 @@ watch(bynaryInSelectedBitness, (newValue) => {
         top: 10px;
         font-size: 15px;
 
-        @media (max-width: 1024px) {
+        @media (max-width: 1110px) {
             font-size: 12px;
         }
 
