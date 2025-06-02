@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
 import { getDate } from '@/assets/js/helpers.js'
 
@@ -8,6 +8,7 @@ const status = useStatusStore()
 
 function setSettings(settingsObject) {
     settings.$patch(settingsObject)
+    status.isSettingsFileActual = true
 }
 
 // Settings saving
@@ -28,20 +29,23 @@ function save() {
 
 // Settings loading
 const reader = new FileReader()
+let fromFile = {}
+const isHaveSettingsFile = ref(false)
 function load(settingsInJSON) {
     if (settingsInJSON.type !== 'application/json') throw new Error('JSON file is required')
 
     reader.readAsText(settingsInJSON)
 
     reader.addEventListener('load', (event) => {
-        const fromFile = JSON.parse(event.target.result)
+        fromFile = JSON.parse(event.target.result)
         fromFile.settingsFileName = settingsInJSON.name
 
         // Для обратной совместимости после ренейма commandsRange на fragment
         if (!fromFile.fragment) fromFile.fragment = fromFile.commandsRange
 
         setSettings(fromFile)
-        status.isSettingsFileActual = true
+
+        if (!isHaveSettingsFile.value) isHaveSettingsFile.value = true
     })
 
     reader.addEventListener('error', (event) => {
@@ -58,6 +62,10 @@ function getSettingsFromURL() {
         const fromURL = JSON.parse(decodeURI(window.location.hash.slice(1)))
         setSettings(fromURL)
     }
+}
+
+function restore() {
+    setSettings(fromFile)
 }
 
 settings.$subscribe((mutation, state) => {
@@ -78,8 +86,10 @@ onUnmounted(() => {
     <div class="control__playing">
         <label class="control__play button" @change="(event) => (event.target.files.length ? load(event.target.files[0]) : false)">
             <input type="file" />
-            Load settings
+            {{ isHaveSettingsFile ? "Load" : "Load settings" }}
         </label>
-        <button class="control__play button" @click="save">Save settings</button>
+        <button class="control__play button" @click="save">{{ isHaveSettingsFile ? "Save" : "Save settings" }}</button>
+
+        <button v-if="isHaveSettingsFile" :class="{ 'deactive': status.isSettingsFileActual }" class="control__play button" @click="restore">Restore</button>
     </div>
 </template>

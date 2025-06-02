@@ -147,7 +147,7 @@ To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https:
 You can save your settings in two ways:
 
 - via a URL link. When you click in the address bar of your browser, the application automatically generates a link to which the settings are written. You can copy it and when you open the link, the settings will be applied immediately, all you have to do is download a file for sound synthesis.
-- through a file. The interface includes Save settings and Load settings buttons, which allow you to save or load a settings file to or from your computer.
+- through a file. The interface includes Save / Load / Restore settings buttons, which allow you to save or load a settings file to or from your computer and also restore initial settings.
 
 ## Run locally and build the project
 <a id="run"></a>
