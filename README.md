@@ -12,7 +12,7 @@ _Audio synthesis from binary code of any file_
 
 _<a href="README_RU.md">Эта страница есть также на русском</a>_
 
-A web-synthesizer that generates sound from the binary code of any files. It can synthesize sound directly in the browser, or be a generator of MIDI messages to external devices or DAWs, turning any file into a score. All the application code is written in Javascript and along with everything you need is packed into a single .html file of about 750kb. The synthesizer doesn't need internet, it can be downloaded and run locally on any device with a browser.
+A web-synthesizer that generates sound from the binary code of any files (databending-instrument). It can synthesize sound directly in the browser, or be a generator of MIDI messages to external devices or DAWs, turning any file into a score. All the application code is written in Javascript and along with everything you need is packed into a single .html file of about 750kb. The synthesizer doesn't need internet, it can be downloaded and run locally on any device with a browser.
 
 The application reads the file sequentially, and due to the high speed of reading and random deviation of reading duration, we can get quite unpredictable generation of timbre nuances, and at certain settings we can switch to granular synthesis.
 
