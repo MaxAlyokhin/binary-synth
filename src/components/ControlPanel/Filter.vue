@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch } from 'vue'
 import { useSettingsStore } from '@/stores/globalStore.js'
 import InteractiveInput from './InteractiveInput.vue'
 
@@ -41,6 +41,7 @@ watch(biquadFilterQ, (newValue) => {
                 <InteractiveInput
                     :validValue="settings.biquadFilterFrequency"
                     @valueFromInput="biquadFilterFrequency = $event"
+                    @restore="biquadFilterFrequency = settings.biquadFilterFrequency"
                     step="0.1"
                     keyCode="KeyZ"
                     letter="Z"
@@ -51,6 +52,7 @@ watch(biquadFilterQ, (newValue) => {
                 <InteractiveInput
                     :validValue="settings.biquadFilterQ"
                     @valueFromInput="biquadFilterQ = $event"
+                    @restore="biquadFilterQ = settings.LFO.biquadFilterQ"
                     step="0.01"
                     keyCode="KeyX"
                     letter="X"

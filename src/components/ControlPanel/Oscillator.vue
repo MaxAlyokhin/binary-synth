@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch } from 'vue'
 import { useSettingsStore } from '@/stores/globalStore.js'
 import InteractiveInput from '@/components/ControlPanel/InteractiveInput.vue'
 
@@ -27,6 +27,7 @@ watch(gain, (newValue) => {
                 <InteractiveInput
                     :validValue="settings.gain"
                     @valueFromInput="gain = $event"
+                    @restore="gain = settings.gain"
                     step="0.0001"
                     keyCode="KeyW"
                     letter="W"

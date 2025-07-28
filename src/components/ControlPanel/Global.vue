@@ -82,7 +82,7 @@ watch(commandsCount, (newValue) => {
     if (settings.fragment.to >= newValue || settings.fragment.to === 0) settings.fragment.to = newValue
 })
 
-let fragmentTo = ref(null)
+const fragmentTo = ref(null)
 watch(fragmentTo, (newValue) => {
     if (isNaN(newValue)) {
         return
@@ -106,6 +106,7 @@ watch(fragmentTo, (newValue) => {
                 <InteractiveInput
                     :validValue="settings.readingSpeed"
                     @valueFromInput="readingSpeed = $event"
+                    @restore="readingSpeed = settings.readingSpeed"
                     step="0.00001"
                     keyCode="KeyQ"
                     letter="Q"
@@ -145,6 +146,7 @@ watch(fragmentTo, (newValue) => {
                     <InteractiveInput
                         :validValue="settings.panner"
                         @valueFromInput="panner = $event"
+                        @restore="panner = settings.panner"
                         step=".001"
                         keyCode="KeyG"
                         letter="G"
@@ -162,6 +164,7 @@ watch(fragmentTo, (newValue) => {
                     <InteractiveInput
                         :validValue="settings.fragment.from"
                         @valueFromInput="fragmentFrom = $event"
+                        @restore="fragmentFrom = settings.fragment.from"
                         step="1"
                         keyCode="KeyD"
                         letter="D"
@@ -172,6 +175,7 @@ watch(fragmentTo, (newValue) => {
                     <InteractiveInput
                         :validValue="settings.fragment.to"
                         @valueFromInput="fragmentTo = $event"
+                        @restore="fragmentTo = settings.fragment.to"
                         step="1"
                         keyCode="KeyF"
                         letter="F"

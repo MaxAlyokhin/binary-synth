@@ -101,6 +101,7 @@ watch(midi, () => {
                     <InteractiveInput
                         :validValue="settings.frequenciesRange.from"
                         @valueFromInput="frequencyFrom = $event"
+                        @restore="frequencyFrom = settings.frequenciesRange.from"
                         step="0.1"
                         keyCode="KeyA"
                         letter="A"
@@ -111,6 +112,7 @@ watch(midi, () => {
                     <InteractiveInput
                         :validValue="settings.frequenciesRange.to"
                         @valueFromInput="frequencyTo = $event"
+                        @restore="frequencyTo = settings.frequenciesRange.to"
                         step="0.1"
                         keyCode="KeyS"
                         letter="S" />
@@ -124,6 +126,7 @@ watch(midi, () => {
                         <InteractiveInput
                             :validValue="settings.notesRange.from"
                             @valueFromInput="notesFrom = $event"
+                            @restore="notesFrom = settings.notesRange.from"
                             step="1"
                             keyCode="KeyA"
                             letter="A"
@@ -137,6 +140,7 @@ watch(midi, () => {
                         <InteractiveInput
                             :validValue="settings.notesRange.to"
                             @valueFromInput="notesTo = $event"
+                            @restore="notesTo = settings.notesRange.to"
                             step="1"
                             keyCode="KeyS"
                             letter="S"

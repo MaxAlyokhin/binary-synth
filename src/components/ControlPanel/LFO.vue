@@ -76,6 +76,7 @@ watch(rate, (newValue) => {
                 <InteractiveInput
                     :validValue="settings.LFO.rate"
                     @valueFromInput="rate = $event"
+                    @restore="rate = settings.LFO.rate"
                     step="0.01"
                     keyCode="KeyC"
                     letter="C"
@@ -86,6 +87,7 @@ watch(rate, (newValue) => {
                 <InteractiveInput
                     :validValue="settings.LFO.depth"
                     @valueFromInput="depth = $event"
+                    @restore="depth = settings.LFO.depth"
                     step="0.0001"
                     keyCode="KeyV"
                     letter="V"

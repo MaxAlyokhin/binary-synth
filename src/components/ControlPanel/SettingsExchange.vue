@@ -66,6 +66,7 @@ function getSettingsFromURL() {
 
 function restore() {
     setSettings(fromFile)
+    settings.restore()
 }
 
 settings.$subscribe((mutation, state) => {
