@@ -1,14 +1,17 @@
 <script setup>
 import { ref, onMounted, onBeforeMount } from 'vue'
-import { useFileStore, useStatusStore } from '@/stores/globalStore.js'
+import { useFileStore, useStatusStore, useSettingsStore } from '@/stores/globalStore.js'
 
 // Receives the file
 // Writes the file representation and information about the file to the store
-const reader = new FileReader()
 const file = useFileStore()
 const status = useStatusStore()
+const settings = useSettingsStore()
+
 const isDropping = ref(false)
 const isLoading = ref(false)
+
+const reader = new FileReader()
 
 reader.addEventListener('progress', (event) => {
     isLoading.value = true
@@ -25,7 +28,7 @@ reader.addEventListener('loadend', async (event) => {
     if (event.target.result.byteLength <= 499) {
         status.startAndEndOfList[1] = event.target.result.byteLength - 1
     } else {
-        status.startAndEndOfList = [0, 499]
+        status.startAndEndOfList = [settings.fragment.from, settings.fragment.to]
     }
 
     // For files with an odd number of bytes we cannot create a Uint16Array

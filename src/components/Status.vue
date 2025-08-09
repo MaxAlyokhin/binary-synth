@@ -154,9 +154,9 @@ const bynaryInSelectedBitness = computed(() => (settings.bitness === '8' ? file.
 watch(bynaryInSelectedBitness, (newValue) => {
     if (settings.bitness === '8') {
         if (settings.fragment.to - settings.fragment.from >= 499) {
-            status.startAndEndOfList = [0, 499]
+            status.startAndEndOfList = [settings.fragment.from, settings.fragment.from + 499]
         } else {
-            status.startAndEndOfList[1] = settings.fragment.to
+            status.startAndEndOfList = [settings.fragment.from, settings.fragment.to]
         }
 
         if (newValue.length <= 499) status.startAndEndOfList[1] = newValue.length
@@ -164,9 +164,9 @@ watch(bynaryInSelectedBitness, (newValue) => {
 
     if (settings.bitness === '16') {
         if (settings.fragment.to - settings.fragment.from >= 249) {
-            status.startAndEndOfList = [0, 249]
+            status.startAndEndOfList = [settings.fragment.from, settings.fragment.from + 249]
         } else {
-            status.startAndEndOfList[1] = settings.fragment.to
+            status.startAndEndOfList = [settings.fragment.from, settings.fragment.to]
         }
 
         if (newValue.length <= 249) status.startAndEndOfList[1] = newValue.length

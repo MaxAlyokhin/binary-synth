@@ -29,7 +29,7 @@ export const useSettingsStore = defineStore('settings', () => {
     })
     const fragment = ref({
         from: 0,
-        to: 0,
+        to: 499,
     })
     const biquadFilterFrequency = ref(10000.0)
     const biquadFilterQ = ref(1)
