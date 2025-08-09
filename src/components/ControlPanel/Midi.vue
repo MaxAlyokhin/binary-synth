@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
 import sendMIDIMessage from '../../assets/js/midiMessages.js'
 import { getBooleanFromString } from '../../assets/js/helpers';
@@ -80,24 +80,6 @@ watch(port, (newValue) => {
 watch([port, () => settings.midi.channel], () => {
     sendMIDIMessage.modulation(settings.midi.modulation, settings.midi.port, settings.midi.channel)
 })
-
-const solidMode = computed({
-    get() {
-        return settings.midi.solidMode
-    },
-    set(value) {
-        settings.midi.solidMode = getBooleanFromString(value)
-    }
-})
-
-const lastNoteOn = computed({
-    get() {
-        return settings.midi.lastNoteOn
-    },
-    set(value) {
-        settings.midi.lastNoteOn = getBooleanFromString(value)
-    }
-})
 </script>
 
 <template>
@@ -159,11 +141,11 @@ const lastNoteOn = computed({
             <span>Solid mode</span>
             <div class="module__container module__container--radio">
                 <div class="radio-element">
-                    <input type="radio" name="solidMode" id="solidMode-yes" value="true" checked v-model="solidMode" />
+                    <input type="radio" name="solidMode" id="solidMode-yes" :value="true" checked v-model="settings.midi.solidMode" />
                     <label for="solidMode-yes">Yes</label>
                 </div>
                 <div class="radio-element">
-                    <input type="radio" name="solidMode" id="solidMode-no" value="false" v-model="solidMode" />
+                    <input type="radio" name="solidMode" id="solidMode-no" :value="false" v-model="settings.midi.solidMode" />
                     <label for="solidMode-no">No</label>
                 </div>
             </div>
@@ -173,11 +155,11 @@ const lastNoteOn = computed({
             <span>Last noteOn mode</span>
             <div class="module__container module__container--radio">
                 <div class="radio-element">
-                    <input type="radio" name="lastNoteOn" id="lastNoteOn-yes" value="true" checked v-model="lastNoteOn" />
+                    <input type="radio" name="lastNoteOn" id="lastNoteOn-yes" :value="true" checked v-model="settings.midi.lastNoteOn" />
                     <label for="lastNoteOn-yes">Yes</label>
                 </div>
                 <div class="radio-element">
-                    <input type="radio" name="lastNoteOn" id="lastNoteOn-no" value="false" v-model="lastNoteOn" />
+                    <input type="radio" name="lastNoteOn" id="lastNoteOn-no" :value="false" v-model="settings.midi.lastNoteOn" />
                     <label for="lastNoteOn-no">No</label>
                 </div>
             </div>

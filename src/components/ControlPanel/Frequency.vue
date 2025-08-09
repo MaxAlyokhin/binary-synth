@@ -1,77 +1,59 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useSettingsStore } from '@/stores/globalStore.js'
 import { getNoteName } from '../../assets/js/notes.js'
 import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
-const frequencyFrom = ref(null)
-watch(frequencyFrom, (newValue) => {
+watch(() => settings.frequenciesRange.from, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
         settings.frequenciesRange.from = 0
     } else if (newValue > (settings.midiMode ? 12543 : 24000) || newValue >= settings.frequenciesRange.to) {
         settings.frequenciesRange.from = settings.frequenciesRange.to - 1
-    } else {
-        settings.frequenciesRange.from = newValue
     }
 })
 
-const frequencyTo = ref(null)
-watch(frequencyTo, (newValue) => {
+watch(() => settings.frequenciesRange.to, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue > (settings.midiMode ? 12543 : 24000)) {
         settings.frequenciesRange.to = settings.midiMode ? 12543 : 24000
     } else if (newValue <= settings.frequenciesRange.from) {
         settings.frequenciesRange.to = settings.frequenciesRange.from + 1
-    } else {
-        settings.frequenciesRange.to = newValue
     }
 })
 
 const noteNameFrom = computed(() => getNoteName(Math.round(settings.notesRange.from)))
 const noteNameTo = computed(() => getNoteName(Math.round(settings.notesRange.to)))
 
-const notesFrom = ref(settings.notesRange.from)
-watch(notesFrom, (newValue) => {
+watch(() => settings.notesRange.from, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
-        notesFrom.value = 0
-        settings.notesRange.from = notesFrom.value
+        settings.notesRange.from = 0
     } else if (newValue > (settings.midiMode ? 127 : 131) || newValue >= settings.notesRange.to) {
-        notesFrom.value = settings.notesRange.to - 1
-        settings.notesRange.from = notesFrom.value
-    } else {
-        notesFrom.value = newValue
-        settings.notesRange.from = notesFrom.value
+        settings.notesRange.from = settings.notesRange.to - 1
     }
 })
 
-const notesTo = ref(settings.notesRange.to)
-watch(notesTo, (newValue) => {
+watch(() => settings.notesRange.to, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue >= (settings.midiMode ? 127 : 131)) {
-        notesTo.value = settings.midiMode ? 127 : 131
-        settings.notesRange.to = notesTo.value
+        settings.notesRange.to = settings.midiMode ? 127 : 131
     } else if (newValue <= settings.notesRange.from) {
-        notesTo.value = settings.notesRange.from + 1
-        settings.notesRange.to = notesTo.value
-    } else {
-        notesTo.value = newValue
-        settings.notesRange.to = notesTo.value
+        settings.notesRange.to = settings.notesRange.from + 1
     }
 })
 
 watch(() => settings.midiMode, () => {
-    if (frequencyFrom.value >= 12542) frequencyFrom.value = 12542
-    if (frequencyTo.value >= 12543) frequencyTo.value = 12543
-    if (notesFrom.value >= 126) notesFrom.value = 126
-    if (notesTo.value >= 127) notesTo.value = 127
+    if (settings.frequenciesRange.from >= 12542) settings.frequenciesRange.from = 12542
+    if (settings.frequenciesRange.to >= 12543) settings.frequenciesRange.to = 12543
+    if (settings.notesRange.from >= 126) settings.notesRange.from = 126
+    if (settings.notesRange.to >= 127) settings.notesRange.to = 127
 })
 </script>
 
@@ -99,8 +81,7 @@ watch(() => settings.midiMode, () => {
                     <span>From</span>
                     <InteractiveInput
                         :validValue="settings.frequenciesRange.from"
-                        @valueFromInput="frequencyFrom = $event"
-                        @restore="frequencyFrom = settings.frequenciesRange.from"
+                        @valueFromInput="settings.frequenciesRange.from = $event"
                         step="0.1"
                         keyCode="KeyA"
                         letter="A"
@@ -110,8 +91,7 @@ watch(() => settings.midiMode, () => {
                     <span class="freq-to key">To</span>
                     <InteractiveInput
                         :validValue="settings.frequenciesRange.to"
-                        @valueFromInput="frequencyTo = $event"
-                        @restore="frequencyTo = settings.frequenciesRange.to"
+                        @valueFromInput="settings.frequenciesRange.to = $event"
                         step="0.1"
                         keyCode="KeyS"
                         letter="S" />
@@ -124,8 +104,7 @@ watch(() => settings.midiMode, () => {
                     <div class="notes-range__inputs">
                         <InteractiveInput
                             :validValue="settings.notesRange.from"
-                            @valueFromInput="notesFrom = $event"
-                            @restore="notesFrom = settings.notesRange.from"
+                            @valueFromInput="settings.notesRange.from = $event"
                             step="1"
                             keyCode="KeyA"
                             letter="A"
@@ -138,8 +117,7 @@ watch(() => settings.midiMode, () => {
                     <div class="notes-range__inputs">
                         <InteractiveInput
                             :validValue="settings.notesRange.to"
-                            @valueFromInput="notesTo = $event"
-                            @restore="notesTo = settings.notesRange.to"
+                            @valueFromInput="settings.notesRange.to = $event"
                             step="1"
                             keyCode="KeyS"
                             letter="S"

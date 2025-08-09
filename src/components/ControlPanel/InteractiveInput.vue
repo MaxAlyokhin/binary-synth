@@ -1,11 +1,9 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { decimalPlaces, toFixedNumber } from '../../assets/js/helpers.js'
-import { useSettingsStore } from '@/stores/globalStore.js'
 
-const emits = defineEmits(['valueFromInput', 'restore'])
+const emits = defineEmits(['valueFromInput'])
 const props = defineProps(['step', 'validValue', 'keyCode', 'letter'])
-const settings = useSettingsStore()
 
 const inputValue = ref(props.validValue)
 const input = ref(null)
@@ -110,13 +108,6 @@ function checkComma(event) {
         return Number(event.target.value)
     }
 }
-
-// For resetting local watching vars on parent component
-settings.$onAction(({ name, store, args, after, onError }) => {
-    if (name === 'restore') {
-        emits('restore')
-    }
-})
 </script>
 
 <template>

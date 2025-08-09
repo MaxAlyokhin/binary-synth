@@ -20,18 +20,6 @@ export function getRandomNumber(min, max) {
 }
 
 /**
- * Converts 'true' || 'false' strings to the corresponding boolean value
- * @param {String} value - conversion string
- * @return {Boolean} Returns a boolean value
- */
-export function getBooleanFromString(value) {
-    // prettier-ignore
-    return value === 'true'
-        ? true
-        : false
-}
-
-/**
  * The function performs integer division
  * @param {Number} value - what to divide
  * @param {Number} by - by what
@@ -58,4 +46,4 @@ export function decimalPlaces(x) {
 export function getDate() {
     let date = new Date()
     return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}`
-  }
+}

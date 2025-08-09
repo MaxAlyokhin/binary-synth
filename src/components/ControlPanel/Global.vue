@@ -1,76 +1,51 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useFileStore, useSettingsStore } from '@/stores/globalStore.js'
 import Frequency from './Frequency.vue'
 import InteractiveInput from './InteractiveInput.vue'
-import { getBooleanFromString } from '../../assets/js/helpers.js'
 
 const settings = useSettingsStore()
 const file = useFileStore()
 
-const loop = computed({
-    get() {
-        return settings.loop
-    },
-    set(value) {
-        settings.loop = getBooleanFromString(value)
-    },
-})
-
-const midi = computed({
-    get() {
-        return settings.midiMode
-    },
-    set(value) {
-        settings.midiMode = getBooleanFromString(value)
-    },
-})
-watch(midi, (newValue) => {
-    if (settings.midiMode && settings.readingSpeed <= 0.005) {
+watch(() => settings.midiMode, (newValue) => {
+    if (newValue && settings.readingSpeed <= 0.005) {
         settings.readingSpeed = 0.005
     }
 })
 
-const gap = computed({
-    get() {
-        return settings.isRandomTimeGap
-    },
-    set(value) {
-        settings.isRandomTimeGap = getBooleanFromString(value)
-    },
-})
-
-const panner = ref(null)
-watch(panner, (newValue) => {
+watch(() => settings.panner, (newValue) => {
     if (newValue <= -1) {
         settings.panner = -1
     } else if (newValue >= 1) {
         settings.panner = 1
-    } else {
-        settings.panner = newValue
     }
 })
 
-const readingSpeed = ref(null)
-watch(readingSpeed, (newValue) => {
+watch(() => settings.readingSpeed, (newValue) => {
     if (settings.midiMode && newValue <= 0.005) {
         settings.readingSpeed = 0.005
     } else {
         if (newValue <= 0) settings.readingSpeed = 0.00001
-        else settings.readingSpeed = newValue
     }
 })
 
-const fragmentFrom = ref(null)
-watch(fragmentFrom, (newValue) => {
+watch(() => settings.fragment.from, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
         settings.fragment.from = 0
     } else if (newValue >= settings.fragment.to) {
         settings.fragment.from = settings.fragment.to - 1
-    } else {
-        settings.fragment.from = newValue
+    }
+})
+
+watch(() => settings.fragment.to, (newValue) => {
+    if (isNaN(newValue)) {
+        return
+    } else if (newValue > commandsCount.value) {
+        settings.fragment.to = commandsCount.value
+    } else if (newValue <= settings.fragment.from) {
+        settings.fragment.to = settings.fragment.from + 1
     }
 })
 
@@ -79,20 +54,7 @@ const commandsCount = computed(() => {
     if (file.loaded) return settings.bitness === '8' ? file.binary8.length - 1 : file.binary16.length - 1
 })
 watch(commandsCount, (newValue) => {
-    if (settings.fragment.to >= newValue || settings.fragment.to === 0) settings.fragment.to = newValue
-})
-
-const fragmentTo = ref(null)
-watch(fragmentTo, (newValue) => {
-    if (isNaN(newValue)) {
-        return
-    } else if (newValue > commandsCount.value) {
-        settings.fragment.to = commandsCount.value
-    } else if (newValue <= settings.fragment.from) {
-        settings.fragment.to = settings.fragment.from + 1
-    } else {
-        settings.fragment.to = newValue
-    }
+    if (settings.fragment.to >= newValue || settings.fragment.to === 499) settings.fragment.to = newValue
 })
 </script>
 
@@ -105,8 +67,7 @@ watch(fragmentTo, (newValue) => {
                 <span class="filter-freq key">Reading speed (s)</span>
                 <InteractiveInput
                     :validValue="settings.readingSpeed"
-                    @valueFromInput="readingSpeed = $event"
-                    @restore="readingSpeed = settings.readingSpeed"
+                    @valueFromInput="settings.readingSpeed = $event"
                     step="0.00001"
                     keyCode="KeyQ"
                     letter="Q"
@@ -145,8 +106,7 @@ watch(fragmentTo, (newValue) => {
                 <div class="module__container">
                     <InteractiveInput
                         :validValue="settings.panner"
-                        @valueFromInput="panner = $event"
-                        @restore="panner = settings.panner"
+                        @valueFromInput="settings.panner = $event"
                         step=".001"
                         keyCode="KeyG"
                         letter="G"
@@ -163,8 +123,7 @@ watch(fragmentTo, (newValue) => {
                     <span>From</span>
                     <InteractiveInput
                         :validValue="settings.fragment.from"
-                        @valueFromInput="fragmentFrom = $event"
-                        @restore="fragmentFrom = settings.fragment.from"
+                        @valueFromInput="settings.fragment.from = $event"
                         step="1"
                         keyCode="KeyD"
                         letter="D"
@@ -174,8 +133,7 @@ watch(fragmentTo, (newValue) => {
                     <span>To</span>
                     <InteractiveInput
                         :validValue="settings.fragment.to"
-                        @valueFromInput="fragmentTo = $event"
-                        @restore="fragmentTo = settings.fragment.to"
+                        @valueFromInput="settings.fragment.to = $event"
                         step="1"
                         keyCode="KeyF"
                         letter="F"
@@ -188,11 +146,11 @@ watch(fragmentTo, (newValue) => {
             <span>Loop</span>
             <div class="module__container module__container--radio">
                 <div class="radio-element">
-                    <input type="radio" name="loop" id="loop-yes" value="true" checked v-model="loop" />
+                    <input type="radio" name="loop" id="loop-yes" :value="true" checked v-model="settings.loop" />
                     <label for="loop-yes">Yes</label>
                 </div>
                 <div class="radio-element">
-                    <input type="radio" name="loop" id="loop-no" value="false" v-model="loop" />
+                    <input type="radio" name="loop" id="loop-no" :value="false" v-model="settings.loop" />
                     <label for="loop-no">No</label>
                 </div>
             </div>
@@ -202,11 +160,11 @@ watch(fragmentTo, (newValue) => {
             <span>Random time gap</span>
             <div class="module__container module__container--radio">
                 <div class="radio-element">
-                    <input type="radio" name="gap" id="gap-yes" value="true" checked v-model="gap" />
+                    <input type="radio" name="gap" id="gap-yes" :value="true" checked v-model="settings.isRandomTimeGap" />
                     <label for="gap-yes">Yes</label>
                 </div>
                 <div class="radio-element">
-                    <input type="radio" name="gap" id="gap-no" value="false" v-model="gap" />
+                    <input type="radio" name="gap" id="gap-no" :value="false" v-model="settings.isRandomTimeGap" />
                     <label for="gap-no">No</label>
                 </div>
             </div>
@@ -216,11 +174,11 @@ watch(fragmentTo, (newValue) => {
             <span>MIDI</span>
             <div class="module__container module__container--radio">
                 <div class="radio-element">
-                    <input type="radio" name="midi" id="midi-yes" value="true" v-model="midi" />
+                    <input type="radio" name="midi" id="midi-yes" :value="true" v-model="settings.midiMode" />
                     <label for="midi-yes">Yes</label>
                 </div>
                 <div class="radio-element">
-                    <input type="radio" name="midi" id="midi-no" value="false" checked v-model="midi" />
+                    <input type="radio" name="midi" id="midi-no" :value="false" checked v-model="settings.midiMode" />
                     <label for="midi-no">No</label>
                 </div>
             </div>
