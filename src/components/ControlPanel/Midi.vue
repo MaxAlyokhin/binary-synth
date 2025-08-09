@@ -2,7 +2,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
 import sendMIDIMessage from '../../assets/js/midiMessages.js'
-import { getBooleanFromString } from '../../assets/js/helpers';
+import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 const status = useStatusStore()
@@ -46,31 +46,33 @@ onMounted(() => {
     }
 })
 
-watch(() => settings.midi.velocity, (newValue) => {
-    if (isNaN(newValue)) {
-        return
-    } else if (newValue <= 0) {
-        settings.midi.velocity = 0
-    } else if (newValue >= 127) {
-        settings.midi.velocity = 127
-    } else {
-        settings.midi.velocity = newValue
+watch(
+    () => settings.midi.velocity,
+    (newValue) => {
+        if (isNaN(newValue)) {
+            return
+        } else if (newValue <= 0) {
+            settings.midi.velocity = 0
+        } else if (newValue >= 127) {
+            settings.midi.velocity = 127
+        }
     }
-})
+)
 
-watch(() => settings.midi.modulation, (newValue) => {
-    if (isNaN(newValue)) {
-        return
-    } else if (newValue <= 0) {
-        settings.midi.modulation = 0
-    } else if (newValue >= 127) {
-        settings.midi.modulation = 127
-    } else {
-        settings.midi.modulation = newValue
+watch(
+    () => settings.midi.modulation,
+    (newValue) => {
+        if (isNaN(newValue)) {
+            return
+        } else if (newValue <= 0) {
+            settings.midi.modulation = 0
+        } else if (newValue >= 127) {
+            settings.midi.modulation = 127
+        }
+
+        sendMIDIMessage.modulation(settings.midi.modulation, settings.midi.port, settings.midi.channel)
     }
-
-    sendMIDIMessage.modulation(settings.midi.modulation, settings.midi.port, settings.midi.channel)
-})
+)
 
 const port = ref(null)
 watch(port, (newValue) => {
@@ -126,13 +128,25 @@ watch([port, () => settings.midi.channel], () => {
             <div class="module__container">
                 <span>Velocity</span>
                 <div class="notes-range__inputs">
-                    <input type="number" step="1" v-model="settings.midi.velocity" />
+                    <InteractiveInput
+                        :validValue="settings.midi.velocity"
+                        @valueFromInput="settings.midi.velocity = $event"
+                        step="1"
+                        keyCode="KeyE"
+                        letter="E"
+                    />
                 </div>
             </div>
             <div class="module__container">
                 <span>Modulation</span>
                 <div class="notes-range__inputs">
-                    <input type="number" step="1" v-model="settings.midi.modulation" />
+                    <InteractiveInput
+                        :validValue="settings.midi.modulation"
+                        @valueFromInput="settings.midi.modulation = $event"
+                        step="1"
+                        keyCode="KeyR"
+                        letter="R"
+                    />
                 </div>
             </div>
         </div>
