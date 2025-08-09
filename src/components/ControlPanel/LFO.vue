@@ -61,7 +61,7 @@ watch(rate, (newValue) => {
 
         <div class="module__wrapper module__wrapper--three">
             <div class="module__container">
-                <span>Type of wave</span>
+                <span>Wave type</span>
                 <select name="lfo-wave" class="lfo-wave" v-model="settings.LFO.type">
                     <option value="sine">sine</option>
                     <option value="square">square</option>
