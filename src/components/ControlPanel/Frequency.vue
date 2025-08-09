@@ -32,8 +32,8 @@ watch(frequencyTo, (newValue) => {
     }
 })
 
-const noteNameFrom = computed(() => getNoteName(settings.notesRange.from))
-const noteNameTo = computed(() => getNoteName(settings.notesRange.to))
+const noteNameFrom = computed(() => getNoteName(Math.round(settings.notesRange.from)))
+const noteNameTo = computed(() => getNoteName(Math.round(settings.notesRange.to)))
 
 const notesFrom = ref(settings.notesRange.from)
 watch(notesFrom, (newValue) => {
