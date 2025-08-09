@@ -77,8 +77,7 @@ async function mousemoveHandler(event) {
     )
 }
 
-const valid = computed(() => props.validValue)
-watch(valid, (newValue) => {
+watch(() => props.validValue, (newValue) => {
     if (newValue !== inputValue.value) {
         inputValue.value = props.validValue
     }

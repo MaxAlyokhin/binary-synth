@@ -67,8 +67,7 @@ watch(notesTo, (newValue) => {
     }
 })
 
-const midi = computed(() => settings.midiMode)
-watch(midi, () => {
+watch(() => settings.midiMode, () => {
     if (frequencyFrom.value >= 12542) frequencyFrom.value = 12542
     if (frequencyTo.value >= 12543) frequencyTo.value = 12543
     if (notesFrom.value >= 126) notesFrom.value = 126

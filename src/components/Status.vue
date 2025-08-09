@@ -60,7 +60,7 @@ const commandsOnList = computed(() => (settings.bitness === '8' ? 500 : 250))
 // Create a new iterator for each play
 function commandIterator() {
     // Maximum speed of setInterval 5ms
-    if (readingSpeed.value >= 0.005) {
+    if (settings.readingSpeed >= 0.005) {
         return setInterval(() => {
             // If we have one sheet
             if (settings.fragment.to - settings.fragment.from <= commandsOnList.value) {
@@ -89,7 +89,7 @@ function commandIterator() {
                     }
                 }
             }
-        }, readingSpeed.value * 1000)
+        }, settings.readingSpeed * 1000)
     } else {
         // If the speed is high, we display the active command every 5 commands.
         return setInterval(() => {
@@ -98,7 +98,7 @@ function commandIterator() {
                 if (status.currentCommand >= settings.fragment.to - settings.fragment.from) {
                     status.currentCommand = 0
                 } else {
-                    status.currentCommand += 5 * (readingSpeed.value * 1000)
+                    status.currentCommand += 5 * (settings.readingSpeed * 1000)
                 }
             }
             // If multiple sheets
@@ -108,7 +108,7 @@ function commandIterator() {
                     currentIteration = status.listID
                     status.currentCommand = 0
                 } else {
-                    status.currentCommand += 5 * (readingSpeed.value * 1000)
+                    status.currentCommand += 5 * (settings.readingSpeed * 1000)
                 }
             }
         }, 5)
@@ -127,8 +127,7 @@ function format(number) {
     return strWithSpaces[0] === ' ' ? strWithSpaces.slice(1) : strWithSpaces
 }
 
-const playing = computed(() => status.playing)
-watch(playing, (newValue) => {
+watch(() => status.playing, (newValue) => {
     if (newValue) {
         timerInterval = timer()
         commandIteratorInterval = commandIterator()
@@ -141,9 +140,8 @@ watch(playing, (newValue) => {
 })
 
 // When changing the reading speed settings, redefine the intervals
-const readingSpeed = computed(() => settings.readingSpeed)
-watch(readingSpeed, () => {
-    if (playing.value) {
+watch(() => settings.readingSpeed, () => {
+    if (status.playing) {
         clearInterval(timerInterval)
         clearInterval(commandIteratorInterval)
 

@@ -46,8 +46,7 @@ onMounted(() => {
     }
 })
 
-const velocity = computed(() => settings.midi.velocity)
-watch(velocity, (newValue) => {
+watch(() => settings.midi.velocity, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
@@ -59,8 +58,7 @@ watch(velocity, (newValue) => {
     }
 })
 
-const modulationValue = computed(() => settings.midi.modulation)
-watch(modulationValue, (newValue) => {
+watch(() => settings.midi.modulation, (newValue) => {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
@@ -79,8 +77,7 @@ watch(port, (newValue) => {
     settings.midi.port = midi.outputs.get(newValue)
 })
 
-const channel = computed(() => settings.midi.channel)
-watch([port, channel], () => {
+watch([port, () => settings.midi.channel], () => {
     sendMIDIMessage.modulation(settings.midi.modulation, settings.midi.port, settings.midi.channel)
 })
 
