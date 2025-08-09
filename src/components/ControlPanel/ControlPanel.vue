@@ -1071,7 +1071,7 @@ watch(
         }
 
         // If the user has switched to MIDI mode, cancel the oscillator
-        if (playing.value) {
+        if (status.playing) {
             let command = null
 
             // If MIDI is on
