@@ -7,6 +7,7 @@ const settings = useSettingsStore()
 const status = useStatusStore()
 
 function setSettings(settingsObject) {
+    delete settingsObject.midi.port // MIDI port doesn`t import in JSON
     settings.$patch(settingsObject)
     status.isSettingsFileActual = true
 }
