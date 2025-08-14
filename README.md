@@ -6,9 +6,9 @@ _Audio synthesis from binary code of any file_
 
 **Demo**: https://bs.stranno.su
 
-**Video**: https://youtu.be/5LMYiLwfvRg
+**Video**: https://youtu.be/5LMYiLwfvRg?si=D9GdKJF3hmjvw4fg&t=654
 
-![](https://store.stranno.su/bs/fuji.png)
+![](https://store.stranno.su/bs/fuji2.png)
 
 _<a href="README_RU.md">Эта страница есть также на русском</a>_
 
