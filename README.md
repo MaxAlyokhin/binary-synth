@@ -25,7 +25,7 @@ The application reads the file sequentially, and due to the high speed of readin
 - with the `S` key held down, press `Shift` to “strengthen” or `Ctrl` to “weaken” the input
 - do similar actions with other settings by pressing the keys `Q`, `W`, `A`, `Z`, `X`, `C`, `V`, etc. (input fields have the corresponding key on the right side)
 - open several more tabs with the instrument in parallel and launch
-- move between tabs using `Ctrl + tab number` (9 max)
+- move between tabs using `Ctrl + tab number` (9 max) or `Ctrl + Tab` / `Ctrl + Shift + Tab`
 - process the sound on-the-fly by connecting effects pedals, or by using Ableton or other DAWs and [Virtual audio cable](https://vac.muzychenko.net/en/)
 - switch to MIDI mode and control a virtual or external synthesizer using the [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html)
 - save settings just by copying the URL or via Save settings button
