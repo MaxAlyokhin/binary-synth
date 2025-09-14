@@ -105,7 +105,7 @@ watch(() => settings.midiMode, () => {
                         <InteractiveInput
                             :validValue="settings.notesRange.from"
                             @valueFromInput="settings.notesRange.from = $event"
-                            step="1"
+                            step="0.01"
                             keyCode="KeyA"
                             letter="A"
                         />
@@ -118,7 +118,7 @@ watch(() => settings.midiMode, () => {
                         <InteractiveInput
                             :validValue="settings.notesRange.to"
                             @valueFromInput="settings.notesRange.to = $event"
-                            step="1"
+                            step="0.01"
                             keyCode="KeyS"
                             letter="S"
                         />
