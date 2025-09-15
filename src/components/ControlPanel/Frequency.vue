@@ -76,7 +76,7 @@ watch(() => settings.midiMode, () => {
 
             <span class="key" style="margin-top: 15px">Frequencies range</span>
 
-            <div v-show="settings.frequencyMode === 'continuous'" class="module__wrapper">
+            <div v-if="settings.frequencyMode === 'continuous'" class="module__wrapper">
                 <div class="module__container">
                     <span>From</span>
                     <InteractiveInput
@@ -98,7 +98,7 @@ watch(() => settings.midiMode, () => {
                 </div>
             </div>
 
-            <div v-show="settings.frequencyMode === 'tempered'" class="module__wrapper">
+            <div v-else="settings.frequencyMode === 'tempered'" class="module__wrapper">
                 <div class="module__container">
                     <span>From</span>
                     <div class="notes-range__inputs">
