@@ -26,8 +26,8 @@ watch(() => settings.frequenciesRange.to, (newValue) => {
     }
 })
 
-const noteNameFrom = computed(() => getNoteName(Math.round(settings.notesRange.from)))
-const noteNameTo = computed(() => getNoteName(Math.round(settings.notesRange.to)))
+const noteNameFrom = computed(() => getNoteName(Math.floor(settings.notesRange.from)))
+const noteNameTo = computed(() => getNoteName(Math.floor(settings.notesRange.to)))
 
 watch(() => settings.notesRange.from, (newValue) => {
     if (isNaN(newValue)) {
