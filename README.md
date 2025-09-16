@@ -144,11 +144,13 @@ To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https:
 
 -   `Fragment` — allows to play not the whole file, but a certain part of it
 
+-   `Sample rate` — sampling frequency. In most cases it has little effect on the sound, but it is very important when playing at ultra-low frequencies like frequencies range 0 - 1
+
 -   `Solid mode` — the "solid press" mode, does not send `noteOff` commands; if the commands are the same in a row (and as a consequence notes), even noteOn is not sent. `allSoundOff` is sent at the end. On some synthesizers it allows smooth transitions between notes
 
-- `Last noteOn mode` — leaves the last command in the loop pressed. Allows to make smoother transitions between repeats of patterns.
+- `Last noteOn mode` — leaves the last command in the loop pressed. Allows to make smoother transitions between repeats of patterns
 
-- Some input fields have a keyboard shortcut: pressing the corresponding key automatically moves the focus to the item. By pressing a key and moving the mouse at the same time, the values can be changed smoothly. Pressing `Shift` will increase (10x, 100x, 1000x) the "power" of the value change, pressing `Ctrl` will decrease (0.1x, 0.01x, 0.001x). The cursor disappears in order to be able to change values indefinitely. To return the cursor, press `Esc`.
+- Some input fields have a keyboard shortcut: pressing the corresponding key automatically moves the focus to the item. By pressing a key and moving the mouse at the same time, the values can be changed smoothly. Pressing `Shift` will increase (10x, 100x, 1000x) the "power" of the value change, pressing `Ctrl` will decrease (0.1x, 0.01x, 0.001x). The cursor disappears in order to be able to change values indefinitely. To return the cursor, press `Esc`
 
 ## Saving settings
 <a id="settings"></a>
