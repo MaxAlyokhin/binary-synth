@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, toValue } from 'vue'
 import { useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
 import { getDate } from '@/assets/js/helpers.js'
 
@@ -8,6 +8,8 @@ const status = useStatusStore()
 
 function setSettings(settingsObject) {
     delete settingsObject.midi.port // MIDI port doesn`t import in JSON
+    delete settingsObject.sampleRateRange // sampleRateRange different on some devices
+
     settings.$patch(settingsObject)
     status.isSettingsFileActual = true
 }
@@ -55,6 +57,10 @@ function load(settingsInJSON) {
 }
 
 function setSettingsInURL() {
+    const stateCopy = toValue(settings.$state)
+    delete stateCopy.midi.port
+    delete stateCopy.sampleRateRange
+
     window.location.hash = JSON.stringify(settings.$state)
 }
 

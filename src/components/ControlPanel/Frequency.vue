@@ -11,7 +11,7 @@ watch(() => settings.frequenciesRange.from, (newValue) => {
         return
     } else if (newValue <= 0) {
         settings.frequenciesRange.from = 0
-    } else if (newValue > (settings.midiMode ? 12543 : 24000) || newValue >= settings.frequenciesRange.to) {
+    } else if (newValue > (settings.midiMode ? 12543 : settings.sampleRate / 2) || newValue >= settings.frequenciesRange.to) {
         settings.frequenciesRange.from = settings.frequenciesRange.to - 1
     }
 })
@@ -19,8 +19,8 @@ watch(() => settings.frequenciesRange.from, (newValue) => {
 watch(() => settings.frequenciesRange.to, (newValue) => {
     if (isNaN(newValue)) {
         return
-    } else if (newValue > (settings.midiMode ? 12543 : 24000)) {
-        settings.frequenciesRange.to = settings.midiMode ? 12543 : 24000
+    } else if (newValue > (settings.midiMode ? 12543 : settings.sampleRate / 2)) {
+        settings.frequenciesRange.to = settings.midiMode ? 12543 : settings.sampleRate / 2
     } else if (newValue <= settings.frequenciesRange.from) {
         settings.frequenciesRange.to = settings.frequenciesRange.from + 1
     }

@@ -16,7 +16,7 @@
 // 3 планирует работу осциллятора или планирует миди-сообщения по листу
 // 4 планирует запуск следующего листа
 
-import { watch, computed, onMounted, onUnmounted } from 'vue'
+import { watch, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { clearTimeout, setTimeout } from 'worker-timers'
 import { useFileStore, useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
 import { toFixedNumber, getRandomNumber } from '@/assets/js/helpers.js'
@@ -30,6 +30,7 @@ import Global from '@/components/ControlPanel/Global.vue'
 import Midi from '@/components/ControlPanel/Midi.vue'
 import sendMIDIMessage from '@/assets/js/midiMessages.js'
 import { getMIDINote } from '@/assets/js/getMIDINote.js'
+import { checkFrequenciesWithNewSampleRate, checkSampleRate } from '../../assets/js/helpers'
 
 const file = useFileStore()
 const settings = useSettingsStore()
@@ -42,41 +43,72 @@ const timeToNextList = computed(() =>
 const bynaryInSelectedBitness = computed(() => (settings.bitness === '8' ? file.binary8 : file.binary16))
 
 // Creating audio elements
-let audioContext = new AudioContext()
+let audioContext = null
 let oscillator = null
-let gain = audioContext.createGain()
-let filter = audioContext.createBiquadFilter()
-let lfoDepth = audioContext.createGain()
-let lfoOsc = audioContext.createOscillator()
-let masterGain = audioContext.createGain()
-let panner = audioContext.createStereoPanner()
+let gain = null
+let filter = null
+let lfoDepth = null
+let lfoOsc = null
+let masterGain = null
+let panner = null
+let squareWave = null
+let sawtoothWave = null
 
-// Setup
-filter.type = 'lowpass'
-filter.frequency.value = settings.biquadFilterFrequency
-filter.Q.value = settings.biquadFilterQ
-lfoDepth.gain.value = settings.LFO.depth
-gain.gain.value = settings.gain
-masterGain.gain.value = 1
-panner.pan.value = settings.panner
+function createAudioGraph(sampleRate) {
+    if (sampleRate) {
+        audioContext = new AudioContext({ sampleRate })
+    } else {
+        audioContext = new AudioContext()
+        settings.sampleRate = audioContext.sampleRate
+    }
 
-// Connection
-filter.connect(gain).connect(masterGain).connect(panner).connect(audioContext.destination)
-lfoDepth.connect(masterGain.gain)
+    gain = audioContext.createGain()
+    filter = audioContext.createBiquadFilter()
+    lfoDepth = audioContext.createGain()
+    lfoOsc = audioContext.createOscillator()
+    masterGain = audioContext.createGain()
+    panner = audioContext.createStereoPanner()
 
-// Set specific waves
-const squareWave = audioContext.createPeriodicWave(
-    Float32Array.from(fourierCoefficients.square.real),
-    Float32Array.from(fourierCoefficients.square.imag)
-)
-const sawtoothWave = audioContext.createPeriodicWave(
-    Float32Array.from(fourierCoefficients.sawtooth.real),
-    Float32Array.from(fourierCoefficients.sawtooth.imag)
-)
+    // Setup
+    filter.type = 'lowpass'
+    filter.frequency.value = settings.biquadFilterFrequency
+    filter.Q.value = settings.biquadFilterQ
+    lfoDepth.gain.value = settings.LFO.depth
+    gain.gain.value = settings.gain
+    masterGain.gain.value = 1
+    panner.pan.value = settings.panner
+
+    // Connection
+    filter.connect(gain).connect(masterGain).connect(panner).connect(audioContext.destination)
+    lfoDepth.connect(masterGain.gain)
+
+    // Set specific waves
+    squareWave = audioContext.createPeriodicWave(
+        Float32Array.from(fourierCoefficients.square.real),
+        Float32Array.from(fourierCoefficients.square.imag)
+    )
+    sawtoothWave = audioContext.createPeriodicWave(
+        Float32Array.from(fourierCoefficients.sawtooth.real),
+        Float32Array.from(fourierCoefficients.sawtooth.imag)
+    )
+}
+
+function deleteAudioGraph() {
+    audioContext = null
+    oscillator = null
+    gain = null
+    filter = null
+    lfoDepth = null
+    lfoOsc = null
+    masterGain = null
+    panner = null
+    squareWave = null
+    sawtoothWave = null
+}
 
 // At each play, create a new oscillator and connect it
 // Changing its frequency will be planned in nextList()
-function audioInit() {
+function setOscillators() {
     oscillator = audioContext.createOscillator()
 
     if (settings.waveType === 'square2') {
@@ -102,6 +134,25 @@ function audioInit() {
     lfoOsc.frequency.value = settings.LFO.rate
     lfoOsc.connect(lfoDepth)
 }
+
+function recreateAudioGraph(sampleRate) {
+    deleteAudioGraph()
+    createAudioGraph(sampleRate)
+    setOscillators()
+}
+
+watch(
+    () => settings.sampleRate,
+    (newValue, oldValue) => {
+        settings.sampleRate = checkSampleRate(settings.sampleRateRange.minimum, settings.sampleRateRange.maximum, settings.sampleRate)
+
+        settings.frequenciesRange.to = checkFrequenciesWithNewSampleRate(settings.sampleRate, settings.frequenciesRange.to)
+        settings.biquadFilterFrequency = checkFrequenciesWithNewSampleRate(settings.sampleRate, settings.biquadFilterFrequency)
+        settings.LFO.rate = checkFrequenciesWithNewSampleRate(settings.sampleRate, settings.LFO.rate)
+
+        recreateAudioGraph(settings.sampleRate)
+    }
+)
 
 // Случайная величина отклонения от settings.readingSpeed
 const getRandomTimeGap = () => (settings.isRandomTimeGap ? getRandomNumber(0, settings.readingSpeed) : 0)
@@ -370,7 +421,7 @@ function stop() {
             if (settings.LFO.enabled) lfoOsc.stop(audioContext.currentTime + 0.1)
             oscillator.frequency.cancelScheduledValues(audioContext.currentTime + 0.1)
 
-            audioInit()
+            setOscillators()
         } else {
             midiTimeoutIDs.forEach((id) => {
                 clearTimeout(id)
@@ -396,7 +447,11 @@ onMounted(() => {
     window.addEventListener('keydown', preventScrollOnSpacePress)
     window.addEventListener('keyup', changePlaying)
 
-    audioInit()
+    // Если настроек sampleRate нет
+    if (settings.sampleRate === null) {
+        createAudioGraph()
+        setOscillators()
+    }
 })
 
 onUnmounted(() => {
@@ -411,8 +466,8 @@ watch(
             return
         } else if (newValue <= 0) {
             filter.frequency.value = 0
-        } else if (newValue > 24000) {
-            filter.frequency.value = 24000
+        } else if (newValue > settings.sampleRate / 2) {
+            filter.frequency.value = settings.sampleRate / 2
         } else {
             filter.frequency.value = newValue
         }
@@ -467,8 +522,8 @@ watch(
     (newValue) => {
         if (isNaN(newValue) || newValue < 0) {
             lfoOsc.frequency.value = 0
-        } else if (newValue > 24000) {
-            lfoOsc.frequency.value = 24000
+        } else if (newValue > settings.sampleRate / 2) {
+            lfoOsc.frequency.value = settings.sampleRate / 2
         } else {
             lfoOsc.frequency.value = newValue
         }
@@ -1067,7 +1122,7 @@ watch(
     () => settings.midiMode,
     (newValue) => {
         if (!newValue) {
-            audioInit()
+            setOscillators()
         }
 
         // If the user has switched to MIDI mode, cancel the oscillator

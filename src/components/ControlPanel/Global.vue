@@ -3,51 +3,67 @@ import { computed, watch } from 'vue'
 import { useFileStore, useSettingsStore } from '@/stores/globalStore.js'
 import Frequency from './Frequency.vue'
 import InteractiveInput from './InteractiveInput.vue'
+import SampleRate from './SampleRate.vue'
 
 const settings = useSettingsStore()
 const file = useFileStore()
 
-watch(() => settings.midiMode, (newValue) => {
-    if (newValue && settings.readingSpeed <= 0.005) {
-        settings.readingSpeed = 0.005
+watch(
+    () => settings.midiMode,
+    (newValue) => {
+        if (newValue && settings.readingSpeed <= 0.005) {
+            settings.readingSpeed = 0.005
+        }
     }
-})
+)
 
-watch(() => settings.panner, (newValue) => {
-    if (newValue <= -1) {
-        settings.panner = -1
-    } else if (newValue >= 1) {
-        settings.panner = 1
+watch(
+    () => settings.panner,
+    (newValue) => {
+        if (newValue <= -1) {
+            settings.panner = -1
+        } else if (newValue >= 1) {
+            settings.panner = 1
+        }
     }
-})
+)
 
-watch(() => settings.readingSpeed, (newValue) => {
-    if (settings.midiMode && newValue <= 0.005) {
-        settings.readingSpeed = 0.005
-    } else {
-        if (newValue <= 0) settings.readingSpeed = 0.00001
+watch(
+    () => settings.readingSpeed,
+    (newValue) => {
+        if (settings.midiMode && newValue <= 0.005) {
+            settings.readingSpeed = 0.005
+        } else {
+            if (newValue <= 0) settings.readingSpeed = 0.00001
+        }
     }
-})
+)
 
-watch(() => settings.fragment.from, (newValue) => {
-    if (isNaN(newValue)) {
-        return
-    } else if (newValue <= 0) {
-        settings.fragment.from = 0
-    } else if (newValue >= settings.fragment.to) {
-        settings.fragment.from = settings.fragment.to - 1
+watch(
+    () => settings.fragment.from,
+    (newValue) => {
+        if (isNaN(newValue)) {
+            return
+        } else if (newValue <= 0) {
+            settings.fragment.from = 0
+        } else if (newValue >= settings.fragment.to) {
+            settings.fragment.from = settings.fragment.to - 1
+        }
     }
-})
+)
 
-watch(() => settings.fragment.to, (newValue) => {
-    if (isNaN(newValue)) {
-        return
-    } else if (newValue > commandsCount.value) {
-        settings.fragment.to = commandsCount.value
-    } else if (newValue <= settings.fragment.from) {
-        settings.fragment.to = settings.fragment.from + 1
+watch(
+    () => settings.fragment.to,
+    (newValue) => {
+        if (isNaN(newValue)) {
+            return
+        } else if (newValue > commandsCount.value) {
+            settings.fragment.to = commandsCount.value
+        } else if (newValue <= settings.fragment.from) {
+            settings.fragment.to = settings.fragment.from + 1
+        }
     }
-})
+)
 
 // Так как в 16-bit команд в два раза меньше, нужно контролировать, чтобы при переходе из 8-bit на 16-bit не выйти за диапазон
 const commandsCount = computed(() => {
@@ -141,6 +157,8 @@ watch(commandsCount, (newValue) => {
                 </div>
             </div>
         </div>
+
+        <SampleRate />
 
         <div class="module__container module__container--block-row">
             <span>Loop</span>

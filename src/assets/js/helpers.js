@@ -47,3 +47,28 @@ export function getDate() {
     let date = new Date()
     return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}-${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}`
 }
+
+/**
+ * Check sample rate value
+ * @param {Number} minimum - minimum value
+ * @param {Number} maximum - maximum value
+ * @param {Number} sampleRate - value for check
+ * @return {Number} Returns the valid sample rate value
+ */
+
+export function checkSampleRate(minimum, maximum, sampleRate) {
+    if (sampleRate <= maximum && sampleRate >= minimum) return sampleRate
+    else if (sampleRate >= maximum) return maximum
+    else if (sampleRate <= minimum) return minimum
+}
+
+/**
+ * Check setting that is out of range with new sample rate
+ * @param {Number} sampleRate - sampleRate
+ * @param {Number} setting - setting for check
+ * @return {Number} Returns the valid setting value
+ */
+
+export function checkFrequenciesWithNewSampleRate(sampleRate, setting) {
+    return setting > sampleRate / 2 ? sampleRate / 2 : setting
+}

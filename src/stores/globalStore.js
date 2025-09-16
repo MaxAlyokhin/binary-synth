@@ -54,6 +54,11 @@ export const useSettingsStore = defineStore('settings', () => {
         solidMode: false,
         lastNoteOnMode: true
     })
+    const sampleRate = ref(null)
+    const sampleRateRange = ref({
+      maximum: null,
+      minimum: null
+    })
 
     // This no-op action, used for subscribed InteractiveInput`s, that restore
     // local watched vars in parent components
@@ -80,6 +85,8 @@ export const useSettingsStore = defineStore('settings', () => {
         loop,
         isRandomTimeGap,
         midi,
+        sampleRate,
+        sampleRateRange,
         restore
     }
 })

@@ -18,8 +18,8 @@ watch(() => settings.LFO.depth, (newValue) => {
 watch(() => settings.LFO.rate, (newValue) => {
     if (isNaN(newValue) || newValue < 0) {
         settings.LFO.rate = 0
-    } else if (newValue > 24000) {
-        settings.LFO.rate = 24000
+    } else if (newValue > settings.sampleRate / 2) {
+        settings.LFO.rate = settings.sampleRate / 2
     }
 })
 </script>

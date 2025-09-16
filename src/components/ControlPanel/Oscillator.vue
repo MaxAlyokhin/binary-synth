@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { watch } from 'vue'
 import { useSettingsStore } from '@/stores/globalStore.js'
 import InteractiveInput from '@/components/ControlPanel/InteractiveInput.vue'
 

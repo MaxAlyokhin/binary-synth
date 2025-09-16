@@ -10,8 +10,8 @@ watch(() => settings.biquadFilterFrequency, (newValue) => {
         return
     } else if (newValue <= 0) {
         settings.biquadFilterFrequency = 0
-    } else if (newValue > 24000) {
-        settings.biquadFilterFrequency = 24000
+    } else if (newValue > settings.sampleRate / 2) {
+        settings.biquadFilterFrequency = settings.sampleRate / 2
     }
 })
 
