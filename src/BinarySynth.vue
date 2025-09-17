@@ -14,7 +14,7 @@ const file = useFileStore()
             <FileInput />
             <ControlPanel />
             <div class="about">
-                <a href="https://github.com/MaxAlyokhin/binary-synth" target="_blank" rel="noopener noreferrer">About and sources (v1.13.0)</a>
+                <a href="https://github.com/MaxAlyokhin/binary-synth" target="_blank" rel="noopener noreferrer">About and sources (v1.13.1)</a>
                 <a href="https://dfap.stranno.su" target="_blank" rel="noopener noreferrer">by DFAP</a>
             </div>
         </div>

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, ref, toValue } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
 import { getDate } from '@/assets/js/helpers.js'
 
@@ -57,11 +57,12 @@ function load(settingsInJSON) {
 }
 
 function setSettingsInURL() {
-    const stateCopy = toValue(settings.$state)
+    const stateCopy = JSON.parse(JSON.stringify(settings.$state))
+
     delete stateCopy.midi.port
     delete stateCopy.sampleRateRange
 
-    window.location.hash = JSON.stringify(settings.$state)
+    window.location.hash = JSON.stringify(stateCopy)
 }
 
 function getSettingsFromURL() {
