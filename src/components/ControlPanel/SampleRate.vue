@@ -55,7 +55,7 @@ watch(
 </template>
 
 <style lang="scss" scoped>
-select {
+input {
     &:disabled {
         cursor: not-allowed;
     }
