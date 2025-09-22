@@ -106,6 +106,18 @@ function deleteAudioGraph() {
     sawtoothWave = null
 }
 
+// Функция-хелпер для установки типа волны для LFO,
+// т.к. кастомные волны устанавливаются через setPeriodicWave
+function setLFOType() {
+    if (settings.LFO.type === 'square2') {
+        lfoOsc.setPeriodicWave(squareWave)
+    } else if (settings.LFO.type === 'sawtooth2') {
+        lfoOsc.setPeriodicWave(sawtoothWave)
+    } else {
+        lfoOsc.type = settings.LFO.type
+    }
+}
+
 // At each play, create a new oscillator and connect it
 // Changing its frequency will be planned in nextList()
 function setOscillators() {
@@ -123,13 +135,7 @@ function setOscillators() {
 
     lfoOsc = audioContext.createOscillator()
 
-    if (settings.LFO.type === 'square2') {
-        lfoOsc.setPeriodicWave(squareWave)
-    } else if (settings.LFO.type === 'sawtooth2') {
-        lfoOsc.setPeriodicWave(sawtoothWave)
-    } else {
-        lfoOsc.type = settings.LFO.type
-    }
+    setLFOType()
 
     lfoOsc.frequency.value = settings.LFO.rate
     lfoOsc.connect(lfoDepth)
@@ -498,7 +504,7 @@ watch(
             if (status.playing) {
                 lfoOsc.stop(audioContext.currentTime + 0.1)
                 lfoOsc = audioContext.createOscillator()
-                lfoOsc.type = settings.LFO.type
+                setLFOType()
                 lfoOsc.frequency.value = settings.LFO.rate
                 lfoOsc.connect(lfoDepth)
             }
@@ -507,15 +513,7 @@ watch(
 )
 watch(
     () => settings.LFO.type,
-    (newValue) => {
-        if (newValue === 'square2') {
-            lfoOsc.setPeriodicWave(squareWave)
-        } else if (newValue === 'sawtooth2') {
-            lfoOsc.setPeriodicWave(sawtoothWave)
-        } else {
-            lfoOsc.type = newValue
-        }
-    }
+    () => setLFOType()
 )
 watch(
     () => settings.LFO.rate,

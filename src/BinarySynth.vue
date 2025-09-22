@@ -1,4 +1,5 @@
 <script setup>
+import pack from '../package.json'
 import FileInput from '@/components/FileInput.vue'
 import ControlPanel from '@/components/ControlPanel/ControlPanel.vue'
 import Status from '@/components/Status.vue'
@@ -14,7 +15,7 @@ const file = useFileStore()
             <FileInput />
             <ControlPanel />
             <div class="about">
-                <a href="https://github.com/MaxAlyokhin/binary-synth" target="_blank" rel="noopener noreferrer">About and sources (v1.13.2)</a>
+                <a href="https://github.com/MaxAlyokhin/binary-synth" target="_blank" rel="noopener noreferrer">About and sources ({{ pack.version }})</a>
                 <a href="https://dfap.stranno.su" target="_blank" rel="noopener noreferrer">by DFAP</a>
             </div>
         </div>
