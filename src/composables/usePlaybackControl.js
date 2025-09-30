@@ -62,7 +62,7 @@ export function usePlaybackControl(
         if (!settings.midiMode) {
             oscillatorScheduler.planOscillatorList(startOfList, endOfList)
         } else {
-            midiScheduler.planMidiList(startOfList, endOfList, 0)
+            midiScheduler.planMidiList(startOfList, endOfList)
         }
 
         // Планируем следующее перелистывание
@@ -152,14 +152,33 @@ export function usePlaybackControl(
 
                     const start = status.startAndEndOfList[0] + status.currentCommand
                     const end = status.startAndEndOfList[1]
-                    oscillatorScheduler.planOscillatorList(start, end)
+                    // Play the next command immediately to avoid a pause on speed change
+                    if (start <= end) {
+                        const firstID = Math.min(start + 1, end)
+                        for (let binaryID = firstID, index = 0; binaryID <= end; binaryID++, index++) {
+                            const command = oscillatorScheduler.computeFrequency(bynaryInSelectedBitness.value[binaryID])
+                            const gap = settings.isRandomTimeGap && index !== 0 ? oscillatorScheduler.getRandomTimeGap() : 0
+                            const time = audioGraph.audioContext.value.currentTime + index * settings.readingSpeed + gap
+                            oscillatorScheduler.scheduleOscillatorValue(command, time)
+                        }
+                    }
                 } else {
                     midiScheduler.clearMidiTimeouts()
-                    sendMIDIMessage.allSoundOff(settings.midi.port, settings.midi.channel)
+
+                    // Don't silence everything; instead, remember the current note to turn off right before the next note
+                    if (!midiScheduler.commandForNoteOff.value) {
+                        midiScheduler.commandForNoteOff.value = midiScheduler.commands.value[status.currentCommand]
+                    }
 
                     const start = status.startAndEndOfList[0] + status.currentCommand
                     const end = status.startAndEndOfList[1]
-                    midiScheduler.planMidiList(start, end, 1)
+                    midiScheduler.planMidiList(start, end)
+                    // Trigger the next note immediately to avoid a pause equal to readingSpeed
+                    const immediateIndex = end - start >= 1 ? 1 : 0
+                    if (midiScheduler.midiTimeoutIDs.value[immediateIndex]) {
+                        clearTimeout(midiScheduler.midiTimeoutIDs.value[immediateIndex])
+                    }
+                    midiScheduler.playNote(immediateIndex)
                 }
 
                 // Reschedule the recursion
@@ -273,7 +292,7 @@ export function usePlaybackControl(
 
                         const start = status.startAndEndOfList[0] + status.currentCommand
                         const end = status.startAndEndOfList[1]
-                        midiScheduler.planMidiList(start, end, 0)
+                        midiScheduler.planMidiList(start, end)
                     } else {
                         midiScheduler.clearMidiTimeouts()
                         sendMIDIMessage.allSoundOff(settings.midi.port, settings.midi.channel)

@@ -61,7 +61,7 @@ export function useMidiScheduler(settings, status, bynaryInSelectedBitness, freq
         if (settings.isRandomTimeGap && index !== 0) status.currentCommand++
     }
 
-    function planMidiList(startOfList, endOfList, baseIndexOffset, includeRandomGap) {
+    function planMidiList(startOfList, endOfList) {
         clearMidiTimeouts()
         for (let binaryID = startOfList, index = 0; binaryID <= endOfList; binaryID++, index++) {
             commands.value[index] = getMIDINote(
@@ -73,7 +73,7 @@ export function useMidiScheduler(settings, status, bynaryInSelectedBitness, freq
                 settings.notesRange.from
             )
             const timeoutedNote = playNote.bind(null, index)
-            const delaySec = ((index + (baseIndexOffset || 0)) * settings.readingSpeed + (includeRandomGap ? getRandomTimeGap() : 0))
+            const delaySec = (index * settings.readingSpeed + getRandomTimeGap())
             midiTimeoutIDs.value[index] = setTimeout(timeoutedNote, delaySec * 1000)
         }
     }
