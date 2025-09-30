@@ -30,7 +30,7 @@ import Global from '@/components/ControlPanel/Global.vue'
 import Midi from '@/components/ControlPanel/Midi.vue'
 import sendMIDIMessage from '@/assets/js/midiMessages.js'
 import { getMIDINote } from '@/assets/js/getMIDINote.js'
-import { checkFrequenciesWithNewSampleRate, checkSampleRate } from '../../assets/js/helpers'
+import { checkFrequenciesWithNewSampleRate, checkSampleRate } from '@/assets/js/helpers'
 
 const file = useFileStore()
 const settings = useSettingsStore()
@@ -41,6 +41,15 @@ const timeToNextList = computed(() =>
     toFixedNumber((status.startAndEndOfList[1] - status.startAndEndOfList[0] + 1) * settings.readingSpeed * 1000)
 )
 const bynaryInSelectedBitness = computed(() => (settings.bitness === '8' ? file.binary8 : file.binary16))
+
+const frequencyCoefficients = computed(() => {
+    return {
+        continouos8: (settings.frequenciesRange.to - settings.frequenciesRange.from) / 256,
+        continouos16: (settings.frequenciesRange.to - settings.frequenciesRange.from) / 65536,
+        tempered8: (settings.notesRange.to - settings.notesRange.from) / 256,
+        tempered16: (settings.notesRange.to - settings.notesRange.from) / 65536,
+    }
+})
 
 // Creating audio elements
 let audioContext = null
@@ -214,19 +223,6 @@ function endOfListFor(startOfList) {
         ? startOfList + listSize.value - 1
         : settings.fragment.to
 }
-
-watch(
-    () => settings.sampleRate,
-    () => {
-        settings.sampleRate = checkSampleRate(settings.sampleRateRange.minimum, settings.sampleRateRange.maximum, settings.sampleRate)
-
-        settings.frequenciesRange.to = checkFrequenciesWithNewSampleRate(settings.sampleRate, settings.frequenciesRange.to)
-        settings.biquadFilterFrequency = checkFrequenciesWithNewSampleRate(settings.sampleRate, settings.biquadFilterFrequency)
-        settings.LFO.rate = checkFrequenciesWithNewSampleRate(settings.sampleRate, settings.LFO.rate)
-
-        recreateAudioGraph(settings.sampleRate)
-    }
-)
 
 // To reduce CPU overhead, we divide composition planning into iterations
 let nextListTimeoutID = null
@@ -437,6 +433,18 @@ onUnmounted(() => {
 
 // Realtime param watches
 watch(
+    () => settings.sampleRate,
+    () => {
+        settings.sampleRate = checkSampleRate(settings.sampleRateRange.minimum, settings.sampleRateRange.maximum, settings.sampleRate)
+
+        settings.frequenciesRange.to = checkFrequenciesWithNewSampleRate(settings.sampleRate, settings.frequenciesRange.to)
+        settings.biquadFilterFrequency = checkFrequenciesWithNewSampleRate(settings.sampleRate, settings.biquadFilterFrequency)
+        settings.LFO.rate = checkFrequenciesWithNewSampleRate(settings.sampleRate, settings.LFO.rate)
+
+        recreateAudioGraph(settings.sampleRate)
+    }
+)
+watch(
     () => settings.biquadFilterFrequency,
     (newValue) => {
         if (isNaN(newValue)) {
@@ -560,15 +568,6 @@ watch(
         }
     }
 )
-
-const frequencyCoefficients = computed(() => {
-    return {
-        continouos8: (settings.frequenciesRange.to - settings.frequenciesRange.from) / 256,
-        continouos16: (settings.frequenciesRange.to - settings.frequenciesRange.from) / 65536,
-        tempered8: (settings.notesRange.to - settings.notesRange.from) / 256,
-        tempered16: (settings.notesRange.to - settings.notesRange.from) / 65536,
-    }
-})
 
 // If these parameters are changed, completely recalculate the scheduling again
 watch([() => settings.readingSpeed, () => settings.transitionType, () => settings.isRandomTimeGap], () => {
