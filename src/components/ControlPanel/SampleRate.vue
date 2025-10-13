@@ -1,9 +1,12 @@
 <script setup>
 import { useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
 import { checkSampleRate, checkFrequenciesWithNewSampleRate } from '../../assets/js/helpers.js'
+import { ref } from 'vue'
 
 const settings = useSettingsStore()
 const status = useStatusStore()
+
+const inputElement = ref(null)
 
 // There is probably no API for getting a range of possible sample rates.
 // We are using a hack, intentionally creating an error (sampleRate = 1 cannot be),
@@ -33,7 +36,7 @@ settings.sampleRateRange.maximum = sampleRateRange.maximum
 
 let validSampleRate = null
 function validateSampleRate(newValue) {
-    validSampleRate = checkSampleRate(settings.sampleRateRange.minimum, settings.sampleRateRange.maximum, newValue.target.value)
+    validSampleRate = checkSampleRate(settings.sampleRateRange.minimum, settings.sampleRateRange.maximum, Number(newValue.target.value))
 
     // Oscillators frequencies maybe inside sample rate range
     settings.frequenciesRange.to = checkFrequenciesWithNewSampleRate(validSampleRate, settings.frequenciesRange.to)
@@ -41,6 +44,7 @@ function validateSampleRate(newValue) {
     settings.LFO.rate = checkFrequenciesWithNewSampleRate(validSampleRate, settings.LFO.rate)
 
     settings.sampleRate = validSampleRate
+    inputElement.value.value = validSampleRate
 }
 </script>
 
@@ -50,7 +54,7 @@ function validateSampleRate(newValue) {
         :class="{ 'module__container--deactive': settings.midiMode }"
     >
         <span>Sample rate</span>
-        <input type="number" name="sample-rate" :disabled="status.playing" :value="settings.sampleRate" @input="validateSampleRate($event)" />
+        <input type="number" name="sample-rate" ref="inputElement" :disabled="status.playing" :value="settings.sampleRate" @input="validateSampleRate($event)" />
     </div>
 </template>
 
