@@ -1,8 +1,8 @@
 <script setup>
 import pack from '../package.json'
-import FileInput from '@/components/FileInput.vue'
-import ControlPanel from '@/components/ControlPanel/ControlPanel.vue'
-import Status from '@/components/Status.vue'
+import FileInput from './components/FileInput.vue'
+import ControlPanel from './components/ControlPanel/ControlPanel.vue'
+import Status from './components/Status.vue'
 
 import { useFileStore } from '@/stores/globalStore.js'
 
