@@ -1,29 +1,32 @@
 <script setup>
-import { watch } from 'vue'
-import { useSettingsStore } from '@/stores/globalStore.js'
+import { useSettingsStore } from '../../stores/globalStore.js'
 import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
-watch(() => settings.biquadFilterFrequency, (newValue) => {
+function validateBiquadFilterFrequency(newValue) {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
         settings.biquadFilterFrequency = 0
     } else if (newValue > settings.sampleRate / 2) {
         settings.biquadFilterFrequency = settings.sampleRate / 2
+    } else {
+        settings.biquadFilterFrequency = newValue
     }
-})
+}
 
-watch(() => settings.biquadFilterQ, (newValue) => {
+function validateBiquadFilterQ(newValue) {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
         settings.biquadFilterQ = 0.0001
     } else if (newValue > 1000) {
         settings.biquadFilterQ = 1000
+    } else {
+        settings.biquadFilterQ = newValue
     }
-})
+}
 </script>
 
 <template>
@@ -34,7 +37,7 @@ watch(() => settings.biquadFilterQ, (newValue) => {
                 <span>Frequency</span>
                 <InteractiveInput
                     :validValue="settings.biquadFilterFrequency"
-                    @valueFromInput="settings.biquadFilterFrequency = $event"
+                    @valueFromInput="validateBiquadFilterFrequency($event)"
                     step="0.1"
                     keyCode="KeyZ"
                     letter="Z"
@@ -44,7 +47,7 @@ watch(() => settings.biquadFilterQ, (newValue) => {
                 <span>Q-factor</span>
                 <InteractiveInput
                     :validValue="settings.biquadFilterQ"
-                    @valueFromInput="settings.biquadFilterQ = $event"
+                    @valueFromInput="validateBiquadFilterQ($event)"
                     step="0.01"
                     keyCode="KeyX"
                     letter="X"

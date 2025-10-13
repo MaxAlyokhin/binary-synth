@@ -1,6 +1,6 @@
 <script setup>
 import { computed, watch } from 'vue'
-import { useFileStore, useSettingsStore } from '@/stores/globalStore.js'
+import { useFileStore, useSettingsStore } from '../../stores/globalStore.js'
 import Frequency from './Frequency.vue'
 import InteractiveInput from './InteractiveInput.vue'
 import SampleRate from './SampleRate.vue'
@@ -17,53 +17,47 @@ watch(
     }
 )
 
-watch(
-    () => settings.panner,
-    (newValue) => {
-        if (newValue <= -1) {
-            settings.panner = -1
-        } else if (newValue >= 1) {
-            settings.panner = 1
-        }
+function validatePanner(newValue) {
+    if (newValue <= -1) {
+        settings.panner = -1
+    } else if (newValue >= 1) {
+        settings.panner = 1
+    } else {
+        settings.panner = newValue
     }
-)
+}
 
-watch(
-    () => settings.readingSpeed,
-    (newValue) => {
-        if (settings.midiMode && newValue <= 0.005) {
-            settings.readingSpeed = 0.005
-        } else {
-            if (newValue <= 0) settings.readingSpeed = 0.00001
-        }
+function validateReadingSpeed(newValue) {
+    if (settings.midiMode && newValue <= 0.005) {
+        settings.readingSpeed = 0.005
+    } else {
+        if (newValue <= 0) settings.readingSpeed = 0.00001
+        else settings.readingSpeed = newValue
     }
-)
+}
 
-watch(
-    () => settings.fragment.from,
-    (newValue) => {
-        if (isNaN(newValue)) {
-            return
-        } else if (newValue <= 0) {
-            settings.fragment.from = 0
-        } else if (newValue >= settings.fragment.to) {
-            settings.fragment.from = settings.fragment.to - 1
-        }
+function validateFragmentFrom(newValue) {
+    if (isNaN(newValue)) {
+        return
+    } else if (newValue <= 0) {
+        settings.fragment.from = 0
+    } else if (newValue >= settings.fragment.to) {
+        settings.fragment.from = settings.fragment.to - 1
+    } else {
+        settings.fragment.from = newValue
     }
-)
-
-watch(
-    () => settings.fragment.to,
-    (newValue) => {
-        if (isNaN(newValue)) {
-            return
-        } else if (newValue > commandsCount.value) {
-            settings.fragment.to = commandsCount.value
-        } else if (newValue <= settings.fragment.from) {
-            settings.fragment.to = settings.fragment.from + 1
-        }
+}
+function validateFragmentTo(newValue) {
+    if (isNaN(newValue)) {
+        return
+    } else if (newValue > commandsCount.value) {
+        settings.fragment.to = commandsCount.value
+    } else if (newValue <= settings.fragment.from) {
+        settings.fragment.to = settings.fragment.from + 1
+    } else {
+        settings.fragment.to = newValue
     }
-)
+}
 
 // Так как в 16-bit команд в два раза меньше, нужно контролировать, чтобы при переходе из 8-bit на 16-bit не выйти за диапазон
 const commandsCount = computed(() => {
@@ -83,7 +77,7 @@ watch(commandsCount, (newValue) => {
                 <span class="filter-freq key">Reading speed (s)</span>
                 <InteractiveInput
                     :validValue="settings.readingSpeed"
-                    @valueFromInput="settings.readingSpeed = $event"
+                    @valueFromInput="validateReadingSpeed($event)"
                     step="0.00001"
                     keyCode="KeyQ"
                     letter="Q"
@@ -122,7 +116,7 @@ watch(commandsCount, (newValue) => {
                 <div class="module__container">
                     <InteractiveInput
                         :validValue="settings.panner"
-                        @valueFromInput="settings.panner = $event"
+                        @valueFromInput="validatePanner($event)"
                         step=".001"
                         keyCode="KeyG"
                         letter="G"
@@ -139,7 +133,7 @@ watch(commandsCount, (newValue) => {
                     <span>From</span>
                     <InteractiveInput
                         :validValue="settings.fragment.from"
-                        @valueFromInput="settings.fragment.from = $event"
+                        @valueFromInput="validateFragmentFrom($event)"
                         step="1"
                         keyCode="KeyD"
                         letter="D"
@@ -149,7 +143,7 @@ watch(commandsCount, (newValue) => {
                     <span>To</span>
                     <InteractiveInput
                         :validValue="settings.fragment.to"
-                        @valueFromInput="settings.fragment.to = $event"
+                        @valueFromInput="validateFragmentTo($event)"
                         step="1"
                         keyCode="KeyF"
                         letter="F"

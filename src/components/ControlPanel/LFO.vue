@@ -1,27 +1,30 @@
 <script setup>
-import { watch } from 'vue'
-import { useSettingsStore } from '@/stores/globalStore.js'
+import { useSettingsStore } from '../../stores/globalStore.js'
 import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
-watch(() => settings.LFO.depth, (newValue) => {
+function validateLFORate(newValue) {
+    if (isNaN(newValue) || newValue < 0) {
+        settings.LFO.rate = 0
+    } else if (newValue > settings.sampleRate / 2) {
+        settings.LFO.rate = settings.sampleRate / 2
+    } else {
+        settings.LFO.rate = newValue
+    }
+}
+
+function validateLFODepth(newValue) {
     if (isNaN(newValue)) {
         return
     } else if (newValue < 0) {
         settings.LFO.depth = 0
     } else if (newValue > 1) {
         settings.LFO.depth = 1
+    } else {
+        settings.LFO.depth = newValue
     }
-})
-
-watch(() => settings.LFO.rate, (newValue) => {
-    if (isNaN(newValue) || newValue < 0) {
-        settings.LFO.rate = 0
-    } else if (newValue > settings.sampleRate / 2) {
-        settings.LFO.rate = settings.sampleRate / 2
-    }
-})
+}
 </script>
 
 <template>
@@ -57,7 +60,7 @@ watch(() => settings.LFO.rate, (newValue) => {
                 <span>Rate</span>
                 <InteractiveInput
                     :validValue="settings.LFO.rate"
-                    @valueFromInput="settings.LFO.rate = $event"
+                    @valueFromInput="validateLFORate($event)"
                     step="0.01"
                     keyCode="KeyC"
                     letter="C"
@@ -67,7 +70,7 @@ watch(() => settings.LFO.rate, (newValue) => {
                 <span>Depth</span>
                 <InteractiveInput
                     :validValue="settings.LFO.depth"
-                    @valueFromInput="settings.LFO.depth = $event"
+                    @valueFromInput="validateLFODepth($event)"
                     step="0.0001"
                     keyCode="KeyV"
                     letter="V"

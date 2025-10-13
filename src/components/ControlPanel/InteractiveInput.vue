@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, onUnmounted, computed, nextTick } from 'vue'
+import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { decimalPlaces, toFixedNumber } from '../../assets/js/helpers.js'
 
 const emits = defineEmits(['valueFromInput'])

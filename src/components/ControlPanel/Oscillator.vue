@@ -1,17 +1,18 @@
 <script setup>
-import { watch } from 'vue'
-import { useSettingsStore } from '@/stores/globalStore.js'
-import InteractiveInput from '@/components/ControlPanel/InteractiveInput.vue'
+import { useSettingsStore } from '../../stores/globalStore.js'
+import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
-watch(() => settings.gain, (newValue) => {
+function validateOscillatorGain(newValue) {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
         settings.gain = 0
+    } else {
+        settings.gain = newValue
     }
-})
+}
 </script>
 
 <template>
@@ -23,7 +24,7 @@ watch(() => settings.gain, (newValue) => {
                 <span>Gain</span>
                 <InteractiveInput
                     :validValue="settings.gain"
-                    @valueFromInput="settings.gain = $event"
+                    @valueFromInput="validateOscillatorGain($event)"
                     step="0.0001"
                     keyCode="KeyW"
                     letter="W"

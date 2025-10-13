@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
-import { useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
+import { useSettingsStore, useStatusStore } from '../../stores/globalStore.js'
 import sendMIDIMessage from '../../assets/js/midiMessages.js'
 import InteractiveInput from './InteractiveInput.vue'
 
@@ -46,33 +46,31 @@ onMounted(() => {
     }
 })
 
-watch(
-    () => settings.midi.velocity,
-    (newValue) => {
-        if (isNaN(newValue)) {
-            return
-        } else if (newValue <= 0) {
-            settings.midi.velocity = 0
-        } else if (newValue >= 127) {
-            settings.midi.velocity = 127
-        }
+function validateVelocity(newValue) {
+    if (isNaN(newValue)) {
+        return
+    } else if (newValue <= 0) {
+        settings.midi.velocity = 0
+    } else if (newValue >= 127) {
+        settings.midi.velocity = 127
+    } else {
+        settings.midi.velocity = newValue
     }
-)
+}
 
-watch(
-    () => settings.midi.modulation,
-    (newValue) => {
-        if (isNaN(newValue)) {
-            return
-        } else if (newValue <= 0) {
-            settings.midi.modulation = 0
-        } else if (newValue >= 127) {
-            settings.midi.modulation = 127
-        }
-
-        sendMIDIMessage.modulation(settings.midi.modulation, settings.midi.port, settings.midi.channel)
+function validateModulation(newValue) {
+    if (isNaN(newValue)) {
+        return
+    } else if (newValue <= 0) {
+        settings.midi.modulation = 0
+    } else if (newValue >= 127) {
+        settings.midi.modulation = 127
+    } else {
+        settings.midi.modulation = newValue
     }
-)
+
+    sendMIDIMessage.modulation(settings.midi.modulation, settings.midi.port, settings.midi.channel)
+}
 
 const port = ref(null)
 watch(port, (newValue) => {
@@ -130,7 +128,7 @@ watch([port, () => settings.midi.channel], () => {
                 <div class="notes-range__inputs">
                     <InteractiveInput
                         :validValue="settings.midi.velocity"
-                        @valueFromInput="settings.midi.velocity = $event"
+                        @valueFromInput="validateVelocity($event)"
                         step="1"
                         keyCode="KeyE"
                         letter="E"
@@ -142,7 +140,7 @@ watch([port, () => settings.midi.channel], () => {
                 <div class="notes-range__inputs">
                     <InteractiveInput
                         :validValue="settings.midi.modulation"
-                        @valueFromInput="settings.midi.modulation = $event"
+                        @valueFromInput="validateModulation($event)"
                         step="1"
                         keyCode="KeyR"
                         letter="R"

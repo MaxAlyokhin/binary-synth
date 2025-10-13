@@ -15,3 +15,5 @@ dist-ssr
 coverage
 *.local
 NOTES.md
+.vscode
+.tool-versions

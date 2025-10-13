@@ -97,7 +97,8 @@ export const useStatusStore = defineStore('status', () => {
     const startAndEndOfList = ref([0, 499])
     const currentCommand = ref(0)
     const listID = ref(0)
+    const currentIteration = ref(0)
     const isSettingsFileActual = ref(false)
 
-    return { playing, timer, startAndEndOfList, currentCommand, listID, isSettingsFileActual }
+    return { playing, timer, startAndEndOfList, currentCommand, listID, currentIteration, isSettingsFileActual }
 })

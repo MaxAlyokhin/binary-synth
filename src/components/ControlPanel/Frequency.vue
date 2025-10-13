@@ -1,60 +1,71 @@
 <script setup>
 import { computed, watch } from 'vue'
-import { useSettingsStore } from '@/stores/globalStore.js'
+import { useSettingsStore } from '../../stores/globalStore.js'
 import { getNoteName } from '../../assets/js/notes.js'
 import InteractiveInput from './InteractiveInput.vue'
 
 const settings = useSettingsStore()
 
-watch(() => settings.frequenciesRange.from, (newValue) => {
+function validateFrequenciesRangeFrom(newValue) {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
         settings.frequenciesRange.from = 0
     } else if (newValue > (settings.midiMode ? 12543 : settings.sampleRate / 2) || newValue >= settings.frequenciesRange.to) {
         settings.frequenciesRange.from = settings.frequenciesRange.to - 1
+    } else {
+        settings.frequenciesRange.from = newValue
     }
-})
+}
 
-watch(() => settings.frequenciesRange.to, (newValue) => {
+function validateFrequenciesRangeTo(newValue) {
     if (isNaN(newValue)) {
         return
     } else if (newValue > (settings.midiMode ? 12543 : settings.sampleRate / 2)) {
         settings.frequenciesRange.to = settings.midiMode ? 12543 : settings.sampleRate / 2
     } else if (newValue <= settings.frequenciesRange.from) {
         settings.frequenciesRange.to = settings.frequenciesRange.from + 1
+    } else {
+        settings.frequenciesRange.to = newValue
     }
-})
+}
 
-const noteNameFrom = computed(() => getNoteName(Math.floor(settings.notesRange.from)))
-const noteNameTo = computed(() => getNoteName(Math.floor(settings.notesRange.to)))
-
-watch(() => settings.notesRange.from, (newValue) => {
+function validateNotesRangeFrom(newValue) {
     if (isNaN(newValue)) {
         return
     } else if (newValue <= 0) {
         settings.notesRange.from = 0
     } else if (newValue > (settings.midiMode ? 127 : 131) || newValue >= settings.notesRange.to) {
         settings.notesRange.from = settings.notesRange.to - 1
+    } else {
+        settings.notesRange.from = newValue
     }
-})
+}
 
-watch(() => settings.notesRange.to, (newValue) => {
+function validateNotesRangeTo(newValue) {
     if (isNaN(newValue)) {
         return
     } else if (newValue >= (settings.midiMode ? 127 : 131)) {
         settings.notesRange.to = settings.midiMode ? 127 : 131
     } else if (newValue <= settings.notesRange.from) {
         settings.notesRange.to = settings.notesRange.from + 1
+    } else {
+        settings.notesRange.to = newValue
     }
-})
+}
 
-watch(() => settings.midiMode, () => {
-    if (settings.frequenciesRange.from >= 12542) settings.frequenciesRange.from = 12542
-    if (settings.frequenciesRange.to >= 12543) settings.frequenciesRange.to = 12543
-    if (settings.notesRange.from >= 126) settings.notesRange.from = 126
-    if (settings.notesRange.to >= 127) settings.notesRange.to = 127
-})
+const noteNameFrom = computed(() => getNoteName(Math.floor(settings.notesRange.from)))
+const noteNameTo = computed(() => getNoteName(Math.floor(settings.notesRange.to)))
+
+watch(
+    () => settings.midiMode,
+    () => {
+        if (settings.frequenciesRange.from >= 12542) settings.frequenciesRange.from = 12542
+        if (settings.frequenciesRange.to >= 12543) settings.frequenciesRange.to = 12543
+        if (settings.notesRange.from >= 126) settings.notesRange.from = 126
+        if (settings.notesRange.to >= 127) settings.notesRange.to = 127
+    }
+)
 </script>
 
 <template>
@@ -81,7 +92,7 @@ watch(() => settings.midiMode, () => {
                     <span>From</span>
                     <InteractiveInput
                         :validValue="settings.frequenciesRange.from"
-                        @valueFromInput="settings.frequenciesRange.from = $event"
+                        @valueFromInput="validateFrequenciesRangeFrom($event)"
                         step="0.1"
                         keyCode="KeyA"
                         letter="A"
@@ -91,10 +102,11 @@ watch(() => settings.midiMode, () => {
                     <span class="freq-to key">To</span>
                     <InteractiveInput
                         :validValue="settings.frequenciesRange.to"
-                        @valueFromInput="settings.frequenciesRange.to = $event"
+                        @valueFromInput="validateFrequenciesRangeTo($event)"
                         step="0.1"
                         keyCode="KeyS"
-                        letter="S" />
+                        letter="S"
+                    />
                 </div>
             </div>
 
@@ -104,7 +116,7 @@ watch(() => settings.midiMode, () => {
                     <div class="notes-range__inputs">
                         <InteractiveInput
                             :validValue="settings.notesRange.from"
-                            @valueFromInput="settings.notesRange.from = $event"
+                            @valueFromInput="validateNotesRangeFrom($event)"
                             step="0.01"
                             keyCode="KeyA"
                             letter="A"
@@ -117,7 +129,7 @@ watch(() => settings.midiMode, () => {
                     <div class="notes-range__inputs">
                         <InteractiveInput
                             :validValue="settings.notesRange.to"
-                            @valueFromInput="settings.notesRange.to = $event"
+                            @valueFromInput="validateNotesRangeTo($event)"
                             step="0.01"
                             keyCode="KeyS"
                             letter="S"

@@ -19,6 +19,10 @@ export function getRandomNumber(min, max) {
     return Math.random() * (max - min) + min
 }
 
+export function getRandomTimeGap(isRandomTimeGap, readingSpeed) {
+    return isRandomTimeGap ? getRandomNumber(0, readingSpeed) : 0
+}
+
 /**
  * The function performs integer division
  * @param {Number} value - what to divide

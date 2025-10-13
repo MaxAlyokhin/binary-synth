@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
-import { useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
-import { getDate } from '@/assets/js/helpers.js'
+import { useSettingsStore, useStatusStore } from '../../stores/globalStore.js'
+import { getDate } from '../../assets/js/helpers.js'
 
 const settings = useSettingsStore()
 const status = useStatusStore()

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
-import { useFileStore, useStatusStore, useSettingsStore } from '@/stores/globalStore.js'
-import { toFixedNumber } from '@/assets/js/helpers.js'
+import { useFileStore, useStatusStore, useSettingsStore } from '../stores/globalStore.js'
+import { toFixedNumber } from '../assets/js/helpers.js'
 
 const file = useFileStore()
 const settings = useSettingsStore()
@@ -47,69 +47,37 @@ function timer() {
 }
 
 function toHHMMSS(seconds) {
-    return [Math.trunc(seconds / 3600), Math.trunc((seconds % 3600) / 60), seconds % 60]
+    // prettier-ignore
+    return [
+        Math.trunc(seconds / 3600),
+        Math.trunc((seconds % 3600) / 60),
+        seconds % 60
+    ]
         .map((value) => ('0' + value)
         .slice(-2)).join(':')
 }
 
 // Highlighting the current command in the UI
 let commandIteratorInterval = null
-let currentIteration = 0
-const commandsOnList = computed(() => (settings.bitness === '8' ? 500 : 250))
 
 // Create a new iterator for each play
 function commandIterator() {
     // Maximum speed of setInterval 5ms
     if (settings.readingSpeed >= 0.005) {
         return setInterval(() => {
-            // If we have one sheet
-            if (settings.fragment.to - settings.fragment.from <= commandsOnList.value) {
-                if (status.currentCommand >= settings.fragment.to - settings.fragment.from) {
-                    status.currentCommand = 0
-                } else {
-                    if (settings.isRandomTimeGap && settings.midiMode) {
-                        return
-                    } else {
-                        status.currentCommand++
-                    }
-                }
-            }
-            // If multiple sheets
-            // We can define the transition to the next instruction portion when status.listID changes
-            else {
-                if (currentIteration !== status.listID) {
-                    currentIteration = status.listID
-                    status.currentCommand = 0
-                    status.currentCommand++
-                } else {
-                    if (settings.isRandomTimeGap && settings.midiMode) {
-                        return
-                    } else {
-                        status.currentCommand++
-                    }
-                }
+            if (settings.isRandomTimeGap && settings.midiMode) {
+                return
+            } else {
+                status.currentCommand++
             }
         }, settings.readingSpeed * 1000)
     } else {
         // If the speed is high, we display the active command every 5 commands.
         return setInterval(() => {
-            // If we have one sheet
-            if (settings.fragment.to - settings.fragment.from <= commandsOnList.value) {
-                if (status.currentCommand >= settings.fragment.to - settings.fragment.from) {
-                    status.currentCommand = 0
-                } else {
-                    status.currentCommand += 5 * (settings.readingSpeed * 1000)
-                }
-            }
-            // If multiple sheets
-            // We can define the transition to the next instruction portion when status.listID changes
-            else {
-                if (currentIteration !== status.listID) {
-                    currentIteration = status.listID
-                    status.currentCommand = 0
-                } else {
-                    status.currentCommand += 5 * (settings.readingSpeed * 1000)
-                }
+            if (settings.isRandomTimeGap && settings.midiMode) {
+                return
+            } else {
+                status.currentCommand += 5 * (settings.readingSpeed * 1000)
             }
         }, 5)
     }
@@ -127,28 +95,43 @@ function format(number) {
     return strWithSpaces[0] === ' ' ? strWithSpaces.slice(1) : strWithSpaces
 }
 
-watch(() => status.playing, (newValue) => {
-    if (newValue) {
-        timerInterval = timer()
-        commandIteratorInterval = commandIterator()
-    } else {
-        clearInterval(timerInterval)
-        clearInterval(commandIteratorInterval)
-        time.value = 0
+// Resetting the display of the reading head to the beginning
+// when nextList() increased status.currentIteration
+watch(
+    () => status.currentIteration,
+    () => {
         status.currentCommand = 0
     }
-})
+)
+
+watch(
+    () => status.playing,
+    (newValue) => {
+        if (newValue) {
+            timerInterval = timer()
+            commandIteratorInterval = commandIterator()
+        } else {
+            clearInterval(timerInterval)
+            clearInterval(commandIteratorInterval)
+            time.value = 0
+            status.currentCommand = 0
+        }
+    }
+)
 
 // When changing the reading speed settings, redefine the intervals
-watch(() => settings.readingSpeed, () => {
-    if (status.playing) {
-        clearInterval(timerInterval)
-        clearInterval(commandIteratorInterval)
+watch(
+    () => settings.readingSpeed,
+    () => {
+        if (status.playing) {
+            clearInterval(timerInterval)
+            clearInterval(commandIteratorInterval)
 
-        timerInterval = timer()
-        commandIteratorInterval = commandIterator()
+            timerInterval = timer()
+            commandIteratorInterval = commandIterator()
+        }
     }
-})
+)
 
 const bynaryInSelectedBitness = computed(() => (settings.bitness === '8' ? file.binary8 : file.binary16))
 watch(bynaryInSelectedBitness, (newValue) => {

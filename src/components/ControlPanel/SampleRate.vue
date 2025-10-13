@@ -1,16 +1,15 @@
 <script setup>
 import { useSettingsStore, useStatusStore } from '@/stores/globalStore.js'
-import { watch } from 'vue'
-import { checkSampleRate, checkFrequenciesWithNewSampleRate } from '../../assets/js/helpers'
+import { checkSampleRate, checkFrequenciesWithNewSampleRate } from '../../assets/js/helpers.js'
 
 const settings = useSettingsStore()
 const status = useStatusStore()
 
-// API для получения диапазона возможных sample rate видимо нет
-// Мы используем хак, намеренно создавая ошибку (sampleRate = 1 не может быть),
-// отлавливая её и перехватывая текст ошибки,
-// из которого можно узнать диапазон
-// Возвращает объект { minimumSampleRate, maximumSampleRate }
+// There is probably no API for getting a range of possible sample rates.
+// We are using a hack, intentionally creating an error (sampleRate = 1 cannot be),
+// catching it and intercepting the error text,
+// from which you can find out the range
+// Returns the { minimumSampleRate, maximumSampleRate } object
 function getSampleRateRange() {
     let sampleRateRange = null
 
@@ -32,16 +31,17 @@ const sampleRateRange = getSampleRateRange()
 settings.sampleRateRange.minimum = sampleRateRange.minimum
 settings.sampleRateRange.maximum = sampleRateRange.maximum
 
-watch(
-    () => settings.sampleRate,
-    (newValue) => {
-        settings.sampleRate = checkSampleRate(settings.sampleRateRange.minimum, settings.sampleRateRange.maximum, settings.sampleRate)
+let validSampleRate = null
+function validateSampleRate(newValue) {
+    validSampleRate = checkSampleRate(settings.sampleRateRange.minimum, settings.sampleRateRange.maximum, newValue.target.value)
 
-        settings.frequenciesRange.to = checkFrequenciesWithNewSampleRate(settings.sampleRate, settings.frequenciesRange.to)
-        settings.biquadFilterFrequency = checkFrequenciesWithNewSampleRate(settings.sampleRate, settings.biquadFilterFrequency)
-        settings.LFO.rate = checkFrequenciesWithNewSampleRate(settings.sampleRate, settings.LFO.rate)
-    }
-)
+    // Oscillators frequencies maybe inside sample rate range
+    settings.frequenciesRange.to = checkFrequenciesWithNewSampleRate(validSampleRate, settings.frequenciesRange.to)
+    settings.biquadFilterFrequency = checkFrequenciesWithNewSampleRate(validSampleRate, settings.biquadFilterFrequency)
+    settings.LFO.rate = checkFrequenciesWithNewSampleRate(validSampleRate, settings.LFO.rate)
+
+    settings.sampleRate = validSampleRate
+}
 </script>
 
 <template>
@@ -50,7 +50,7 @@ watch(
         :class="{ 'module__container--deactive': settings.midiMode }"
     >
         <span>Sample rate</span>
-        <input type="number" name="sample-rate" :disabled="status.playing" v-model="settings.sampleRate" />
+        <input type="number" name="sample-rate" :disabled="status.playing" :value="settings.sampleRate" @input="validateSampleRate($event)" />
     </div>
 </template>
 

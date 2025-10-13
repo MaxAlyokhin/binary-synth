@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeMount } from 'vue'
-import { useFileStore, useStatusStore, useSettingsStore } from '@/stores/globalStore.js'
+import { useFileStore, useStatusStore, useSettingsStore } from '../stores/globalStore.js'
 
 // Receives the file
 // Writes the file representation and information about the file to the store
@@ -64,7 +64,7 @@ function readFile(rawFile) {
         type: rawFile.type,
     })
 
-    reader.readAsArrayBuffer(rawFile) // Прочитали файл, здесь двоичный код
+    reader.readAsArrayBuffer(rawFile) // We have read the file, here is the binary code
 }
 
 onBeforeMount(() => {
