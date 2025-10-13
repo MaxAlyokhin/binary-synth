@@ -78,7 +78,7 @@ audioGraph.setupAudioWatchers(status)
 playbackControl.setupPlaybackWatchers(bynaryInSelectedBitness)
 
 onMounted(() => {
-    // Если настроек sampleRate нет
+    // If sampleRate settings not exist
     if (settings.sampleRate === null || audioGraph.audioContext.value === null) {
         audioGraph.createAudioGraph()
         audioGraph.setOscillators()
