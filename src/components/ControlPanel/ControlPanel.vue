@@ -96,10 +96,6 @@ onMounted(() => {
                 <button class="control__play button" :class="{ deactive: !status.playing && file.loaded }" @click="playbackControl.stop">
                     Stop
                 </button>
-                <button class="control__play button" :class="{ active: status.playing }" @click="playbackControl.play">Play</button>
-                <button class="control__play button" :class="{ deactive: !status.playing && file.loaded }" @click="playbackControl.stop">
-                    Stop
-                </button>
             </div>
 
             <div class="control__inputs">
