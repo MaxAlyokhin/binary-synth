@@ -43,7 +43,7 @@ function load(settingsInJSON) {
         fromFile = JSON.parse(event.target.result)
         fromFile.settingsFileName = settingsInJSON.name
 
-        // Для обратной совместимости после ренейма commandsRange на fragment
+        // For backward compatibility after renaming the commandRange on a fragment
         if (!fromFile.fragment) fromFile.fragment = fromFile.commandsRange
 
         setSettings(fromFile)
