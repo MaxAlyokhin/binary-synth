@@ -4,7 +4,7 @@ import FileInput from './components/FileInput.vue'
 import ControlPanel from './components/ControlPanel/ControlPanel.vue'
 import Status from './components/Status.vue'
 
-import { useFileStore } from '@/stores/globalStore.js'
+import { useFileStore } from './stores/globalStore.js'
 
 const file = useFileStore()
 </script>
