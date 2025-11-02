@@ -5,7 +5,7 @@
 
 // Terminology:
 // A file - is the whole file
-// A fragment - is the whole or part of a file defined by Commands range
+// A fragment - is the whole or part of a file defined by Fragment
 // A binary word - is a byte or two bytes, depending on Bitness
 // A binary ID - this is the ordinal number of the binary word
 // A command is a binary word converted to a frequency in Hz or a MIDI-message
