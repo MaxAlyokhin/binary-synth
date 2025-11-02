@@ -41,7 +41,7 @@ function load(settingsInJSON) {
 
     reader.addEventListener('load', (event) => {
         fromFile = JSON.parse(event.target.result)
-        fromFile.settingsFileName = settingsInJSON.name
+        fromFile.settingsFileName = settingsInJSON.name.substr(0, settingsInJSON.name.length - '.json'.length)
 
         // For backward compatibility after renaming the commandRange on a fragment
         if (!fromFile.fragment) fromFile.fragment = fromFile.commandsRange

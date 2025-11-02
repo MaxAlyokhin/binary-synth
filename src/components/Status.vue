@@ -125,6 +125,16 @@ watch(
     }
 )
 
+// The title of page (in tab) can be changed when the file and settings is downloaded
+const isPageTitleChangeable = computed(() => file.loaded && settings.settingsFileName)
+// Every time the settings file is changed, we change the title
+watch(
+    [() => settings.settingsFileName, () => isPageTitleChangeable.value],
+    () => {
+        if (isPageTitleChangeable.value) document.title = settings.settingsFileName
+    }
+)
+
 // When changing the reading speed settings, redefine the intervals
 watch(
     () => settings.readingSpeed,
