@@ -8,6 +8,8 @@ _Audio synthesis from binary code of any file_
 
 **Video**: https://youtu.be/5LMYiLwfvRg?si=D9GdKJF3hmjvw4fg&t=654
 
+**Performance and lecture**: https://youtu.be/Vj476GVtHZU?si=y4QY3JSnzjmhn5ur
+
 ![](https://store.stranno.su/bs/fuji2.png)
 
 _<a href="README_RU.md">Эта страница есть также на русском</a>_
