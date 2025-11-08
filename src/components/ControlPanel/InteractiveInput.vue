@@ -75,11 +75,26 @@ async function mousemoveHandler(event) {
     )
 }
 
-watch(() => props.validValue, (newValue) => {
-    if (newValue !== inputValue.value) {
-        inputValue.value = props.validValue
+// If inputValueFactor changed, renew initialInputValue
+watch(inputValueFactor, (newValue, oldValue) => {
+    // Maximum and minimum
+    if (decimalPlaces(inputValueFactor.value) >= 6 || inputValueFactor.value > 1_000_000) {
+        inputValueFactor.value = oldValue
+        return
     }
+
+    initialInputValue = initialInputValue + currentX * oldValue * Number(props.step)
+    currentX = 0
 })
+
+watch(
+    () => props.validValue,
+    (newValue) => {
+        if (newValue !== inputValue.value) {
+            inputValue.value = props.validValue
+        }
+    }
+)
 
 let oldValidValue = props.validValue.value
 async function check(event) {
