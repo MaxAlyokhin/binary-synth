@@ -169,10 +169,6 @@ function checkComma(event) {
 input {
     position: relative;
     z-index: 0;
-
-    &::before {
-        content: 'Q';
-    }
 }
 
 input:focus {
