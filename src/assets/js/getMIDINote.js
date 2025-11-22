@@ -33,8 +33,8 @@ export function getMIDINote(byte, bitness, mode, coefficients, minimumFrequency,
     if (mode === 'continuous') {
         // 1.
         if (byte === 0) frequency = minimumFrequency
-        if (bitness === '8') frequency = coefficients.continouos8 * byte + minimumFrequency
-        if (bitness === '16') frequency = coefficients.continouos16 * byte + minimumFrequency
+        if (bitness === '8') frequency = coefficients.continuous8 * byte + minimumFrequency
+        if (bitness === '16') frequency = coefficients.continuous16 * byte + minimumFrequency
 
         // 2.
         nearbyValues = getNearbyValues(frequency, notes)

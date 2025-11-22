@@ -45,8 +45,8 @@ const bynaryInSelectedBitness = computed(() => (settings.bitness === '8' ? file.
 
 const frequencyCoefficients = computed(() => {
     return {
-        continouos8: (settings.frequenciesRange.to - settings.frequenciesRange.from) / 256,
-        continouos16: (settings.frequenciesRange.to - settings.frequenciesRange.from) / 65536,
+        continuous8: (settings.frequenciesRange.to - settings.frequenciesRange.from) / 256,
+        continuous16: (settings.frequenciesRange.to - settings.frequenciesRange.from) / 65536,
         tempered8: (settings.notesRange.to - settings.notesRange.from) / 256,
         tempered16: (settings.notesRange.to - settings.notesRange.from) / 65536,
     }
