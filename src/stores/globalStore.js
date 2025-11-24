@@ -60,12 +60,6 @@ export const useSettingsStore = defineStore('settings', () => {
       minimum: null
     })
 
-    // This no-op action, used for subscribed InteractiveInput`s, that restore
-    // local watched vars in parent components
-    function restore() {
-      return
-    }
-
     return {
         readingSpeed,
         waveType,
@@ -87,7 +81,6 @@ export const useSettingsStore = defineStore('settings', () => {
         midi,
         sampleRate,
         sampleRateRange,
-        restore
     }
 })
 
