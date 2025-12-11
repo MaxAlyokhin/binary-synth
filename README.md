@@ -10,6 +10,8 @@ _Audio synthesis from binary code of any file_
 
 **Performance and lecture**: https://youtu.be/Vj476GVtHZU?si=y4QY3JSnzjmhn5ur
 
+**Article**: https://bs.stranno.su/drone-ambient-noise-synthesizer ([Dev.to](https://dev.to/max_alyokhin/drone-ambient-noise-synthesizer-in-javascript-when-instability-is-a-feature-not-a-bug-34i8) | [Habr](https://habr.com/ru/articles/970404))
+
 ![](https://store.stranno.su/bs/fuji2.png)
 
 _<a href="README_RU.md">Эта страница есть также на русском</a>_
