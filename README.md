@@ -2,15 +2,44 @@
 
 _Audio synthesis from binary code of any file_
 
-[![Uptime Robot status](https://img.shields.io/uptimerobot/status/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su) [![Uptime Robot status](https://img.shields.io/uptimerobot/ratio/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su)
+[![Uptime Robot status](https://img.shields.io/uptimerobot/status/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su) [![Uptime Robot status](https://img.shields.io/uptimerobot/ratio/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su) <a href="https://elibrary.ru/item.asp?id=83039347" alt="DOI">
+    <svg xmlns="http://www.w3.org/2000/svg" width="183.84375" height="20">
+        <linearGradient id="b" x2="0" y2="100%">
+            <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+            <stop offset="1" stop-opacity=".1"/>
+        </linearGradient>
+        <mask id="a" width="183.84375" height="20">
+            <rect width="183.84375" height="20" rx="3" fill="#fff"/>
+        </mask>
+        <g mask="url(#a)">
+            <path fill="#555" d="M0 0h31.375v20H0z"/>
+            <path fill="#007ec6" d="M31.375 0h152.46875v20H31.375z"/>
+            <path fill="url(#b)" d="M0 0h183.84375v20H0z"/>
+        </g>
+        <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans, Verdana,Geneva,sans-serif" font-size="11">
+            <text x="16.1875" y="15" fill="#010101" fill-opacity=".3">
+                DOI
+            </text>
+            <text x="16.1875" y="14">
+                DOI
+            </text>
+            <text x="107.109375" y="15" fill="#010101" fill-opacity=".3">
+                10.38098/conf_25_0500
+            </text>
+            <text x="107.109375" y="14">
+                10.38098/conf_25_0500
+            </text>
+        </g>
+    </svg>
+</a>
 
 **Demo**: https://bs.stranno.su
 
-**Video**: https://youtu.be/5LMYiLwfvRg?si=D9GdKJF3hmjvw4fg&t=654
+**Video demo**: [Youtube](https://youtu.be/5LMYiLwfvRg?si=D9GdKJF3hmjvw4fg&t=654)
 
-**Performance and lecture**: https://youtu.be/Vj476GVtHZU?si=y4QY3JSnzjmhn5ur
+**Performance and lecture**: [Youtube](https://youtu.be/Vj476GVtHZU?si=y4QY3JSnzjmhn5ur)
 
-**Article**: https://bs.stranno.su/drone-ambient-noise-synthesizer ([Dev.to](https://dev.to/max_alyokhin/drone-ambient-noise-synthesizer-in-javascript-when-instability-is-a-feature-not-a-bug-34i8) | [Habr](https://habr.com/ru/articles/970404))
+**Article**: [Drone-ambient-noise synthesizer in Javascript: when instability is a feature, not a bug](https://bs.stranno.su/drone-ambient-noise-synthesizer) ([Dev.to](https://dev.to/max_alyokhin/drone-ambient-noise-synthesizer-in-javascript-when-instability-is-a-feature-not-a-bug-34i8) | [Habr](https://habr.com/ru/articles/970404))
 
 ![](https://store.stranno.su/bs/fuji2.png)
 
