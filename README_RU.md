@@ -2,36 +2,7 @@
 
 _Синтез аудио из двоичного кода любого файла_
 
-[![Uptime Robot status](https://img.shields.io/uptimerobot/status/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su) [![Uptime Robot status](https://img.shields.io/uptimerobot/ratio/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su) <a href="https://elibrary.ru/item.asp?id=83039347" alt="DOI">
-    <svg xmlns="http://www.w3.org/2000/svg" width="183.84375" height="20">
-        <linearGradient id="b" x2="0" y2="100%">
-            <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
-            <stop offset="1" stop-opacity=".1"/>
-        </linearGradient>
-        <mask id="a" width="183.84375" height="20">
-            <rect width="183.84375" height="20" rx="3" fill="#fff"/>
-        </mask>
-        <g mask="url(#a)">
-            <path fill="#555" d="M0 0h31.375v20H0z"/>
-            <path fill="#007ec6" d="M31.375 0h152.46875v20H31.375z"/>
-            <path fill="url(#b)" d="M0 0h183.84375v20H0z"/>
-        </g>
-        <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans, Verdana,Geneva,sans-serif" font-size="11">
-            <text x="16.1875" y="15" fill="#010101" fill-opacity=".3">
-                DOI
-            </text>
-            <text x="16.1875" y="14">
-                DOI
-            </text>
-            <text x="107.109375" y="15" fill="#010101" fill-opacity=".3">
-                10.38098/conf_25_0500
-            </text>
-            <text x="107.109375" y="14">
-                10.38098/conf_25_0500
-            </text>
-        </g>
-    </svg>
-</a>
+[![Uptime Robot status](https://img.shields.io/uptimerobot/status/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su) [![Uptime Robot status](https://img.shields.io/uptimerobot/ratio/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su) [![DOI](https://store.stranno.su/bs/doi.svg)](https://elibrary.ru/item.asp?id=83039347)
 
 **Демо**: https://bs.stranno.su
 
