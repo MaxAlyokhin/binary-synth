@@ -25,11 +25,11 @@ The application reads the file sequentially, and due to the high speed of readin
 - open one of these links: [IDM](https://bs.stranno.su/#{%22readingSpeed%22:0.0001,%22waveType%22:%22sine%22,%22gain%22:2.04,%22transitionType%22:%22immediately%22,%22frequencyMode%22:%22continuous%22,%22frequenciesRange%22:{%22from%22:0,%22to%22:8},%22notesRange%22:{%22from%22:48,%22to%22:60},%22fragment%22:{%22from%22:0,%22to%22:5000},%22midiMode%22:false,%22biquadFilterFrequency%22:33.1,%22biquadFilterQ%22:112.4,%22LFO%22:{%22enabled%22:true,%22type%22:%22triangle%22,%22rate%22:34.5,%22depth%22:1},%22bitness%22:%2216%22,%22panner%22:-0.67,%22loop%22:true,%22isRandomTimeGap%22:true,%22midi%22:{%22port%22:null,%22channel%22:0,%22pitch%22:8192,%22modulation%22:50,%22noMIDIPortsFound%22:true,%22velocity%22:120,%22solidMode%22:false,%22lastNoteOnMode%22:true}}) | [Ambient](https://bs.stranno.su/#{%22readingSpeed%22:0.0001,%22waveType%22:%22triangle%22,%22gain%22:0.41,%22transitionType%22:%22immediately%22,%22frequencyMode%22:%22continuous%22,%22frequenciesRange%22:{%22from%22:0,%22to%22:1},%22notesRange%22:{%22from%22:48,%22to%22:104},%22fragment%22:{%22from%22:0,%22to%22:624},%22midiMode%22:false,%22biquadFilterFrequency%22:39.3,%22biquadFilterQ%22:121.3,%22LFO%22:{%22enabled%22:true,%22type%22:%22sine%22,%22rate%22:99,%22depth%22:0.395},%22bitness%22:%228%22,%22panner%22:0,%22loop%22:true,%22isRandomTimeGap%22:true,%22midi%22:{%22port%22:null,%22channel%22:0,%22pitch%22:8192,%22modulation%22:66,%22noMIDIPortsFound%22:true,%22velocity%22:66,%22solidMode%22:true,%22lastNoteOnMode%22:true}}) | [Harsh noise](https://bs.stranno.su/#{%22readingSpeed%22:0.0001,%22waveType%22:%22sine%22,%22gain%22:2.56,%22transitionType%22:%22immediately%22,%22frequencyMode%22:%22continuous%22,%22frequenciesRange%22:{%22from%22:41,%22to%22:90},%22notesRange%22:{%22from%22:48,%22to%22:104},%22fragment%22:{%22from%22:0,%22to%22:100720},%22midiMode%22:false,%22biquadFilterFrequency%22:418.5,%22biquadFilterQ%22:66.6,%22LFO%22:{%22enabled%22:true,%22type%22:%22sine%22,%22rate%22:91,%22depth%22:0.546},%22bitness%22:%228%22,%22panner%22:0.15,%22loop%22:true,%22isRandomTimeGap%22:true,%22midi%22:{%22port%22:null,%22channel%22:0,%22pitch%22:8192,%22modulation%22:66,%22noMIDIPortsFound%22:true,%22velocity%22:66,%22solidMode%22:true,%22lastNoteOnMode%22:true}})
 - tap anywhere on the screen and upload any file (files are not sent anywhere, everything is computed on your device)
 - press the spacebar or the Play button
-- press and hold the `S` key and move the mouse. You can move the mouse indefinitely. Pressing `Esc` will return the cursor
-- with the `S` key held down, press `Shift` to “strengthen” or `Ctrl` to “weaken” the input
-- do similar actions with other settings by pressing the keys `Q`, `W`, `A`, `Z`, `X`, `C`, `V`, etc. (input fields have the corresponding key on the right side)
+- press and hold the <kbd>S</kbd> key and move the mouse. You can move the mouse indefinitely. Pressing <kbd>Esc</kbd> will return the cursor
+- with the <kbd>S</kbd> key held down, press <kbd>Shift</kbd> to “strengthen” or <kbd>Ctrl</kbd> to “weaken” the input
+- do similar actions with other settings by pressing the keys <kbd>Q</kbd>, <kbd>W</kbd>, <kbd>A</kbd>, <kbd>Z</kbd>, <kbd>X</kbd>, <kbd>C</kbd>, <kbd>V</kbd>, etc. (input fields have the corresponding key on the right side)
 - open several more tabs with the instrument in parallel and launch
-- move between tabs using `Ctrl + tab number` (9 max) or `Ctrl + Tab` / `Ctrl + Shift + Tab`
+- move between tabs using <kbd>Ctrl</kbd> + <kbd>tab number</kbd> (9 max) or <kbd>Ctrl</kbd> + <kbd>Tab</kbd> / <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd>
 - process the sound on-the-fly by connecting effects pedals, or by using Ableton or other DAWs and [Virtual audio cable](https://vac.muzychenko.net/en/)
 - switch to MIDI mode and control a virtual or external synthesizer using the [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html)
 - save settings just by copying the URL or via Save settings button
@@ -105,7 +105,7 @@ The image below shows the formation of an acoustic pixel from two commands (`fra
 
 BS under workload requires on average up to 7.1% CPU, in incognito mode 6%, Firefox 4.2%, but runs less stable. Also the browser's open console/DevTools increases CPU consumption per tab by 10%. It is recommended to use BS in incognito mode without any other open tabs except BS tabs for maximum efficiency.
 
-More interesting sound is obtained with several independent instances of BS in different tabs. Theoretically, it would be possible to implement several BS threads in one tab, but this is less optimal, because browsers limit the maximum CPU usage per tab (in Chrome it is 10% of CPU). Also, each tab has its own [event loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop). You can use `ctrl + tab number` to quickly switch between tabs.
+More interesting sound is obtained with several independent instances of BS in different tabs. Theoretically, it would be possible to implement several BS threads in one tab, but this is less optimal, because browsers limit the maximum CPU usage per tab (in Chrome it is 10% of CPU). Also, each tab has its own [event loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Event_loop). You can use <kbd>Ctrl</kbd> + <kbd>tab number</kbd> to quickly switch between tabs.
 
 ## MIDI
 <a id="midi"></a>
@@ -154,7 +154,7 @@ To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https:
 
 - `Last noteOn mode` — leaves the last command in the loop pressed. Allows to make smoother transitions between repeats of patterns
 
-- Some input fields have a keyboard shortcut: pressing the corresponding key automatically moves the focus to the item. By pressing a key and moving the mouse at the same time, the values can be changed smoothly. Pressing `Shift` will increase (10x, 100x, 1000x) the "power" of the value change, pressing `Ctrl` will decrease (0.1x, 0.01x, 0.001x). The cursor disappears in order to be able to change values indefinitely. To return the cursor, press `Esc`
+- Some input fields have a keyboard shortcut: pressing the corresponding key automatically moves the focus to the item. By pressing a key and moving the mouse at the same time, the values can be changed smoothly. Pressing <kbd>Shift</kbd> will increase (10x, 100x, 1000x) the "power" of the value change, pressing <kbd>Ctrl</kbd> will decrease (0.1x, 0.01x, 0.001x). The cursor disappears in order to be able to change values indefinitely. To return the cursor, press <kbd>Esc</kbd>.
 
 ## Saving settings
 <a id="settings"></a>
@@ -169,7 +169,7 @@ You can save your settings in two ways:
 
 ### Just copy the app
 
-Everything you need for the system is contained in a single `.html` file, which you can download in the `dist` folder, or simply go to https://bs.ѕtranno.su and right-click and select Save As in the menu.
+Everything you need for the system is contained in a single `.html` file, which you can download in the `/dist` folder, or simply go to https://bs.ѕtranno.su and right-click and select Save As in the menu.
 
 ### Build locally to work with the code
 
