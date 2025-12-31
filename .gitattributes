@@ -1,0 +1,6 @@
+# Exclude build and static assets from GitHub Linguist language statistics
+/dist/** linguist-vendored
+/public/** linguist-vendored
+
+# Exclude a specific stylesheet from stats
+/src/assets/styles/main.scss linguist-vendored
