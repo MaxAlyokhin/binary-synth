@@ -14,6 +14,13 @@ let initialInputValue = null
 let inputValueFactor = ref(1)
 let isMoved = false
 let isPressed = false // If pressed props.keyCode
+let velocity = 0
+let lastMovementX = 0
+let inertiaTimer = null
+let mouseMoveTimer = null
+const inertiaDecay = 0.95 // Adjust for desired decay rate
+const minVelocity = 0.1 // Minimum velocity to stop inertia
+const mouseMoveTimeout = 30 // ms
 
 onMounted(() => {
     window.addEventListener('keydown', activateInteractiveMode)
@@ -39,16 +46,30 @@ function activateInteractiveMode(event) {
     }
 }
 
+function resetToInitialState() {
+    currentX = 0
+    initialInputValue = inputValue.value
+    inputValueFactor.value = 1
+}
+
 function deactivateInteractiveMode(event) {
     if (event.code === props.keyCode) {
         isInteractiveMode.value = false
         isMoved = false
-        currentX = 0
-        initialInputValue = null
-        inputValueFactor.value = 1
         document.removeEventListener('mousemove', mousemoveHandler)
         isPressed = false
+
+        if (!inertiaTimer) {
+            resetToInitialState()
+        }
     }
+}
+
+function calculateValueForEmit() {
+    return toFixedNumber(
+        initialInputValue + currentX * inputValueFactor.value * Number(props.step),
+        decimalPlaces(Number(props.step)) + decimalPlaces(inputValueFactor.value)
+    )
 }
 
 async function mousemoveHandler(event) {
@@ -60,19 +81,80 @@ async function mousemoveHandler(event) {
         }
 
         isInteractiveMode.value = true
-        initialInputValue = inputValue.value
+        if (!inertiaTimer) initialInputValue = inputValue.value
         isMoved = true
     }
 
+    // Update velocity based on movement
+    lastMovementX = event.movementX
+    velocity = lastMovementX
+
     currentX += event.movementX
+
+    // Clear existing mouse move timer
+    if (mouseMoveTimer) {
+        clearTimeout(mouseMoveTimer)
+    }
+
+    // Set new timer to detect end of mouse movement
+    mouseMoveTimer = setTimeout(() => {
+        // Start inertia when mouse movement stops
+        if (Math.abs(velocity) > minVelocity) {
+            startInertia()
+        }
+    }, mouseMoveTimeout)
 
     emits(
         'valueFromInput',
-        toFixedNumber(
-            initialInputValue + currentX * inputValueFactor.value * Number(props.step),
-            decimalPlaces(Number(props.step)) + decimalPlaces(inputValueFactor.value)
-        )
+        calculateValueForEmit()
     )
+}
+
+let previousInertiaValue = null
+function startInertia() {
+    if (inertiaTimer) {
+        clearInterval(inertiaTimer)
+        inertiaTimer = null
+    }
+
+    inertiaTimer = setInterval(() => {
+        // Stop if the value is invalid (i.e. not changed)
+        if (previousInertiaValue === inputValue.value) {
+            stopInertia()
+            return
+        }
+
+        previousInertiaValue = inputValue.value
+
+        // Apply velocity to currentX
+        currentX += velocity
+
+        // Emit updated value with inertia
+        emits(
+            'valueFromInput',
+            calculateValueForEmit()
+        )
+
+        // Decay velocity
+        velocity *= inertiaDecay
+
+        // Stop inertia when velocity is too small
+        if (Math.abs(velocity) < minVelocity) {
+            stopInertia()
+        }
+    }, 16) // ~60fps
+}
+
+function stopInertia() {
+    if (inertiaTimer) {
+        clearInterval(inertiaTimer)
+        inertiaTimer = null
+        velocity = 0
+
+        if (!isInteractiveMode.value) {
+            resetToInitialState()
+        }
+    }
 }
 
 // If inputValueFactor changed, renew initialInputValue
@@ -90,9 +172,7 @@ watch(inputValueFactor, (newValue, oldValue) => {
 watch(
     () => props.validValue,
     (newValue) => {
-        if (newValue !== inputValue.value) {
-            inputValue.value = props.validValue
-        }
+        inputValue.value = props.validValue
     }
 )
 
@@ -127,6 +207,10 @@ function checkComma(event) {
 
 <template>
     <div>
+        <div v-show="inputValueFactor !== 1" class="scales">
+            <div class="factor">x{{ inputValueFactor }}</div>
+        </div>
+
         <div class="interactive-input">
             <input
                 :class="{ 'interactive-input--active': isInteractiveMode }"
@@ -137,10 +221,6 @@ function checkComma(event) {
                 type="number"
             />
             <div class="letter">{{ props.letter }}</div>
-        </div>
-
-        <div v-show="inputValueFactor !== 1" class="scales">
-            <div class="factor">x{{ inputValueFactor }}</div>
         </div>
     </div>
 </template>
@@ -187,24 +267,20 @@ input:focus {
 }
 
 .scales {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 1;
+    position: relative;
+    bottom: -15px;
+    left: -0px;
 }
 
 .factor {
-    position: fixed;
-    top: 0;
-    right: 15px;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: end;
-    align-items: end;
-    font-size: 80px;
+    position: absolute;
+    font-size: 10px;
     color: $white;
+    background-color: $black;
+    padding: 0px 5px;
+    padding-top: 4px;
+    border: 1px solid rgb(201, 209, 204);
+    border-radius: 5px;
+    border-top-left-radius: 0;
 }
 </style>
