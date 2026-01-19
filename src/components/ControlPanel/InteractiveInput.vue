@@ -18,7 +18,7 @@ let velocity = 0
 let lastMovementX = 0
 let inertiaTimer = null
 let mouseMoveTimer = null
-const inertiaDecay = 0.95 // Adjust for desired decay rate
+const inertiaDecay = 0.995 // Decay for smoother velocity reduction
 const minVelocity = 0.1 // Minimum velocity to stop inertia
 const mouseMoveTimeout = 30 // ms
 
@@ -135,8 +135,8 @@ function startInertia() {
             calculateValueForEmit()
         )
 
-        // Decay velocity
-        velocity *= inertiaDecay
+        // Decay velocity with accelerating decay rate
+        velocity = velocity * (inertiaDecay - 0.05 * Math.exp(-Math.abs(velocity) * 0.2))
 
         // Stop inertia when velocity is too small
         if (Math.abs(velocity) < minVelocity) {
