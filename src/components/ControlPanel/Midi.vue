@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import { useSettingsStore, useStatusStore } from '../../stores/globalStore.js'
+import { setTimeout } from 'worker-timers'
 import sendMIDIMessage from '../../assets/js/midiMessages.js'
 import InteractiveInput from './InteractiveInput.vue'
 

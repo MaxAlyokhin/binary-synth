@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { clearTimeout, clearInterval, setTimeout, setInterval } from 'worker-timers'
 import { decimalPlaces, toFixedNumber } from '../../assets/js/helpers.js'
 
 const emits = defineEmits(['valueFromInput'])
