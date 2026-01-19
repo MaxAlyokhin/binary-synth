@@ -2,9 +2,12 @@
 import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { clearTimeout, clearInterval, setTimeout, setInterval } from 'worker-timers'
 import { decimalPlaces, toFixedNumber } from '../../assets/js/helpers.js'
+import { useSettingsStore } from '@/stores/globalStore.js'
 
 const emits = defineEmits(['valueFromInput'])
 const props = defineProps(['step', 'validValue', 'keyCode', 'letter'])
+const settings = useSettingsStore()
+
 
 const inputValue = ref(props.validValue)
 const input = ref(null)
@@ -19,7 +22,6 @@ let velocity = 0
 let lastMovementX = 0
 let inertiaTimer = null
 let mouseMoveTimer = null
-const inertiaDecay = 0.995 // Decay for smoother velocity reduction
 const minVelocity = 0.1 // Minimum velocity to stop inertia
 const mouseMoveTimeout = 30 // ms
 
@@ -86,24 +88,26 @@ async function mousemoveHandler(event) {
         isMoved = true
     }
 
-    // Update velocity based on movement
-    lastMovementX = event.movementX
-    velocity = lastMovementX
+    if (settings.inertia >= 0.5) {
+        // Update velocity based on movement
+        lastMovementX = event.movementX
+        velocity = lastMovementX
 
-    currentX += event.movementX
+        // Clear existing mouse move timer
+        if (mouseMoveTimer) {
+            clearTimeout(mouseMoveTimer)
+        }
 
-    // Clear existing mouse move timer
-    if (mouseMoveTimer) {
-        clearTimeout(mouseMoveTimer)
+        // Set new timer to detect end of mouse movement
+        mouseMoveTimer = setTimeout(() => {
+            // Start inertia when mouse movement stops
+            if (Math.abs(velocity) > minVelocity) {
+                startInertia()
+            }
+        }, mouseMoveTimeout)
     }
 
-    // Set new timer to detect end of mouse movement
-    mouseMoveTimer = setTimeout(() => {
-        // Start inertia when mouse movement stops
-        if (Math.abs(velocity) > minVelocity) {
-            startInertia()
-        }
-    }, mouseMoveTimeout)
+    currentX += event.movementX
 
     emits(
         'valueFromInput',
@@ -137,7 +141,7 @@ function startInertia() {
         )
 
         // Decay velocity with accelerating decay rate
-        velocity = velocity * (inertiaDecay - 0.05 * Math.exp(-Math.abs(velocity) * 0.2))
+        velocity = velocity * (settings.inertia - 0.05 * Math.exp(-Math.abs(velocity) * 0.2))
 
         // Stop inertia when velocity is too small
         if (Math.abs(velocity) < minVelocity) {

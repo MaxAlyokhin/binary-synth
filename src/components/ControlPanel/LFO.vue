@@ -30,7 +30,7 @@ function validateLFODepth(newValue) {
 <template>
     <div class="module">
         <span>LFO</span>
-        <div class="module__container module__container--block">
+        <div class="module__container module__container--block-row">
             <span>Connect</span>
             <div class="module__container module__container--radio">
                 <div class="radio-element">

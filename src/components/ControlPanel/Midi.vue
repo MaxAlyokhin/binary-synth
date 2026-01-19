@@ -155,11 +155,11 @@ watch([port, () => settings.midi.channel], () => {
             <div class="module__container module__container--radio">
                 <div class="radio-element">
                     <input type="radio" name="solidMode" id="solidMode-yes" :value="true" checked v-model="settings.midi.solidMode" />
-                    <label for="solidMode-yes">Yes</label>
+                    <label for="solidMode-yes">On</label>
                 </div>
                 <div class="radio-element">
                     <input type="radio" name="solidMode" id="solidMode-no" :value="false" v-model="settings.midi.solidMode" />
-                    <label for="solidMode-no">No</label>
+                    <label for="solidMode-no">Off</label>
                 </div>
             </div>
         </div>
@@ -169,11 +169,11 @@ watch([port, () => settings.midi.channel], () => {
             <div class="module__container module__container--radio">
                 <div class="radio-element">
                     <input type="radio" name="lastNoteOn" id="lastNoteOn-yes" :value="true" checked v-model="settings.midi.lastNoteOn" />
-                    <label for="lastNoteOn-yes">Yes</label>
+                    <label for="lastNoteOn-yes">On</label>
                 </div>
                 <div class="radio-element">
                     <input type="radio" name="lastNoteOn" id="lastNoteOn-no" :value="false" v-model="settings.midi.lastNoteOn" />
-                    <label for="lastNoteOn-no">No</label>
+                    <label for="lastNoteOn-no">Off</label>
                 </div>
             </div>
         </div>

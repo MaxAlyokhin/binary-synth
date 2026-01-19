@@ -1,5 +1,5 @@
 <script setup>
-import { computed, watch } from 'vue'
+import { computed, watch, ref } from 'vue'
 import { useFileStore, useSettingsStore } from '../../stores/globalStore.js'
 import Frequency from './Frequency.vue'
 import InteractiveInput from './InteractiveInput.vue'
@@ -66,6 +66,21 @@ const commandsCount = computed(() => {
 watch(commandsCount, (newValue) => {
     if (settings.fragment.to >= newValue || settings.fragment.to === 499) settings.fragment.to = newValue
 })
+
+const inertiaElement = ref(null)
+function validateInertia(newValue) {
+    if (isNaN(newValue)) {
+        return
+    } else if (newValue < 0) {
+        settings.inertia = 0
+        inertiaElement.value.value = settings.inertia
+    } else if (newValue > 0.999999999999) {
+        settings.inertia = 0.999999999999
+        inertiaElement.value.value = settings.inertia
+    } else {
+        settings.inertia = newValue
+    }
+}
 </script>
 
 <template>
@@ -154,16 +169,23 @@ watch(commandsCount, (newValue) => {
 
         <SampleRate />
 
+        <div
+            class="module__wrapper module__container module__container--block-row"
+        >
+            <span>Inertia</span>
+            <input type="number" name="inertia" ref="inertiaElement" :value="settings.inertia" @input="validateInertia($event.target.value)" />
+        </div>
+
         <div class="module__container module__container--block-row">
             <span>Loop</span>
             <div class="module__container module__container--radio">
                 <div class="radio-element">
                     <input type="radio" name="loop" id="loop-yes" :value="true" checked v-model="settings.loop" />
-                    <label for="loop-yes">Yes</label>
+                    <label for="loop-yes">On</label>
                 </div>
                 <div class="radio-element">
                     <input type="radio" name="loop" id="loop-no" :value="false" v-model="settings.loop" />
-                    <label for="loop-no">No</label>
+                    <label for="loop-no">Off</label>
                 </div>
             </div>
         </div>
@@ -173,11 +195,11 @@ watch(commandsCount, (newValue) => {
             <div class="module__container module__container--radio">
                 <div class="radio-element">
                     <input type="radio" name="gap" id="gap-yes" :value="true" checked v-model="settings.isRandomTimeGap" />
-                    <label for="gap-yes">Yes</label>
+                    <label for="gap-yes">On</label>
                 </div>
                 <div class="radio-element">
                     <input type="radio" name="gap" id="gap-no" :value="false" v-model="settings.isRandomTimeGap" />
-                    <label for="gap-no">No</label>
+                    <label for="gap-no">Off</label>
                 </div>
             </div>
         </div>
@@ -187,11 +209,11 @@ watch(commandsCount, (newValue) => {
             <div class="module__container module__container--radio">
                 <div class="radio-element">
                     <input type="radio" name="midi" id="midi-yes" :value="true" v-model="settings.midiMode" />
-                    <label for="midi-yes">Yes</label>
+                    <label for="midi-yes">On</label>
                 </div>
                 <div class="radio-element">
                     <input type="radio" name="midi" id="midi-no" :value="false" checked v-model="settings.midiMode" />
-                    <label for="midi-no">No</label>
+                    <label for="midi-no">Off</label>
                 </div>
             </div>
         </div>

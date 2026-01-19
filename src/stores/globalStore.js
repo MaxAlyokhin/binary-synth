@@ -44,6 +44,7 @@ export const useSettingsStore = defineStore('settings', () => {
     const loop = ref(true)
     const isRandomTimeGap = ref(true)
     const midiMode = ref(false)
+    const inertia = ref(0.95)
     const midi = ref({
         port: null,
         channel: 0,
@@ -79,6 +80,7 @@ export const useSettingsStore = defineStore('settings', () => {
         loop,
         isRandomTimeGap,
         midi,
+        inertia,
         sampleRate,
         sampleRateRange,
     }
