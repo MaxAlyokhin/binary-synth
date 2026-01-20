@@ -150,7 +150,14 @@ To send MIDI messages to a DAW on Windows devices, you can use [loopMIDI](https:
 
 -   `Sample rate` — sampling frequency. In most cases it has little effect on the sound, but it is very important when playing at ultra-low frequencies like frequencies range 0 - 1
 
--   `Inertia` — the coefficient at which, when sliding with the mouse in interactive mode, the value will change by inertia even after the slide ends. The higher the value, the slower the value will fade.
+-   `Inertia` — the coefficient at which, when sliding with the mouse in interactive mode, the value will change by inertia even after the slide ends. The higher the value, the slower the value will fade. Values less than 0.5 disable inertia. Typical inertia time ranges:
+    - <0.5 = 0
+    - 0.5-0.9 = <1 sec
+    - 0.9 = 1-2 sec
+    - 0.99 = 10 sec
+    - 0.999 = 1 min
+    - 0.9999 = 8.5 min
+    - 0.99999 = 70 min
 
 -   `Solid mode` — the "solid press" mode, does not send `noteOff` commands; if the commands are the same in a row (and as a consequence notes), even noteOn is not sent. `allSoundOff` is sent at the end. On some synthesizers it allows smooth transitions between notes
 
