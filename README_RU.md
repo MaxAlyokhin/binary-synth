@@ -4,19 +4,23 @@ _Синтез аудио из двоичного кода любого файл�
 
 [![Uptime Robot status](https://img.shields.io/uptimerobot/status/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su) [![Uptime Robot status](https://img.shields.io/uptimerobot/ratio/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su) [![DOI](https://store.stranno.su/bs/doi.svg)](https://elibrary.ru/item.asp?id=83039347)
 
-**Демо**: https://bs.stranno.su
+**Приложение**: https://bs.stranno.su
 
 **Видео**: [Youtube](https://youtu.be/5LMYiLwfvRg?si=D9GdKJF3hmjvw4fg&t=654)
 
-**Концерт и лекция**: [Youtube](https://youtu.be/Vj476GVtHZU?si=y4QY3JSnzjmhn5ur)
+**Лекция**: [Youtube](https://youtu.be/Vj476GVtHZU?si=9K40ccX2xQAusQ6e&t=2221)
 
 **Статья**: [Дроун-эмбиент-нойз синтезатор на Javascript: когда нестабильность работы это фича, а не баг](https://bs.stranno.su/drone-ambient-noise-synthesizer) ([Dev.to](https://dev.to/max_alyokhin/drone-ambient-noise-synthesizer-in-javascript-when-instability-is-a-feature-not-a-bug-34i8) | [Habr](https://habr.com/ru/articles/970404))
+
+**Практика применения**: [Youtube playlist](https://www.youtube.com/playlist?list=PLajtCSdf5OUo)
 
 ![](https://store.stranno.su/bs/fuji2.png)
 
 Веб-синтезатор, генерирующий звук из двоичного кода любых файлов (databending-инструмент). Позволяет синтезировать звук прямо в браузере, либо быть генератором MIDI-сообщений во внешние устройства или DAW, превращая любой файл в партитуру. Весь код приложения написан на Javascript и вместе со всем необходимым упаковывается в один `.html`-файл размером около 450kb. Инструменту не нужен интернет, его можно скачать и запускать локально на любом устройстве где есть браузер.
 
 Приложение последовательно читает файл и за счёт высокой скорости чтения и случайной величины отклонения длительности чтения, можно получить достаточно непредсказуемую генерацию тембров, а при определённых настройках перейти в гранулярный синтез.
+
+К данному моменту инструмент набрал необходимый функционал, хорошо протестирован и имеет практику его применения, в связи с чем дальнейшие обновления могут быть редкими, так как нет необходимости переусложнять инструмент. Редкие обновления не означают, что репозиторий заброшен — просто пришло время перейти от активной разработки к активному применению.
 
 ## Быстрый старт и краткое руководство
 

@@ -4,13 +4,15 @@ _Audio synthesis from binary code of any file_
 
 [![Uptime Robot status](https://img.shields.io/uptimerobot/status/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su) [![Uptime Robot status](https://img.shields.io/uptimerobot/ratio/m795264551-bb4c959b31b6ff94b02f9545)](https://bs.stranno.su) [![DOI](https://store.stranno.su/bs/doi.svg)](https://elibrary.ru/item.asp?id=83039347)
 
-**Demo**: https://bs.stranno.su
+**The app**: https://bs.stranno.su
 
 **Video demo**: [Youtube](https://youtu.be/5LMYiLwfvRg?si=D9GdKJF3hmjvw4fg&t=654)
 
-**Performance and lecture**: [Youtube](https://youtu.be/Vj476GVtHZU?si=y4QY3JSnzjmhn5ur)
+**Lecture**: [Youtube](https://youtu.be/Vj476GVtHZU?si=9K40ccX2xQAusQ6e&t=2221)
 
-**Article**: [Drone-ambient-noise synthesizer in Javascript: when instability is a feature, not a bug](https://bs.stranno.su/drone-ambient-noise-synthesizer) ([Dev.to](https://dev.to/max_alyokhin/drone-ambient-noise-synthesizer-in-javascript-when-instability-is-a-feature-not-a-bug-34i8) | [Habr](https://habr.com/ru/articles/970404))
+**Article**: [Drone-ambient-noise synthesizer in Javascript: when instability is a feature, not a bug](https://bs.stranno.su/drone-ambient-noise-synthesizer) (mirrors: [Dev.to](https://dev.to/max_alyokhin/drone-ambient-noise-synthesizer-in-javascript-when-instability-is-a-feature-not-a-bug-34i8) | [Habr](https://habr.com/ru/articles/970404))
+
+**In practical use**: [Youtube playlist](https://www.youtube.com/playlist?list=PLajtCSdf5OUo)
 
 ![](https://store.stranno.su/bs/fuji2.png)
 
@@ -19,6 +21,8 @@ _<a href="README_RU.md">Эта страница есть также на рус�
 A web-synthesizer that generates sound from the binary code of any files (databending-instrument). It can synthesize sound directly in the browser, or be a generator of MIDI messages to external devices or DAWs, turning any file into a score. All the application code is written in Javascript and along with everything you need is packed into a single `.html`-file of about 450kb. The synthesizer doesn't need internet, it can be downloaded and run locally on any device with a browser.
 
 The application reads the file sequentially, and due to the high speed of reading and random deviation of reading duration, we can get quite unpredictable generation of timbre nuances, and at certain settings we can switch to granular synthesis.
+
+At this point, the tool has all the necessary functionality, has been thoroughly tested, and is already in use; therefore, future updates may be infrequent, as there is no need to overcomplicate the tool. Infrequent updates do not mean that the repository has been abandoned—it simply means that the time has come to shift from active development to active use.
 
 ## Quick start guide
 
