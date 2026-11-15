@@ -12,7 +12,7 @@ _Audio synthesis from binary code of any file_
 
 **Article**: [Drone-ambient-noise synthesizer in Javascript: when instability is a feature, not a bug](https://bs.stranno.su/drone-ambient-noise-synthesizer) (mirrors: [Dev.to](https://dev.to/max_alyokhin/drone-ambient-noise-synthesizer-in-javascript-when-instability-is-a-feature-not-a-bug-34i8) | [Habr](https://habr.com/ru/articles/970404))
 
-**In practical use**: [Youtube playlist](https://www.youtube.com/playlist?list=PLajtCSdf5OUo)
+**In practical use**: [Youtube playlist](https://www.youtube.com/playlist?list=PLajtCSdf5OUo) or bandcamp albums ([1](https://dfap.bandcamp.com/album/kaleidoscopes), [2](https://sumbur.bandcamp.com/album/four-ones), [3](https://dfap.bandcamp.com/album/second-section))
 
 ![](https://store.stranno.su/bs/fuji2.png)
 
